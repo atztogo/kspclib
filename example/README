@@ -1,0 +1,18 @@
+How to use tetrahedron_method example
+======================================
+
+This is the README file for tetrahedron_method examples .
+
+Linear tetrahedron method
+--------------------------
+
+tetrahedron_method.c relies only kgrid.c and kgrid.h. To compile
+tetrahedron.c::
+
+   % gcc tetrahedron.c [source directory]/tetrahedron_method.c [source directory]/kgrid.c -I[include directory]
+
+tetrahedron.c is written to work with OpenMP. To compile with "-lgomp
+-fopenmp", the tetrahedon method calculation is distributed into CPU
+cores.
+
+Atsushi Togo <atz.togo@gmail.com>
