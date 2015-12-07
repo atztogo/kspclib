@@ -181,23 +181,21 @@ get_integration_weight_at_omegas(double *integration_weights,
 				 const int num_omegas,
 				 const double *omegas,
 				 THMCONST double tetrahedra_omegas[24][4],
-				 double (*gn)(const int,
-					      const double,
-					      const double[4]),
-				 double (*IJ)(const int,
-					      const int,
-					      const double,
-					      const double[4]));
-static double
-get_integration_weight(const double omega,
-		       THMCONST double tetrahedra_omegas[24][4],
-		       double (*gn)(const int,
-				    const double,
-				    const double[4]),
-		       double (*IJ)(const int,
-				    const int,
-				    const double,
-				    const double[4]));
+				 const char function);
+static double get_integration_weight(const double omega,
+				     THMCONST double tetrahedra_omegas[24][4],
+				     const char function,
+				     const int Bloechl_correction);
+static double get_vertex_integration_weight(const double omega,
+					    const double v[4],
+					    const int pos0,
+					    double (*gn)(const int,
+							 const double,
+							 const double[4]),
+					    double (*IJ)(const int,
+							 const int,
+							 const double,
+							 const double[4]));
 static int get_main_diagonal(THMCONST double rec_lattice[3][3]);
 static int sort_omegas(double v[4]);
 static double norm_squared_d3(const double a[3]);
@@ -209,11 +207,11 @@ static double _f(const int n,
 		 const double omega,
 		 const double vertices_omegas[4]);
 static double _J(const int i,
-		 const int ci,
+		 const int pos0,
 		 const double omega,
 		 const double vertices_omegas[4]);
 static double _I(const int i,
-		 const int ci,
+		 const int pos0,
 		 const double omega,
 		 const double vertices_omegas[4]);
 static double _n(const int i,
@@ -329,15 +327,20 @@ double thm_get_integration_weight(const double omega,
 				  THMCONST double tetrahedra_omegas[24][4],
 				  const char function)
 {
-  if (function == 'I') {
-    return get_integration_weight(omega,
-				  tetrahedra_omegas,
-				  _g, _I);
-  } else {
-    return get_integration_weight(omega,
-				  tetrahedra_omegas,
-				  _n, _J);
-  }
+  return get_integration_weight(omega,
+				tetrahedra_omegas,
+				function,
+				0);
+}
+
+double
+thm_get_integration_weight_Bloechl(const double omega,
+				   THMCONST double tetrahedra_omegas[24][4])
+{
+  return get_integration_weight(omega,
+				tetrahedra_omegas,
+				'J',
+				1);
 }
 
 void
@@ -347,19 +350,11 @@ thm_get_integration_weight_at_omegas(double *integration_weights,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function)
 {
-  if (function == 'I') {
-    get_integration_weight_at_omegas(integration_weights,
-				     num_omegas,
-				     omegas,
-				     tetrahedra_omegas,
-				     _g, _I);
-  } else {
-    get_integration_weight_at_omegas(integration_weights,
-				     num_omegas,
-				     omegas,
-				     tetrahedra_omegas,
-				     _n, _J);
-  }
+  get_integration_weight_at_omegas(integration_weights,
+				   num_omegas,
+				   omegas,
+				   tetrahedra_omegas,
+				   function);
 }
 
 void thm_get_neighboring_grid_points(int neighboring_grid_points[],
@@ -397,13 +392,7 @@ get_integration_weight_at_omegas(double *integration_weights,
 				 const int num_omegas,
 				 const double *omegas,
 				 THMCONST double tetrahedra_omegas[24][4],
-				 double (*gn)(const int,
-					      const double,
-					      const double[4]),
-				 double (*IJ)(const int,
-					      const int,
-					      const double,
-					      const double[4]))
+				 const char function)
 {
   int i;
 
@@ -411,58 +400,93 @@ get_integration_weight_at_omegas(double *integration_weights,
   for (i = 0; i < num_omegas; i++) {
     integration_weights[i] = get_integration_weight(omegas[i],
 						    tetrahedra_omegas,
-						    gn, IJ);
+						    function,
+						    0);
   }
 }
 
-static double
-get_integration_weight(const double omega,
-		       THMCONST double tetrahedra_omegas[24][4],
-		       double (*gn)(const int,
-				    const double,
-				    const double[4]),
-		       double (*IJ)(const int,
-				    const int,
-				    const double,
-				    const double[4]))
+static double get_integration_weight(const double omega,
+				     THMCONST double tetrahedra_omegas[24][4],
+				     const char function,
+				     const int Bloechl_correction)
 {
-  int i, j, ci;
+  int i, j, pos0;
   double sum;
   double v[4];
+  double (*gn)(const int, const double, const double[4]);
+  double (*IJ)(const int, const int, const double, const double[4]);
+
+  double tmpval;
+
+  if (function == 'I') {
+    gn = _g;
+    IJ = _I;
+  } else {
+    gn = _n;
+    IJ = _J;
+  }
 
   sum = 0;
   for (i = 0; i < 24; i++) {
     for (j = 0; j < 4; j++) {
       v[j] = tetrahedra_omegas[i][j];
     }
-    ci = sort_omegas(v);
-    if (omega < v[0]) {
-      sum += IJ(0, ci, omega, v) * gn(0, omega, v);
+    pos0 = sort_omegas(v);
+    sum += get_vertex_integration_weight(omega, v, pos0, gn, IJ);
+    if (Bloechl_correction) {
+      sum += (1.0 / 40 *
+	      get_vertex_integration_weight(omega, v, pos0, _g, _I) *
+	      (v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+    }
+  }
+
+  return sum / 6;
+}
+
+static double get_vertex_integration_weight(const double omega,
+					    const double v[4],
+					    const int pos0,
+					    double (*gn)(const int,
+							 const double,
+							 const double[4]),
+					    double (*IJ)(const int,
+							 const int,
+							 const double,
+							 const double[4]))
+{
+  double sum;
+
+  sum = 0;
+  if (omega < v[0]) {
+    sum += IJ(0, pos0, omega, v) * gn(0, omega, v);
+  } else {
+    if (v[0] < omega && omega < v[1]) {
+      sum += IJ(1, pos0, omega, v) * gn(1, omega, v);
     } else {
-      if (v[0] < omega && omega < v[1]) {
-	sum += IJ(1, ci, omega, v) * gn(1, omega, v);
+      if (v[1] < omega && omega < v[2]) {
+	sum += IJ(2, pos0, omega, v) * gn(2, omega, v);
       } else {
-	if (v[1] < omega && omega < v[2]) {
-	  sum += IJ(2, ci, omega, v) * gn(2, omega, v);
+	if (v[2] < omega && omega < v[3]) {
+	  sum += IJ(3, pos0, omega, v) * gn(3, omega, v);
 	} else {
-	  if (v[2] < omega && omega < v[3]) {
-	    sum += IJ(3, ci, omega, v) * gn(3, omega, v);
-	  } else {
-	    if (v[3] < omega) {
-	      sum += IJ(4, ci, omega, v) * gn(4, omega, v);
-	    }
+	  if (v[3] < omega) {
+	    sum += IJ(4, pos0, omega, v) * gn(4, omega, v);
 	  }
 	}
       }
     }
   }
-  return sum / 6;
+
+  return sum;
 }
 
 static int sort_omegas(double v[4])
 {
   int i;
   double w[4];
+
+  /* Variable i gives the position of the vertex focused */
+  /* (index0 before sorting) after sorting the vertices by incresing energy. */
 
   i = 0;
   
@@ -580,7 +604,7 @@ static double _f(const int n,
 }
 
 static double _J(const int i,
-		 const int ci,
+		 const int pos0,
 		 const double omega,
 		 const double vertices_omegas[4])
 {
@@ -588,7 +612,7 @@ static double _J(const int i,
   case 0:
     return _J_0();
   case 1:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _J_10(omega, vertices_omegas);
     case 1:
@@ -599,7 +623,7 @@ static double _J(const int i,
       return _J_13(omega, vertices_omegas);
     }
   case 2:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _J_20(omega, vertices_omegas);
     case 1:
@@ -610,7 +634,7 @@ static double _J(const int i,
       return _J_23(omega, vertices_omegas);
     }
   case 3:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _J_30(omega, vertices_omegas);
     case 1:
@@ -634,7 +658,7 @@ static double _J(const int i,
 
 
 static double _I(const int i,
-		 const int ci,
+		 const int pos0,
 		 const double omega,
 		 const double vertices_omegas[4])
 {
@@ -642,7 +666,7 @@ static double _I(const int i,
   case 0:
     return _I_0();
   case 1:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _I_10(omega, vertices_omegas);
     case 1:
@@ -653,7 +677,7 @@ static double _I(const int i,
       return _I_13(omega, vertices_omegas);
     }
   case 2:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _I_20(omega, vertices_omegas);
     case 1:
@@ -664,7 +688,7 @@ static double _I(const int i,
       return _I_23(omega, vertices_omegas);
     }
   case 3:
-    switch (ci) {
+    switch (pos0) {
     case 0:
       return _I_30(omega, vertices_omegas);
     case 1:
