@@ -30,14 +30,15 @@ static void test_tetrahedron_method(void)
   int i, j, k, l, q, r;
 
   /* NaCl 20x20x20 gamma-centre mesh (m=20 and "frequency-202020.dat" file) */
-  /* NaCl 10x10x10 gamma-centre mesh (m=20 and "frequency-202020.dat" file) */
+  /* NaCl 10x10x10 gamma-centre mesh (m=10 and "frequency-101010.dat" file) */
   double lattice[3][3] = {
     {0.000000000000000, 2.845150738087836, 2.845150738087836},
     {2.845150738087836, 0.000000000000000, 2.845150738087836},
     {2.845150738087836, 2.845150738087836, 0.000000000000000}
   };
   int num_atom = 2;
-  int m = 20; /* m = 10 for 10x10x10 mesh */
+  int m = 10;
+  /* int m = 20; */
   int mesh[3] = {m, m, m};
   int num_gp = mesh[0] * mesh[1] * mesh[2];
   int is_shift[3] = {0, 0, 0};
@@ -74,8 +75,8 @@ static void test_tetrahedron_method(void)
   /*   printf("\n"); */
   /* } */
 
-  /* "frequency-101010.dat" for 10x10x10 mesh */
-  fp = fopen("frequency-202020.dat", "r");
+  fp = fopen("frequency-101010.dat", "r");
+  /* fp = fopen("frequency-202020.dat", "r"); */
 
   for (i = 0; i < num_gp * num_atom * 3; i++) {
     read = getline(&line, &len, fp);
@@ -118,10 +119,11 @@ static void test_tetrahedron_method(void)
 	    t_omegas[l][q] = frequency[gp * num_atom * 3 + k];
 	  }
 	}
-	iw = thm_get_integration_weight(omegas[i], t_omegas, 'J');
-	dos[i] += iw;
-	iw = thm_get_integration_weight(omegas[i], t_omegas, 'I');
+	iw = thm_get_integration_weight_Bloechl(omegas[i], t_omegas);
+	/* iw = thm_get_integration_weight(omegas[i], t_omegas, 'J'); */
 	integral_dos[i] += iw;
+	iw = thm_get_integration_weight(omegas[i], t_omegas, 'I');
+	dos[i] += iw;
       }
     }
   }
