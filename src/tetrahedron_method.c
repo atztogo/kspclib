@@ -416,8 +416,6 @@ static double get_integration_weight(const double omega,
   double (*gn)(const int, const double, const double[4]);
   double (*IJ)(const int, const int, const double, const double[4]);
 
-  double tmpval;
-
   if (function == 'I') {
     gn = _g;
     IJ = _I;
