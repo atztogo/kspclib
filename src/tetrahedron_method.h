@@ -44,10 +44,7 @@ void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
 void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3]);
 double thm_get_integration_weight(const double omega,
 				  THMCONST double tetrahedra_omegas[24][4],
-				  const char function);
-double
-thm_get_integration_weight_Bloechl(const double omega,
-				   THMCONST double tetrahedra_omegas[24][4]);
+				  const char function, int bloechl);
 void
 thm_get_integration_weight_at_omegas(double *integration_weights,
 				     const int num_omegas,

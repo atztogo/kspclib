@@ -1,18 +1,15 @@
 #include <iostream>
+#include <vector>
 extern "C" {
-#include <kgrid.h>
+#include "kgrid.h"
+#include "tetrahedron_method.h"
 }
-
-namespace constants {
-  const double KB=8.6173324e-5;
-  
-}
-
-void calc_transport_tensors_tetra(double *energies, double *velocities, double *tau, double *temperatures, double *chempots, int *spg_grid_address, int *spg_grid_mapping_table, int *mesh, double *rec_basis, double *energy_samples, int num_energy_samples,int num_bands, int num_kpoints_ibz, int num_scatterings, int num_temp_steps, int num_chempot_steps, bool tauk, int int_method, double *cond, double *seebeck, double *lorenz);
 
 static int grid_address_to_index(int [3], int [3]);
 
-void calc_dos_lin_tetra(double *energies, int *spg_grid_address, int *spg_grid_mapping_table, int *mesh, double *rec_basis, double *energy_samples, int num_energy_samples,int num_bands, int num_kpoints_ibz, double volume, double *dos, double *int_dos) {
+void calc_dos_lin_tetra(double *energies, int *grid_address, int *spg_grid_mapping_table, int *mesh, double *rec_basis, double *energy_samples, int num_energy_samples,int num_bands, int num_kpoints_ibz, double volume, int bloechl, double *dos, double *int_dos);
+
+void calc_dos_lin_tetra(double *energies, int *grid_address, int *spg_grid_mapping_table, int *mesh, double *rec_basis, double *energy_samples, int num_energy_samples,int num_bands, int num_kpoints_ibz, double volume, int bloechl, double *dos, double *int_dos) {
 
   int num_kpoints=mesh[0]*mesh[1]*mesh[2];
   int weights[num_kpoints];
@@ -37,10 +34,10 @@ void calc_dos_lin_tetra(double *energies, int *spg_grid_address, int *spg_grid_m
       rec_basis_temp[i][j] = *((double *)rec_basis + i*3 + j);
     }
   }
-  double spg_grid_address_temp[num_kpoints][3];
+  double grid_address_temp[num_kpoints][3];
   for(int kpoint=0;kpoint<num_kpoints;kpoint++) {
     for (int dir=0;dir<3;dir++) {
-      spg_grid_address_temp[kpoint][dir] = *((int *)spg_grid_address + kpoint*3 + dir);
+      grid_address_temp[kpoint][dir] = *((int *)grid_address + kpoint*3 + dir);
     }
   }
 
@@ -66,7 +63,7 @@ void calc_dos_lin_tetra(double *energies, int *spg_grid_address, int *spg_grid_m
       gp_ir_index[kpoint] = gp_ir_index[spg_grid_mapping_table[kpoint]];
     }
   }
-  spg_get_tetrahedra_relative_grid_address(relative_grid_address, rec_basis_temp);
+  thm_get_relative_grid_address(relative_grid_address, rec_basis_temp);
 
   // now find the integration weights
   for (int energy = 0; energy < num_energy_samples; energy++) {
@@ -77,15 +74,15 @@ void calc_dos_lin_tetra(double *energies, int *spg_grid_address, int *spg_grid_m
         for (int tetra = 0; tetra < 24; tetra++) {
           for (int corner = 0; corner < 4; corner++) {
             for (int dir = 0; dir < 3; dir++) {
-              g_addr[dir] = spg_grid_address_temp[ir_gp[kpoint]][dir] +
+              g_addr[dir] = grid_address_temp[ir_gp[kpoint]][dir] +
                 relative_grid_address[tetra][corner][dir];
             }
             int gp = grid_address_to_index(g_addr, mesh);
 	    omegas[tetra][corner] = energies_temp[band][gp_ir_index[gp]];
           }
         }
-        dos[band*num_energy_samples+energy] += ir_weights[kpoint] * spg_get_tetrahedra_integration_weight(energy_samples[energy], omegas, 'I');
-        int_dos[band*num_energy_samples+energy] += ir_weights[kpoint] * spg_get_tetrahedra_integration_weight(energy_samples[energy], omegas, 'J');
+        dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(energy_samples[energy], omegas, 'I', bloechl);
+        int_dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(energy_samples[energy], omegas, 'J', bloechl);
       }
     } 
   }
