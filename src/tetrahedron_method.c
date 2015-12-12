@@ -36,6 +36,8 @@
 
 #include "tetrahedron_method.h"
 #include "kgrid.h"
+#include <math.h>
+#include <stdio.h>
 
 #ifdef THMWARNING
 #include <stdio.h>
@@ -176,8 +178,7 @@ static int db_relative_grid_address[4][24][4][3] = {
   },
 };
 
-static void
-get_integration_weight_at_omegas(double *integration_weights,
+static void get_integration_weight_at_omegas(double *integration_weights,
 				 const int num_omegas,
 				 const double *omegas,
 				 THMCONST double tetrahedra_omegas[24][4],
@@ -185,7 +186,7 @@ get_integration_weight_at_omegas(double *integration_weights,
 static double get_integration_weight(const double omega,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function,
-				     const int Bloechl_correction);
+				     int bloechl);
 static double get_vertex_integration_weight(const double omega,
 					    const double v[4],
 					    const int pos0,
@@ -206,6 +207,9 @@ static double _f(const int n,
 		 const int m,
 		 const double omega,
 		 const double vertices_omegas[4]);
+static double _delta(const int n,
+		     const int m,
+		     const double vertices_omegas[4]);
 static double _J(const int i,
 		 const int pos0,
 		 const double omega,
@@ -214,10 +218,17 @@ static double _I(const int i,
 		 const int pos0,
 		 const double omega,
 		 const double vertices_omegas[4]);
+static double _Ider(const int i,
+		 const int pos0,
+		 const double omega,
+		 const double vertices_omegas[4]);
 static double _n(const int i,
 		 const double omega,
 		 const double vertices_omegas[4]);
 static double _g(const int i,
+		 const double omega,
+		 const double vertices_omegas[4]);
+static double _gder(const int i,
 		 const double omega,
 		 const double vertices_omegas[4]);
 static double _n_0(void);
@@ -236,6 +247,14 @@ static double _g_2(const double omega,
 static double _g_3(const double omega,
 		   const double vertices_omegas[4]);
 static double _g_4(void);
+static double _gder_0(void);
+static double _gder_1(const double omega,
+		   const double vertices_omegas[4]);
+static double _gder_2(const double omega,
+		   const double vertices_omegas[4]);
+static double _gder_3(const double omega,
+		   const double vertices_omegas[4]);
+static double _gder_4(void);
 static double _J_0(void);
 static double _J_10(const double omega,
 		    const double vertices_omegas[4]);
@@ -289,6 +308,33 @@ static double _I_33(const double omega,
 		    const double vertices_omegas[4]);
 static double _I_4(void);
 
+static double _Ider_0(void);
+static double _Ider_10(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_11(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_12(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_13(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_20(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_21(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_22(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_23(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_30(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_31(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_32(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_33(const double omega,
+		    const double vertices_omegas[4]);
+static double _Ider_4(void);
+
 
 void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
 				   THMCONST double rec_lattice[3][3])
@@ -325,22 +371,12 @@ void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3])
 
 double thm_get_integration_weight(const double omega,
 				  THMCONST double tetrahedra_omegas[24][4],
-				  const char function)
+				  const char function, int bloechl)
 {
   return get_integration_weight(omega,
 				tetrahedra_omegas,
 				function,
-				0);
-}
-
-double
-thm_get_integration_weight_Bloechl(const double omega,
-				   THMCONST double tetrahedra_omegas[24][4])
-{
-  return get_integration_weight(omega,
-				tetrahedra_omegas,
-				'J',
-				1);
+				bloechl);
 }
 
 void
@@ -408,7 +444,7 @@ get_integration_weight_at_omegas(double *integration_weights,
 static double get_integration_weight(const double omega,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function,
-				     const int Bloechl_correction)
+				     int bloechl)
 {
   int i, j, pos0;
   double sum;
@@ -433,10 +469,22 @@ static double get_integration_weight(const double omega,
     }
     pos0 = sort_omegas(v);
     sum += get_vertex_integration_weight(omega, v, pos0, gn, IJ);
-    if (Bloechl_correction) {
-      sum += (1.0 / 40 *
-	      get_vertex_integration_weight(omega, v, pos0, _g, _I) *
-	      (v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+    if (bloechl) {
+      if (function=='J') {
+	sum += (1.0 / 40 *
+		get_vertex_integration_weight(omega, v, pos0, _g, _I) *
+		(v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+      }
+      else {
+	// call twice, product rule for the derivative
+	// or no, pretty sure we do not need to do this...
+	// the correction is added to J(omega), if we take the derivative
+	// we just get I(omega)+der(correction), where der(correction)
+	// only considers the density of states
+	sum += (1.0 / 40 *
+		get_vertex_integration_weight(omega, v, pos0, _gder, _I) *
+		(v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+      }
     }
   }
 
@@ -603,6 +651,13 @@ static double _f(const int n,
 	  (vertices_omegas[n] - vertices_omegas[m]));
 }
 
+static double _delta(const int n,
+		     const int m,
+		     const double vertices_omegas[4])
+{
+  return vertices_omegas[n]-vertices_omegas[m];
+}
+
 static double _J(const int i,
 		 const int pos0,
 		 const double omega,
@@ -710,6 +765,59 @@ static double _I(const int i,
   return 0;
 }
 
+static double _Ider(const int i,
+		 const int pos0,
+		 const double omega,
+		 const double vertices_omegas[4])
+{
+  switch (i) {
+  case 0:
+    return _Ider_0();
+  case 1:
+    switch (pos0) {
+    case 0:
+      return _Ider_10(omega, vertices_omegas);
+    case 1:
+      return _Ider_11(omega, vertices_omegas);
+    case 2:
+      return _Ider_12(omega, vertices_omegas);
+    case 3:
+      return _Ider_13(omega, vertices_omegas);
+    }
+  case 2:
+    switch (pos0) {
+    case 0:
+      return _Ider_20(omega, vertices_omegas);
+    case 1:
+      return _Ider_21(omega, vertices_omegas);
+    case 2:
+      return _Ider_22(omega, vertices_omegas);
+    case 3:
+      return _Ider_23(omega, vertices_omegas);
+    }
+  case 3:
+    switch (pos0) {
+    case 0:
+      return _Ider_30(omega, vertices_omegas);
+    case 1:
+      return _Ider_31(omega, vertices_omegas);
+    case 2:
+      return _Ider_32(omega, vertices_omegas);
+    case 3:
+      return _Ider_33(omega, vertices_omegas);
+    }
+  case 4:
+    return _Ider_4();
+  }
+
+  warning_print("******* Warning *******\n");
+  warning_print(" Ider is something wrong. \n");
+  warning_print("******* Warning *******\n");
+  warning_print("(line %d, %s).\n", __LINE__, __FILE__);
+
+  return 0;
+}
+
 static double _n(const int i,
 		 const double omega,
 		 const double vertices_omegas[4])
@@ -754,6 +862,31 @@ static double _g(const int i,
   
   warning_print("******* Warning *******\n");
   warning_print(" g is something wrong. \n");
+  warning_print("******* Warning *******\n");
+  warning_print("(line %d, %s).\n", __LINE__, __FILE__);
+
+  return 0;
+}
+
+static double _gder(const int i,
+		 const double omega,
+		 const double vertices_omegas[4])
+{
+  switch (i) {
+  case 0:
+    return _gder_0();
+  case 1:
+    return _gder_1(omega, vertices_omegas);
+  case 2:
+    return _gder_2(omega, vertices_omegas);
+  case 3:
+    return _gder_3(omega, vertices_omegas);
+  case 4:
+    return _gder_4();
+  }
+  
+  warning_print("******* Warning *******\n");
+  warning_print(" gder is something wrong. \n");
   warning_print("******* Warning *******\n");
   warning_print("(line %d, %s).\n", __LINE__, __FILE__);
 
@@ -818,7 +951,7 @@ static double _g_1(const double omega,
   return (3 *
 	  _f(1, 0, omega, vertices_omegas) *
 	  _f(2, 0, omega, vertices_omegas) /
-	  (vertices_omegas[3] - vertices_omegas[0]));
+	  _delta(3,0,vertices_omegas));
 }
 
 /* omega2 < omega < omega3 */
@@ -826,7 +959,7 @@ static double _g_2(const double omega,
 		   const double vertices_omegas[4])
 {
   return (3 /
-	  (vertices_omegas[3] - vertices_omegas[0]) *
+	  _delta(3,0,vertices_omegas) *
 	  (_f(1, 2, omega, vertices_omegas) *
 	   _f(2, 0, omega, vertices_omegas) +
 	   _f(2, 1, omega, vertices_omegas) *
@@ -840,11 +973,59 @@ static double _g_3(const double omega,
     return (3 *
 	    _f(1, 3, omega, vertices_omegas) *
 	    _f(2, 3, omega, vertices_omegas) /
-            (vertices_omegas[3] - vertices_omegas[0]));
+	    _delta(3,0,vertices_omegas));
+}
+/* omega4 < omega */
+static double _g_4(void)
+{
+  return 0.0;
+}
+
+/* omega < omega1 */
+static double _gder_0(void)
+{
+  return 0.0;
+}
+
+/* omega1 < omega < omega2 */
+static double _gder_1(const double omega,
+		   const double vertices_omegas[4])
+{
+  return (3 * 
+	  (2*(_f(3, 0, omega, vertices_omegas)/_delta(2, 0, vertices_omegas) +
+	      _f(2, 0, omega, vertices_omegas)/_delta(3, 0, vertices_omegas)) /
+	   _delta(1, 0, vertices_omegas) +
+	   _f(0, 1, omega, vertices_omegas) *
+	   _f(0, 2, omega, vertices_omegas) *
+	   _f(0, 3, omega, vertices_omegas)));
+}
+
+/* omega2 < omega < omega3 */
+static double _gder_2(const double omega,
+		   const double vertices_omegas[4])
+{
+  return (3 / _delta(3, 0, vertices_omegas) *
+	  (_f(2, 0, omega, vertices_omegas)/_delta(1, 2, vertices_omegas) *
+	   _f(1, 2, omega, vertices_omegas)/_delta(2, 0, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas)/_delta(2, 1, vertices_omegas) *
+	   _f(2, 1, omega, vertices_omegas)/_delta(1, 3, vertices_omegas)));
+}
+
+/* omega3 < omega < omega4 */
+static double _gder_3(const double omega,
+		   const double vertices_omegas[4])
+{
+  return (3 * 
+	  (2*(_f(0, 3, omega, vertices_omegas)/_delta(1, 3, vertices_omegas) +
+	      _f(1, 3, omega, vertices_omegas)/_delta(0, 3, vertices_omegas)) /
+	   _delta(3, 2, vertices_omegas) +
+	   _f(0, 3, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas) *
+	   _f(2, 3, omega, vertices_omegas)));
 }
 
 /* omega4 < omega */
-static double _g_4(void)
+static double _gder_4(void)
 {
   return 0.0;
 }
@@ -1110,6 +1291,196 @@ static double _I_33(const double omega,
 }
 
 static double _I_4(void)
+{
+  return 0.0;
+}
+
+static double _Ider_0(void)
+{
+  return 0.0;
+}
+
+static double _Ider_10(const double omega,
+		    const double vertices_omegas[4])
+{
+  return ( 1.0 / _delta(0, 1, vertices_omegas) +
+	   1.0 / _delta(0, 2, vertices_omegas) +
+	   1.0 / _delta(0, 3, vertices_omegas)) / 3;
+}
+
+static double _Ider_11(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(1, 0, vertices_omegas) / 3;
+}
+
+static double _Ider_12(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(2, 0, vertices_omegas) / 3;
+}
+
+static double _Ider_13(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(3, 0, vertices_omegas) / 3;
+}
+
+static double _Ider_20(const double omega,
+		    const double vertices_omegas[4])
+{
+  return (1.0/_delta(0, 3, vertices_omegas) -
+	  _f(0, 2, omega, vertices_omegas) *
+	  _f(2, 0, omega, vertices_omegas) *
+	  _f(1, 2, omega, vertices_omegas) *
+	  (_f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  pow(_f(1, 2, omega, vertices_omegas) *
+	      _f(2, 0, omega, vertices_omegas) +
+	      _f(2, 1, omega, vertices_omegas) *
+	      _f(1, 3, omega, vertices_omegas),2.0) +
+	  (_f(2, 0, omega, vertices_omegas) *
+	   _f(1, 2, omega, vertices_omegas) /
+	   _delta(0, 2, vertices_omegas) +
+	   _f(0, 2, omega, vertices_omegas) *
+	   _f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(0, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas)) /
+	  (_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas))) / 3;
+}
+
+static double _Ider_21(const double omega,
+		    const double vertices_omegas[4])
+{
+  return (1.0/_delta(1, 2, vertices_omegas) -
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(2, 1, omega, vertices_omegas) *
+	  (_f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  pow(_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	      _f(1, 3, omega, vertices_omegas),2.0) +
+	  (2.0*_f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  (_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas))) / 3;
+}
+
+static double _Ider_22(const double omega,
+		    const double vertices_omegas[4])
+{
+  return (1.0/_delta(1, 2, vertices_omegas) -
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(2, 1, omega, vertices_omegas) *
+	  (_f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  pow(_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	      _f(1, 3, omega, vertices_omegas),2.0) +
+	  (2.0*_f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(2, 0, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas)) /
+	  (_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas))) / 3;
+}
+            
+static double _Ider_23(const double omega,
+		    const double vertices_omegas[4])
+{
+    return (1.0/_delta(3, 0, vertices_omegas) -
+	  _f(3, 1, omega, vertices_omegas) *
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(2, 1, omega, vertices_omegas) *
+	  (_f(1, 2, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas) +
+	   _f(2, 0, omega, vertices_omegas) /
+	   _delta(1, 2, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  pow(_f(1, 2, omega, vertices_omegas) *
+	      _f(2, 0, omega, vertices_omegas) +
+	      _f(2, 1, omega, vertices_omegas) *
+	      _f(1, 3, omega, vertices_omegas),2.0) +
+	  (_f(1, 3, omega, vertices_omegas) *
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(3, 1, vertices_omegas) +
+	   _f(3, 1, omega, vertices_omegas) *
+	   _f(2, 1, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(3, 1, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 1, vertices_omegas)) /
+	  (_f(1, 2, omega, vertices_omegas) *
+	   _f(2, 0, omega, vertices_omegas) +
+	   _f(2, 1, omega, vertices_omegas) *
+	   _f(1, 3, omega, vertices_omegas))) / 3;
+}
+
+static double _Ider_30(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(0, 3, vertices_omegas) / 3;
+}
+
+static double _Ider_31(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(1, 3, vertices_omegas) / 3;
+}
+
+static double _Ider_32(const double omega,
+		    const double vertices_omegas[4])
+{
+  return 1.0 / _delta(2, 3, vertices_omegas) / 3;
+}
+
+static double _Ider_33(const double omega,
+		    const double vertices_omegas[4])
+{
+  return ( 1.0 / _delta(3, 0, vertices_omegas) +
+	   1.0 / _delta(3, 1, vertices_omegas) +
+	   1.0 / _delta(3, 2, vertices_omegas)) / 3;
+}
+
+static double _Ider_4(void)
 {
   return 0.0;
 }
