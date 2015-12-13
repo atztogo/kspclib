@@ -42,11 +42,11 @@
 void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
 				   THMCONST double rec_lattice[3][3]);
 void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3]);
-double thm_get_integration_weight(const double omega,
+double thm_get_integration_weight(const int kpoint, const double omega,
 				  THMCONST double tetrahedra_omegas[24][4],
 				  const char function, int bloechl);
 void
-thm_get_integration_weight_at_omegas(double *integration_weights,
+thm_get_integration_weight_at_omegas(const int kpoint, double *integration_weights,
 				     const int num_omegas,
 				     const double *omegas,
 				     THMCONST double tetrahedra_omegas[24][4],
