@@ -44,13 +44,23 @@ class QuadraticTetrahedron2D:
         # self._to_ellipsoid()
         pass
 
-    def _to_ellipsoid(self):
+    def _transform(self):
         A1 = self._to_ellipsoid_step1()
         A2 = self._to_ellipsoid_step2()
         A3 = self._to_ellipsoid_step3()
         A4 = self._to_ellipsoid_step4()
+        self._check_shape()
 
-    def _to_ellipsoid_step1(self):
+    def _check_shape(self):
+        q = self._q
+        if (abs(q[3]) > self._prec and
+            abs(q[5]) > self._prec):
+            if q[3] * q[5] > 0:
+                return "ellipsoid"
+            else:
+                return "hyperbolae"
+
+    def _transform_step1(self):
         q = self._q
         S = 1.0 / 2 * np.array([[2 * q[3], q[4]], [q[4], 2 * q[5]]])
         w, v = np.linalg.eigh(S) # S = U^T.diag(w).U
@@ -62,7 +72,7 @@ class QuadraticTetrahedron2D:
         q[3], q[5] = w
         return A
 
-    def _to_ellipsoid_step2(self):
+    def _transform_step2(self):
         q = self._q
         if (abs(q[3]) < self._prec and
             abs(q[5]) > self._prec):
@@ -75,7 +85,7 @@ class QuadraticTetrahedron2D:
         else:
             return np.eye(3, dtype='double')
         
-    def _to_ellipsoid_step3(self):
+    def _transform_step3(self):
         q = self._q
         if (abs(q[3]) > self._prec and
             abs(q[1]) > self._prec):
@@ -87,7 +97,7 @@ class QuadraticTetrahedron2D:
         else:
             return np.eye(3, dtype='double')
 
-    def _to_ellipsoid_step3(self):
+    def _transform_step4(self):
         q = self._q
         if (abs(q[5]) > self._prec and
             abs(q[2]) > self._prec):
