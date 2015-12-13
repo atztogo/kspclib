@@ -33,3 +33,6 @@
 
 # temporary file
 *~
+
+# Python byte code
+*.pyc
