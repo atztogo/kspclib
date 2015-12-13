@@ -15,31 +15,49 @@ G = [[  1,  0,  0,  0,  0,  0],
      [  4,  0,  0, -4,  4, -4],
      [  2,  0,  2,  0,  0, -4]]
 
-def get_mesh2D(mesh):
-    return np.array([[x[1], x[0]] for x in np.ndindex((mesh[0], mesh[1]))])
+# mesh is supported as a numpy int array.
+def get_grid_address(mesh): 
+    m = mesh
+    return reduce_grid_address(
+        m, np.array([[x[1], x[0]] for x in np.ndindex((m[0], m[1]))]))
+
+def reduce_grid_address(mesh, address):
+    return address - (address > (mesh // 2)) * mesh
+
+def address_to_grid(mesh, address):
+    a = address % mesh
+    return a[1] * mesh[0] + a[0]
 
 class QuadraticTetrahedron2D:
-    def __init__(self, e, prec=1e-5):
+    def __init__(self, e, mesh, prec=1e-5):
         self._q = np.dot(G, e)
+        self._mesh = np.array(mesh, dtype='intc')
         self._prec = prec
 
-    def show_mesh(self, mesh):
-        print(get_mesh2D(mesh))
+    def show_mesh(self):
+        grid_address = get_grid_address(self._mesh)
+        print(grid_address)
+        for a in grid_address:
+            print(address_to_grid(self._mesh, a))
 
     def run(self):
-        self._to_ellipsoid()
+        # self._to_ellipsoid()
+        pass
 
     def _to_ellipsoid(self):
         A1 = self._to_ellipsoid_step1()
         A2 = self._to_ellipsoid_step2()
-        t3 = self._to_ellipsoid_step3()
+        A3 = self._to_ellipsoid_step3()
+        A4 = self._to_ellipsoid_step4()
 
     def _to_ellipsoid_step1(self):
         q = self._q
         S = 1.0 / 2 * np.array([[2 * q[3], q[4]], [q[4], 2 * q[5]]])
-        w, A = np.linalg.eigh(S) # S = U^T.diag(w).U
-        t = q[[1, 2]]
-        q[1:3] = np.dot(A.T, t)
+        w, v = np.linalg.eigh(S) # S = U^T.diag(w).U
+        A = np.eye(3, dtype='double')
+        A[0:2, 0:2] = v
+        t = q[[1, 2, 0]]
+        q[:3] = np.dot(A.T, t)[[2, 0, 1]]
         q[4] = 0
         q[3], q[5] = w
         return A
@@ -50,18 +68,34 @@ class QuadraticTetrahedron2D:
             abs(q[5]) > self._prec):
             q[3] = q[5]
             q[5] = 0
-            A = np.array([[0, 1], [1, 0]], dtype=float)
-            t = q[[1, 2]]
-            q[1:3] = np.dot(A.T, t)
+            A = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]], dtype='double')
+            t = q[[1, 2, 0]]
+            q[:3] = np.dot(A.T, t)[[2, 0, 1]]
             return A
         else:
-            return np.eye(2)
+            return np.eye(3, dtype='double')
         
     def _to_ellipsoid_step3(self):
         q = self._q
         if (abs(q[3]) > self._prec and
             abs(q[1]) > self._prec):
-            return 
+            A = np.eye(3, dtype='double')
+            A[0, 2] = -q[1] / (2 * q[3])
+            q[0] -= (q[1] ** 2) / (4 * q[3])
+            q[1] = 0
+            return A
         else:
-            return np.zeros(2)
+            return np.eye(3, dtype='double')
+
+    def _to_ellipsoid_step3(self):
+        q = self._q
+        if (abs(q[5]) > self._prec and
+            abs(q[2]) > self._prec):
+            A = np.eye(3, dtype='double')
+            A[1, 2] = -q[2] / (2 * q[5])
+            q[0] -= (q[2] ** 2) / (4 * q[5])
+            q[2] = 0
+            return A
+        else:
+            return np.eye(3, dtype='double')
         

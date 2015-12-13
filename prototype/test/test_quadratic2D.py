@@ -12,13 +12,17 @@ def _cos(x, y, n=1):
 class TestQuadraticTetrahedron2D(unittest.TestCase):
     def setUp(self):
         e = np.arange(6, dtype='double')
-        self._qt2d = QuadraticTetrahedron2D(e)
+        mesh = [4, 4]
+        self._qt2d = QuadraticTetrahedron2D(e, mesh)
 
     def tearDown(self):
         pass
     
     def test_run(self):
         self._qt2d.run()
+
+    def test_show_mesh(self):
+        self._qt2d.show_mesh()
 
 if __name__ == '__main__':
     unittest.main()
