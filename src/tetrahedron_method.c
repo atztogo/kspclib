@@ -178,12 +178,12 @@ static int db_relative_grid_address[4][24][4][3] = {
   },
 };
 
-static void get_integration_weight_at_omegas(double *integration_weights,
+static void get_integration_weight_at_omegas(const int kpoint, double *integration_weights,
 				 const int num_omegas,
 				 const double *omegas,
 				 THMCONST double tetrahedra_omegas[24][4],
 				 const char function);
-static double get_integration_weight(const double omega,
+static double get_integration_weight(const int kpoint, const double omega,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function,
 				     int bloechl);
@@ -369,24 +369,24 @@ void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3])
   }
 }
 
-double thm_get_integration_weight(const double omega,
+double thm_get_integration_weight(const int kpoint, const double omega,
 				  THMCONST double tetrahedra_omegas[24][4],
 				  const char function, int bloechl)
 {
-  return get_integration_weight(omega,
+  return get_integration_weight(kpoint, omega,
 				tetrahedra_omegas,
 				function,
 				bloechl);
 }
 
 void
-thm_get_integration_weight_at_omegas(double *integration_weights,
+thm_get_integration_weight_at_omegas(const int kpoint, double *integration_weights,
 				     const int num_omegas,
 				     const double *omegas,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function)
 {
-  get_integration_weight_at_omegas(integration_weights,
+  get_integration_weight_at_omegas(kpoint, integration_weights,
 				   num_omegas,
 				   omegas,
 				   tetrahedra_omegas,
@@ -424,7 +424,7 @@ void thm_get_neighboring_grid_points(int neighboring_grid_points[],
 }
 
 static void
-get_integration_weight_at_omegas(double *integration_weights,
+get_integration_weight_at_omegas(const int kpoint, double *integration_weights,
 				 const int num_omegas,
 				 const double *omegas,
 				 THMCONST double tetrahedra_omegas[24][4],
@@ -434,14 +434,14 @@ get_integration_weight_at_omegas(double *integration_weights,
 
 #pragma omp parallel for
   for (i = 0; i < num_omegas; i++) {
-    integration_weights[i] = get_integration_weight(omegas[i],
+    integration_weights[i] = get_integration_weight(kpoint,omegas[i],
 						    tetrahedra_omegas,
 						    function,
 						    0);
   }
 }
 
-static double get_integration_weight(const double omega,
+static double get_integration_weight(const int kpoint, const double omega,
 				     THMCONST double tetrahedra_omegas[24][4],
 				     const char function,
 				     int bloechl)
@@ -451,6 +451,7 @@ static double get_integration_weight(const double omega,
   double v[4];
   double (*gn)(const int, const double, const double[4]);
   double (*IJ)(const int, const int, const double, const double[4]);
+  double standard, correction;
 
   if (function == 'I') {
     gn = _g;
@@ -466,23 +467,27 @@ static double get_integration_weight(const double omega,
       v[j] = tetrahedra_omegas[i][j];
     }
     pos0 = sort_omegas(v);
-    sum += get_vertex_integration_weight(omega, v, pos0, gn, IJ);
+    standard=get_vertex_integration_weight(omega, v, pos0, gn, IJ);
+    sum += standard;
     if (bloechl) {
       if (function=='J') {
-	sum += (1.0 / 40 *
-		get_vertex_integration_weight(omega, v, pos0, _g, _I) *
-		(v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+        correction = (1.0 / 40 *
+		       get_vertex_integration_weight(omega, v, pos0, _g, _I) *
+		       (v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
       }
       else {
 	// call twice, product rule for the derivative
 	// or no, pretty sure we do not need to do this...
 	// the correction is added to J(omega), if we take the derivative
 	// we just get I(omega)+der(correction), where der(correction)
-	// only considers the density of states
-	sum += (1.0 / 40 *
-		get_vertex_integration_weight(omega, v, pos0, _gder, _I) *
-		(v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
+	// only considers the derivative of the density of states
+	// (otherwise \sum I probably does not sum to one for one
+	// tetrahedron if F=1...)
+	correction=(1.0 / 40 *
+		    get_vertex_integration_weight(omega, v, pos0, _gder, _I) *
+		    (v[0] + v[1] + v[2] + v[3] - v[pos0] * 4));
       }
+      sum += correction;
     }
   }
 
@@ -957,7 +962,7 @@ static double _g_2(const double omega,
 		   const double vertices_omegas[4])
 {
   return (3 /
-	  _delta(3,0,vertices_omegas) *
+	  _delta(3, 0, vertices_omegas) *
 	  (_f(1, 2, omega, vertices_omegas) *
 	   _f(2, 0, omega, vertices_omegas) +
 	   _f(2, 1, omega, vertices_omegas) *
@@ -968,11 +973,12 @@ static double _g_2(const double omega,
 static double _g_3(const double omega,
 		   const double vertices_omegas[4])
 {
-    return (3 *
-	    _f(1, 3, omega, vertices_omegas) *
-	    _f(2, 3, omega, vertices_omegas) /
-	    _delta(3,0,vertices_omegas));
+  return (3 *
+	  _f(1, 3, omega, vertices_omegas) *
+	  _f(2, 3, omega, vertices_omegas) /
+	  _delta(3, 0, vertices_omegas));
 }
+
 /* omega4 < omega */
 static double _g_4(void)
 {
@@ -989,13 +995,11 @@ static double _gder_0(void)
 static double _gder_1(const double omega,
 		   const double vertices_omegas[4])
 {
-  return (3 * 
-	  (2*(_f(3, 0, omega, vertices_omegas)/_delta(2, 0, vertices_omegas) +
-	      _f(2, 0, omega, vertices_omegas)/_delta(3, 0, vertices_omegas)) /
+  return (3 / _delta(3, 0, vertices_omegas) *
+	  (_f(2, 0, omega, vertices_omegas) /
 	   _delta(1, 0, vertices_omegas) +
-	   _f(0, 1, omega, vertices_omegas) *
-	   _f(0, 2, omega, vertices_omegas) *
-	   _f(0, 3, omega, vertices_omegas)));
+	   _f(1, 0, omega, vertices_omegas) /
+	   _delta(2, 0, vertices_omegas)));
 }
 
 /* omega2 < omega < omega3 */
@@ -1003,9 +1007,9 @@ static double _gder_2(const double omega,
 		   const double vertices_omegas[4])
 {
   return (3 / _delta(3, 0, vertices_omegas) *
-	  (_f(2, 0, omega, vertices_omegas)/_delta(1, 2, vertices_omegas) *
-	   _f(1, 2, omega, vertices_omegas)/_delta(2, 0, vertices_omegas) *
-	   _f(1, 3, omega, vertices_omegas)/_delta(2, 1, vertices_omegas) *
+	  (_f(2, 0, omega, vertices_omegas)/_delta(1, 2, vertices_omegas) +
+	   _f(1, 2, omega, vertices_omegas)/_delta(2, 0, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas)/_delta(2, 1, vertices_omegas) +
 	   _f(2, 1, omega, vertices_omegas)/_delta(1, 3, vertices_omegas)));
 }
 
@@ -1013,13 +1017,11 @@ static double _gder_2(const double omega,
 static double _gder_3(const double omega,
 		   const double vertices_omegas[4])
 {
-  return (3 * 
-	  (2*(_f(0, 3, omega, vertices_omegas)/_delta(1, 3, vertices_omegas) +
-	      _f(1, 3, omega, vertices_omegas)/_delta(0, 3, vertices_omegas)) /
-	   _delta(3, 2, vertices_omegas) +
-	   _f(0, 3, omega, vertices_omegas) *
-	   _f(1, 3, omega, vertices_omegas) *
-	   _f(2, 3, omega, vertices_omegas)));
+  return (3 / _delta(3, 0, vertices_omegas) *
+	  (_f(2, 3, omega, vertices_omegas) /
+	   _delta(1, 3, vertices_omegas) +
+	   _f(1, 3, omega, vertices_omegas) /
+	   _delta(2, 3, vertices_omegas)));
 }
 
 /* omega4 < omega */

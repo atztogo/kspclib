@@ -81,8 +81,9 @@ void calc_dos_lin_tetra(double *energies, int *grid_address, int *spg_grid_mappi
 	    omegas[tetra][corner] = energies_temp[band][gp_ir_index[gp]];
           }
         }
-        dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(energy_samples[energy], omegas, 'I', bloechl);
-        int_dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(energy_samples[energy], omegas, 'J', bloechl);
+        dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(kpoint, energy_samples[energy], omegas, 'I', bloechl);
+        int_dos[band*num_energy_samples+energy] += ir_weights[kpoint] * thm_get_integration_weight(kpoint,energy_samples[energy], omegas, 'J', bloechl);
+	//int_dos[band*num_energy_samples+energy]=0.0;
       }
     } 
   }

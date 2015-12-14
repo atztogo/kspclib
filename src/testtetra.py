@@ -20,7 +20,7 @@ def main():
     rec_basis=np.ascontiguousarray((2*math.pi*np.linalg.inv(lattice)).transpose())
                   
     # first, set kmesh
-    ksampling=np.array([61,61,61],dtype='intc')
+    ksampling=np.array([31,31,31],dtype='intc')
     k=np.zeros((np.prod(ksampling),3),dtype='intc')
     mapping_bz_to_ibz=np.zeros(np.prod(ksampling),dtype='intc')
     scaling=np.floor(ksampling/2.0)
@@ -33,9 +33,11 @@ def main():
     
     # transform to cart, no need to save
     kmesh_ired=dir_to_cart(kmesh_ired,rec_basis)
+
+    np.savetxt('kmesh',np.column_stack((kmesh_ired[:,0].T,kmesh_ired[:,1].T, kmesh_ired[:,2].T)))
     
     # effective mass
-    effmass=np.array([1.0,1.0,1.0])
+    effmass=np.array([0.5,0.5,0.5])
     
     # fetch energy (single band, add artifical index)
     energies=np.ascontiguousarray(generate_energy(kmesh_ired,effmass)[None].T)
@@ -54,18 +56,35 @@ def main():
     # call tetrahedron to calculate density of states
     tetrahedron_method_interface.calc_density_of_states_interface(energies,spg_k,mapping_bz_to_ibz, ksampling, rec_basis, energy_samples, num_samples, 1, num_kpoints_ibz, volume, bloechl, dos, int_dos)
 
-    # scale tetra dos
-    dos=volume*dos/np.prod(ksampling)/np.power(2*math.pi,3.0)
+    # scale tetra dos and number of states (also multiply by two
+    # since we do not have spin degeneracy in the tetrahedron per se)
+    # also, to yield same units, multiply int_dos by 1e3
+    dos=2.0*volume*dos/np.prod(ksampling)/np.power(2*math.pi,3.0)
+    int_dos=1e3*2.0*volume*int_dos/np.prod(ksampling)/np.power(2*math.pi,3.0)
 
     # generate data for the parabolc band (exact analytic solution)
+    # right now the effective mass terms are not done correctly,
+    # be sure all the values are the same
     dos_analytic=calc_analytic_dos(energy_samples,effmass)
-     
-    # save dos to file, only one band again
-    np.savetxt('dos',np.column_stack((energy_samples.T,dos_analytic.T,dos[0].T)))
 
+    # generate number of states
+    number_of_states_analytic=calc_number_of_states(energy_samples,effmass)
+    
+    # save dos to file, only one band again
+    diff_dos=(dos_analytic-dos[0])/dos_analytic
+    np.savetxt('dos',np.column_stack((energy_samples.T,dos_analytic.T,dos[0].T,diff_dos.T)))
+
+    # save number of states
+    diff_ns=(number_of_states_analytic-int_dos[0])/number_of_states_analytic
+    np.savetxt('ns',np.column_stack((energy_samples.T,number_of_states_analytic.T,int_dos[0].T,diff_ns.T)))
+
+def calc_number_of_states(energy_samples,effmass):
+    analytic_unit=1e9*4.0*np.power(0.5109989461/np.power(197.3269788,2.0),1.5)/np.power(math.pi,2.0)/3.0/np.sqrt(2.0)
+    return analytic_unit*np.power(abs(energy_samples)*np.sum(effmass)/3,1.5)
+    
 def calc_analytic_dos(energy_samples,effmass):
-    analytic_unit=1e6*np.power(0.5109989461/np.power(197.3269788,2.0),1.5)/np.power(math.pi,2.0)/np.sqrt(2.0)
-    return analytic_unit*(np.sum(effmass)/3)*np.sqrt(abs(energy_samples))
+    analytic_unit=1e6*np.sqrt(2.0)*np.power(0.5109989461/np.power(197.3269788,2.0),1.5)/np.power(math.pi,2.0)
+    return analytic_unit*np.power(np.sum(effmass)/3,1.5)*np.sqrt(abs(energy_samples))
 
 def generate_energy(kmesh,effmass):
     # constant so that units are okeyish (eV energies)
