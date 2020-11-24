@@ -1,7 +1,7 @@
-/* Copyright (C) 2008 Atsushi Togo */
+/* Copyright (C) 2020 Atsushi Togo */
 /* All rights reserved. */
 
-/* This file is part of spglib. */
+/* This file is part of kspclib. */
 
 /* Redistribution and use in source and binary forms, with or without */
 /* modification, are permitted provided that the following conditions */
@@ -32,39 +32,11 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __debug_H__
-#define __debug_H__
+#ifndef __version_H__
+#define __version_H__
 
-#ifdef SPGDEBUG
-#define NIGGLI_DEBUG
-#define debug_print(...) printf(__VA_ARGS__)
-#define debug_print_matrix_d3( a ) dbg_print_matrix_d3( a )
-#define debug_print_matrix_i3( a ) dbg_print_matrix_i3( a )
-#define debug_print_vector_d3( a ) dbg_print_vector_d3( a )
-#define debug_print_vectors_d3(...) dbg_print_vectors_d3(__VA_ARGS__)
-#define debug_print_vectors_with_label(...) dbg_print_vectors_with_label(__VA_ARGS__)
+#define KSPCLIB_MAJOR_VERSION 0
+#define KSPCLIB_MINOR_VERSION 1
+#define KSPCLIB_MICRO_VERSION 0
 
-void dbg_print_matrix_d3(double a[3][3]);
-void dbg_print_matrix_i3(int a[3][3]);
-void dbg_print_vector_d3(double a[3]);
-void dbg_print_vectors_d3(double a[][3], int size);
-void dbg_print_vectors_with_label(double a[][3], int b[], int size);
-
-#else
-#define debug_print(...)
-#define debug_print_matrix_d3( a )
-#define debug_print_matrix_i3( a )
-#define debug_print_vector_d3( a )
-#define debug_print_vectors_d3(...)
-#define debug_print_vectors_with_label(...)
-#endif
-
-#ifdef SPGWARNING
-#define NIGGLI_WARNING
-#include <stdio.h>
-/* #define warning_print(...) fprintf (stderr, __VA_ARGS__) */
-#define warning_print(...) fprintf (stderr, __VA_ARGS__)
-#else
-#define warning_print(...)
-#endif
 #endif

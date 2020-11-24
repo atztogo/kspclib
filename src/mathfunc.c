@@ -36,7 +36,11 @@
 #include <stdlib.h>
 #include "mathfunc.h"
 
-#include "debug.h"
+#ifdef MATWARNING
+#define warning_print(...) fprintf(stderr,__VA_ARGS__)
+#else
+#define warning_print(...)
+#endif
 
 #define ZERO_PREC 1e-10
 
