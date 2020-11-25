@@ -34,21 +34,21 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/src/kgrid.c
             ${PROJECT_SOURCE_DIR}/src/tetrahedron_method.c)
 
 # Shared library
-add_library(symspg SHARED ${SOURCES})
+add_library(kspc SHARED ${SOURCES})
 
 if(NOT MSVC)
-  target_link_libraries(symspg m)
+  target_link_libraries(kspc m)
 endif()
-set_property(TARGET symspg PROPERTY VERSION ${serial})
-set_property(TARGET symspg PROPERTY SOVERSION ${soserial})
-install(TARGETS symspg LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+set_property(TARGET kspc PROPERTY VERSION ${serial})
+set_property(TARGET kspc PROPERTY SOVERSION ${soserial})
+install(TARGETS kspc LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Static link library
-add_library(symspg_static STATIC ${SOURCES})
-set_property(TARGET symspg_static PROPERTY VERSION ${serial})
-set_property(TARGET symspg_static PROPERTY SOVERSION ${soserial})
-set_property(TARGET symspg_static PROPERTY OUTPUT_NAME symspg)
-install(TARGETS symspg_static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+add_library(kspc_static STATIC ${SOURCES})
+set_property(TARGET kspc_static PROPERTY VERSION ${serial})
+set_property(TARGET kspc_static PROPERTY SOVERSION ${soserial})
+set_property(TARGET kspc_static PROPERTY OUTPUT_NAME kspc)
+install(TARGETS kspc_static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Header file
 install(FILES ${PROJECT_SOURCE_DIR}/src/kspclib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
