@@ -1,7 +1,7 @@
 /* Copyright (C) 2008 Atsushi Togo */
 /* All rights reserved. */
 
-/* This file is part of spglib. */
+/* This file was originally part of spglib and is part of kspclib. */
 
 /* Redistribution and use in source and binary forms, with or without */
 /* modification, are permitted provided that the following conditions */
@@ -44,26 +44,26 @@
 
 #define ZERO_PREC 1e-10
 
-double mat_get_determinant_d3(SPGCONST double a[3][3])
+double mat_get_determinant_d3(MATCONST double a[3][3])
 {
   return a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
     + a[0][1] * (a[1][2] * a[2][0] - a[1][0] * a[2][2])
     + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
 }
 
-int mat_get_determinant_i3(SPGCONST int a[3][3])
+int mat_get_determinant_i3(MATCONST int a[3][3])
 {
   return a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
     + a[0][1] * (a[1][2] * a[2][0] - a[1][0] * a[2][2])
     + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
 }
 
-int mat_get_trace_i3( SPGCONST int a[3][3] )
+int mat_get_trace_i3( MATCONST int a[3][3] )
 {
   return a[0][0] + a[1][1] + a[2][2];
 }
 
-void mat_copy_matrix_d3(double a[3][3], SPGCONST double b[3][3])
+void mat_copy_matrix_d3(double a[3][3], MATCONST double b[3][3])
 {
   a[0][0] = b[0][0];
   a[0][1] = b[0][1];
@@ -76,7 +76,7 @@ void mat_copy_matrix_d3(double a[3][3], SPGCONST double b[3][3])
   a[2][2] = b[2][2];
 }
 
-void mat_copy_matrix_i3(int a[3][3], SPGCONST int b[3][3])
+void mat_copy_matrix_i3(int a[3][3], MATCONST int b[3][3])
 {
   a[0][0] = b[0][0];
   a[0][1] = b[0][1];
@@ -103,8 +103,8 @@ void mat_copy_vector_i3(int a[3], const int b[3])
   a[2] = b[2];
 }
 
-int mat_check_identity_matrix_i3(SPGCONST int a[3][3],
-                                 SPGCONST int b[3][3])
+int mat_check_identity_matrix_i3(MATCONST int a[3][3],
+                                 MATCONST int b[3][3])
 {
   if ( a[0][0] - b[0][0] ||
        a[0][1] - b[0][1] ||
@@ -122,8 +122,8 @@ int mat_check_identity_matrix_i3(SPGCONST int a[3][3],
   }
 }
 
-int mat_check_identity_matrix_d3(SPGCONST double a[3][3],
-                                 SPGCONST double b[3][3],
+int mat_check_identity_matrix_d3(MATCONST double a[3][3],
+                                 MATCONST double b[3][3],
                                  const double symprec)
 {
   if ( mat_Dabs( a[0][0] - b[0][0] ) > symprec ||
@@ -142,8 +142,8 @@ int mat_check_identity_matrix_d3(SPGCONST double a[3][3],
   }
 }
 
-int mat_check_identity_matrix_id3(SPGCONST int a[3][3],
-                                  SPGCONST double b[3][3],
+int mat_check_identity_matrix_id3(MATCONST int a[3][3],
+                                  MATCONST double b[3][3],
                                   const double symprec)
 {
   if ( mat_Dabs( a[0][0] - b[0][0] ) > symprec ||
@@ -164,8 +164,8 @@ int mat_check_identity_matrix_id3(SPGCONST int a[3][3],
 
 /* m=axb */
 void mat_multiply_matrix_d3(double m[3][3],
-                            SPGCONST double a[3][3],
-                            SPGCONST double b[3][3])
+                            MATCONST double a[3][3],
+                            MATCONST double b[3][3])
 {
   int i, j;                   /* a_ij */
   double c[3][3];
@@ -179,8 +179,8 @@ void mat_multiply_matrix_d3(double m[3][3],
 }
 
 void mat_multiply_matrix_i3(int m[3][3],
-                            SPGCONST int a[3][3],
-                            SPGCONST int b[3][3])
+                            MATCONST int a[3][3],
+                            MATCONST int b[3][3])
 {
   int i, j;                   /* a_ij */
   int c[3][3];
@@ -194,8 +194,8 @@ void mat_multiply_matrix_i3(int m[3][3],
 }
 
 void mat_multiply_matrix_di3(double m[3][3],
-                             SPGCONST double a[3][3],
-                             SPGCONST int b[3][3])
+                             MATCONST double a[3][3],
+                             MATCONST int b[3][3])
 {
   int i, j;                   /* a_ij */
   double c[3][3];
@@ -209,8 +209,8 @@ void mat_multiply_matrix_di3(double m[3][3],
 }
 
 void mat_multiply_matrix_id3(double m[3][3],
-                             SPGCONST int a[3][3],
-                             SPGCONST double b[3][3])
+                             MATCONST int a[3][3],
+                             MATCONST double b[3][3])
 {
   int i, j;                   /* a_ij */
   double c[3][3];
@@ -224,7 +224,7 @@ void mat_multiply_matrix_id3(double m[3][3],
 }
 
 void mat_multiply_matrix_vector_i3(int v[3],
-                                   SPGCONST int a[3][3],
+                                   MATCONST int a[3][3],
                                    const int b[3])
 {
   int i;
@@ -236,7 +236,7 @@ void mat_multiply_matrix_vector_i3(int v[3],
 }
 
 void mat_multiply_matrix_vector_d3(double v[3],
-                                   SPGCONST double a[3][3],
+                                   MATCONST double a[3][3],
                                    const double b[3])
 {
   int i;
@@ -248,7 +248,7 @@ void mat_multiply_matrix_vector_d3(double v[3],
 }
 
 void mat_multiply_matrix_vector_id3(double v[3],
-                                    SPGCONST int a[3][3],
+                                    MATCONST int a[3][3],
                                     const double b[3])
 {
   int i;
@@ -260,7 +260,7 @@ void mat_multiply_matrix_vector_id3(double v[3],
 }
 
 void mat_multiply_matrix_vector_di3(double v[3],
-                                    SPGCONST double a[3][3],
+                                    MATCONST double a[3][3],
                                     const int b[3])
 {
   int i;
@@ -272,8 +272,8 @@ void mat_multiply_matrix_vector_di3(double v[3],
 }
 
 void mat_add_matrix_i3(int m[3][3],
-                       SPGCONST int a[3][3],
-                       SPGCONST int b[3][3])
+                       MATCONST int a[3][3],
+                       MATCONST int b[3][3])
 {
   int i, j;
   for ( i = 0; i < 3; i++ ) {
@@ -284,7 +284,7 @@ void mat_add_matrix_i3(int m[3][3],
 }
 
 
-void mat_cast_matrix_3i_to_3d(double m[3][3], SPGCONST int a[3][3])
+void mat_cast_matrix_3i_to_3d(double m[3][3], MATCONST int a[3][3])
 {
   m[0][0] = a[0][0];
   m[0][1] = a[0][1];
@@ -297,7 +297,7 @@ void mat_cast_matrix_3i_to_3d(double m[3][3], SPGCONST int a[3][3])
   m[2][2] = a[2][2];
 }
 
-void mat_cast_matrix_3d_to_3i(int m[3][3], SPGCONST double a[3][3])
+void mat_cast_matrix_3d_to_3i(int m[3][3], MATCONST double a[3][3])
 {
   m[0][0] = mat_Nint(a[0][0]);
   m[0][1] = mat_Nint(a[0][1]);
@@ -317,14 +317,14 @@ void mat_cast_matrix_3d_to_3i(int m[3][3], SPGCONST double a[3][3])
 /*       -a[#{(i+1)%3}][#{(j+2)%3}]*a[#{(i+2)%3}][#{(j+1)%3}])/det;" */
 /* }} */
 int mat_inverse_matrix_d3(double m[3][3],
-                          SPGCONST double a[3][3],
+                          MATCONST double a[3][3],
                           const double precision)
 {
   double det;
   double c[3][3];
   det = mat_get_determinant_d3(a);
   if (mat_Dabs(det) < precision) {
-    warning_print("spglib: No inverse matrix (det=%f)\n", det);
+    warning_print("No inverse matrix (det=%f)\n", det);
     return 0;
   }
 
@@ -343,13 +343,13 @@ int mat_inverse_matrix_d3(double m[3][3],
 
 /* m = b^-1 a b */
 int mat_get_similar_matrix_d3(double m[3][3],
-                              SPGCONST double a[3][3],
-                              SPGCONST double b[3][3],
+                              MATCONST double a[3][3],
+                              MATCONST double b[3][3],
                               const double precision)
 {
   double c[3][3];
   if (!mat_inverse_matrix_d3(c, b, precision)) {
-    warning_print("spglib: No similar matrix due to 0 determinant.\n");
+    warning_print("No similar matrix due to 0 determinant.\n");
     return 0;
   }
   mat_multiply_matrix_d3(m, a, b);
@@ -357,7 +357,7 @@ int mat_get_similar_matrix_d3(double m[3][3],
   return 1;
 }
 
-void mat_transpose_matrix_d3(double a[3][3], SPGCONST double b[3][3])
+void mat_transpose_matrix_d3(double a[3][3], MATCONST double b[3][3])
 {
   double c[3][3];
   c[0][0] = b[0][0];
@@ -372,7 +372,7 @@ void mat_transpose_matrix_d3(double a[3][3], SPGCONST double b[3][3])
   mat_copy_matrix_d3(a, c);
 }
 
-void mat_transpose_matrix_i3(int a[3][3], SPGCONST int b[3][3])
+void mat_transpose_matrix_i3(int a[3][3], MATCONST int b[3][3])
 {
   int c[3][3];
   c[0][0] = b[0][0];
@@ -388,7 +388,7 @@ void mat_transpose_matrix_i3(int a[3][3], SPGCONST int b[3][3])
 }
 
 void mat_get_metric(double metric[3][3],
-                    SPGCONST double lattice[3][3])
+                    MATCONST double lattice[3][3])
 {
   double lattice_t[3][3];
   mat_transpose_matrix_d3(lattice_t, lattice);
@@ -446,7 +446,7 @@ MatINT * mat_alloc_MatINT(const int size)
   matint = NULL;
 
   if ((matint = (MatINT*) malloc(sizeof(MatINT))) == NULL) {
-    warning_print("spglib: Memory could not be allocated.");
+    warning_print("Memory could not be allocated.");
     return NULL;
   }
 
@@ -454,7 +454,7 @@ MatINT * mat_alloc_MatINT(const int size)
   if (size > 0) {
     if ((matint->mat = (int (*)[3][3]) malloc(sizeof(int[3][3]) * size))
         == NULL) {
-      warning_print("spglib: Memory could not be allocated ");
+      warning_print("Memory could not be allocated ");
       warning_print("(MatINT, line %d, %s).\n", __LINE__, __FILE__);
       free(matint);
       matint = NULL;
@@ -480,7 +480,7 @@ VecDBL * mat_alloc_VecDBL(const int size)
   vecdbl = NULL;
 
   if ((vecdbl = (VecDBL*) malloc(sizeof(VecDBL))) == NULL) {
-    warning_print("spglib: Memory could not be allocated.");
+    warning_print("Memory could not be allocated.");
     return NULL;
   }
 
@@ -488,7 +488,7 @@ VecDBL * mat_alloc_VecDBL(const int size)
   if (size > 0) {
     if ((vecdbl->vec = (double (*)[3]) malloc(sizeof(double[3]) * size))
         == NULL) {
-      warning_print("spglib: Memory could not be allocated ");
+      warning_print("Memory could not be allocated ");
       warning_print("(VecDBL, line %d, %s).\n", __LINE__, __FILE__);
       free(vecdbl);
       vecdbl = NULL;
@@ -508,7 +508,7 @@ void mat_free_VecDBL(VecDBL * vecdbl)
 }
 
 
-int mat_is_int_matrix(SPGCONST double mat[3][3], const double symprec)
+int mat_is_int_matrix(MATCONST double mat[3][3], const double symprec)
 {
   int i, j;
   for (i = 0; i < 3; i++) {
