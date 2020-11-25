@@ -39,6 +39,12 @@
 #define MATCONST
 #endif
 
+#ifdef MATWARNING
+#define warning_print(...) fprintf(stderr,__VA_ARGS__)
+#else
+#define warning_print(...)
+#endif
+
 typedef struct {
   int size;
   int (*mat)[3][3];

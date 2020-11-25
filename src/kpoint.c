@@ -39,13 +39,6 @@
 #include "kpoint.h"
 #include "kgrid.h"
 
-#ifdef KPTWARNING
-#include <stdio.h>
-#define warning_print(...) fprintf(stderr,__VA_ARGS__)
-#else
-#define warning_print(...)
-#endif
-
 #define KPT_NUM_BZ_SEARCH_SPACE 125
 
 static int bz_search_space[KPT_NUM_BZ_SEARCH_SPACE][3] = {
@@ -234,7 +227,7 @@ int kpt_get_irreducible_reciprocal_mesh(int grid_address[][3],
 
   if ((dense_ir_mapping_table =
        (size_t*)malloc(sizeof(size_t) * mesh[0] * mesh[1] * mesh[2])) == NULL) {
-    warning_print("spglib: Memory of unique_rot could not be allocated.");
+    warning_print("Memory of unique_rot could not be allocated.");
     return 0;
   }
 
@@ -286,7 +279,7 @@ int kpt_get_stabilized_reciprocal_mesh(int grid_address[][3],
 
   if ((dense_ir_mapping_table =
        (size_t*)malloc(sizeof(size_t) * mesh[0] * mesh[1] * mesh[2])) == NULL) {
-    warning_print("spglib: Memory of unique_rot could not be allocated.");
+    warning_print("Memory of unique_rot could not be allocated.");
     return 0;
   }
 
@@ -406,7 +399,7 @@ int kpt_relocate_BZ_grid_address(int bz_grid_address[][3],
 
   if ((dense_bz_map =
        (size_t*)malloc(sizeof(size_t) * num_bz_map)) == NULL) {
-    warning_print("spglib: Memory of unique_rot could not be allocated.");
+    warning_print("Memory of unique_rot could not be allocated.");
     return 0;
   }
 
@@ -491,7 +484,7 @@ static MatINT *get_point_group_reciprocal(const MatINT * rotations,
   }
 
   if ((unique_rot = (int*)malloc(sizeof(int) * rot_reciprocal->size)) == NULL) {
-    warning_print("spglib: Memory of unique_rot could not be allocated.");
+    warning_print("Memory of unique_rot could not be allocated.");
     mat_free_MatINT(rot_reciprocal);
     rot_reciprocal = NULL;
     return NULL;
@@ -556,7 +549,7 @@ static MatINT *get_point_group_reciprocal_with_q(const MatINT * rot_reciprocal,
   num_rot = 0;
 
   if ((ir_rot = (int*)malloc(sizeof(int) * rot_reciprocal->size)) == NULL) {
-    warning_print("spglib: Memory of ir_rot could not be allocated.");
+    warning_print("Memory of ir_rot could not be allocated.");
     return NULL;
   }
 

@@ -36,12 +36,6 @@
 #include <stdlib.h>
 #include "mathfunc.h"
 
-#ifdef MATWARNING
-#define warning_print(...) fprintf(stderr,__VA_ARGS__)
-#else
-#define warning_print(...)
-#endif
-
 #define ZERO_PREC 1e-10
 
 double mat_get_determinant_d3(MATCONST double a[3][3])
@@ -58,7 +52,7 @@ int mat_get_determinant_i3(MATCONST int a[3][3])
     + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
 }
 
-int mat_get_trace_i3( MATCONST int a[3][3] )
+int mat_get_trace_i3(MATCONST int a[3][3])
 {
   return a[0][0] + a[1][1] + a[2][2];
 }
