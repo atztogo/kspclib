@@ -3,9 +3,9 @@ from setuptools import setup, Extension
 
 include_dirs = ['../src', numpy.get_include()]
 sources = ['../src/kspclib.c',
-           '../src/debug.c',
            '../src/kpoint.c',
            '../src/tetrahedron_method.c',
+           '../src/kgengrid.c',
            '../src/kgrid.c',
            '../src/mathfunc.c']
 extra_compile_args = []

@@ -94,27 +94,5 @@ PyInit__kspclib(void)
 
 static PyObject * py_kspclib(PyObject *self, PyObject *args)
 {
-  PyArrayObject* py_A;
-  PyArrayObject* py_P;
-  PyArrayObject* py_Q;
-
-  int (*A)[3];
-  int (*P)[3];
-  int (*Q)[3];
-
-  A = NULL;
-  P = NULL;
-  Q = NULL;
-
-  if (!PyArg_ParseTuple(args, "OOO", &py_A, &py_P, &py_Q)) {
-    return NULL;
-  }
-
-  A = (int(*)[3])PyArray_DATA(py_A);
-  P = (int(*)[3])PyArray_DATA(py_P);
-  Q = (int(*)[3])PyArray_DATA(py_Q);
-
-  kspclib(A, P, Q);
-
   Py_RETURN_NONE;
 }
