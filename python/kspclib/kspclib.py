@@ -32,7 +32,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from .kspclib import (get_version, get_all_grid_addresses)
+from . import _kspclib as ksp
+import numpy as np
 
 
-__version__ = "%d.%d.%d" % get_version()
+def get_version():
+    return tuple(ksp.version())
+
+
+def get_all_grid_addresses(mesh):
+    """Return all grid addresses for mesh"""
+    grid_address = np.zeros((np.prod(mesh), 3), dtype='intc', order='C')
+    ksp.get_grid_point_from_address(np.array(grid_address, dtype='intc'),
+                                    np.array(mesh, dtype='intc'))
+    return grid_address

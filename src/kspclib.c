@@ -15,7 +15,7 @@
 /*   the documentation and/or other materials provided with the */
 /*   distribution. */
 
-/* * Neither the name of the phonopy project nor the names of its */
+/* * Neither the name of the kspclib project nor the names of its */
 /*   contributors may be used to endorse or promote products derived */
 /*   from this software without specific prior written permission. */
 
@@ -31,3 +31,11 @@
 /* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN */
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
+
+#include "kspclib.h"
+#include "kgrid.h"
+
+void ksp_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
+{
+  kgd_get_all_grid_addresses(grid_address, mesh);
+}
