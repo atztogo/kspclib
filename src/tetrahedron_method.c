@@ -177,18 +177,6 @@ static int db_relative_grid_address[4][24][4][3] = {
   },
 };
 
-static void
-get_integration_weight_at_omegas(double *integration_weights,
-                                 const int num_omegas,
-                                 const double *omegas,
-                                 THMCONST double tetrahedra_omegas[24][4],
-                                 double (*gn)(const int,
-                                              const double,
-                                              const double[4]),
-                                 double (*IJ)(const int,
-                                              const int,
-                                              const double,
-                                              const double[4]));
 static double
 get_integration_weight(const double omega,
                        THMCONST double tetrahedra_omegas[24][4],
@@ -338,114 +326,6 @@ double thm_get_integration_weight(const double omega,
     return get_integration_weight(omega,
                                   tetrahedra_omegas,
                                   _n, _J);
-  }
-}
-
-void
-thm_get_integration_weight_at_omegas(double *integration_weights,
-                                     const int num_omegas,
-                                     const double *omegas,
-                                     THMCONST double tetrahedra_omegas[24][4],
-                                     const char function)
-{
-  if (function == 'I') {
-    get_integration_weight_at_omegas(integration_weights,
-                                     num_omegas,
-                                     omegas,
-                                     tetrahedra_omegas,
-                                     _g, _I);
-  } else {
-    get_integration_weight_at_omegas(integration_weights,
-                                     num_omegas,
-                                     omegas,
-                                     tetrahedra_omegas,
-                                     _n, _J);
-  }
-}
-
-void thm_get_neighboring_grid_points(int neighboring_grid_points[],
-                                     const int grid_point,
-                                     THMCONST int relative_grid_address[][3],
-                                     const int num_relative_grid_address,
-                                     const int mesh[3],
-                                     THMCONST int bz_grid_address[][3],
-                                     const int bz_map[])
-{
-  int bzmesh[3], address_double[3], bz_address_double[3];
-  int i, j, bz_gp;
-
-  for (i = 0; i < 3; i++) {
-    bzmesh[i] = mesh[i] * 2;
-  }
-  for (i = 0; i < num_relative_grid_address; i++) {
-    for (j = 0; j < 3; j++) {
-      address_double[j] = (bz_grid_address[grid_point][j] +
-                           relative_grid_address[i][j]) * 2;
-      bz_address_double[j] = address_double[j];
-    }
-    bz_gp = bz_map[kgd_get_grid_point_double_mesh(bz_address_double, bzmesh)];
-    if (bz_gp == -1) {
-      neighboring_grid_points[i] =
-        kgd_get_grid_point_double_mesh(address_double, mesh);
-    } else {
-      neighboring_grid_points[i] = bz_gp;
-    }
-  }
-}
-
-void
-thm_get_dense_neighboring_grid_points(size_t neighboring_grid_points[],
-                                      const size_t grid_point,
-                                      THMCONST int relative_grid_address[][3],
-                                      const int num_relative_grid_address,
-                                      const int mesh[3],
-                                      THMCONST int bz_grid_address[][3],
-                                      const size_t bz_map[])
-{
-  int bzmesh[3], address_double[3], bz_address_double[3];
-  size_t i, j, bz_gp, prod_bz_mesh;
-
-  prod_bz_mesh = 1;
-  for (i = 0; i < 3; i++) {
-    bzmesh[i] = mesh[i] * 2;
-    prod_bz_mesh *= bzmesh[i];
-  }
-  for (i = 0; i < num_relative_grid_address; i++) {
-    for (j = 0; j < 3; j++) {
-      address_double[j] = (bz_grid_address[grid_point][j] +
-                           relative_grid_address[i][j]) * 2;
-      bz_address_double[j] = address_double[j];
-    }
-    bz_gp = bz_map[kgd_get_grid_point_double_mesh(bz_address_double, bzmesh)];
-    if (bz_gp == prod_bz_mesh) {
-      neighboring_grid_points[i] =
-        kgd_get_grid_point_double_mesh(address_double, mesh);
-    } else {
-      neighboring_grid_points[i] = bz_gp;
-    }
-  }
-}
-
-static void
-get_integration_weight_at_omegas(double *integration_weights,
-                                 const int num_omegas,
-                                 const double *omegas,
-                                 THMCONST double tetrahedra_omegas[24][4],
-                                 double (*gn)(const int,
-                                              const double,
-                                              const double[4]),
-                                 double (*IJ)(const int,
-                                              const int,
-                                              const double,
-                                              const double[4]))
-{
-  int i;
-
-#pragma omp parallel for
-  for (i = 0; i < num_omegas; i++) {
-    integration_weights[i] = get_integration_weight(omegas[i],
-                                                    tetrahedra_omegas,
-                                                    gn, IJ);
   }
 }
 

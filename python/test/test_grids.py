@@ -46,5 +46,7 @@ def test_get_grid_address_double_mesh():
     mesh = [2, 3, 4]
     for shift in np.ndindex((2, 2, 2)):
         for i, address in enumerate(addresses_234):
+            gp = get_grid_point_double_mesh(address * 2 + shift, mesh)
             ga = get_grid_address_double_mesh(address, mesh, shift)
-            print(ga)
+            ga_gp = get_grid_point_double_mesh(ga, mesh)
+            assert gp == ga_gp

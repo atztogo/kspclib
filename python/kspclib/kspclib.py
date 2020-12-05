@@ -65,3 +65,40 @@ def get_grid_address_double_mesh(address, mesh, is_shift=None):
                                  np.array(mesh, dtype='intc'),
                                  _is_shift)
     return address_double
+
+
+def get_thm_relative_grid_addresses(rec_lattice):
+    """Return relative grid addresses of 24 tetrahedra
+
+    rec_lattice : array_like
+       Reciprocal basis vectors in column vectors.
+       shape=(3, 3), dtype='double', order='C'
+
+    """
+
+    relative_addresses = np.zeros((24, 4, 3), dtype='intc', order='C')
+    ksp.thm_relative_grid_addresses(
+        relative_addresses,
+        np.array(rec_lattice, dtype='double', order='C'))
+    return relative_addresses
+
+
+def get_thm_integration_weight(omega, tetrahedra_omegas, function='J'):
+    """Return tetheradron method integration weight for a grid point
+
+    omega : float
+        Energy where integration weight is computed.
+    tetrahedra omegas : array_like
+        Energies of four vertices of 24 tetrahedra. These energies are those
+        at the grid points as given by ``get_thm_relative_grid_addresses``.
+        shape=(24, 3), dtype='double', order='C'
+    function : str, optional
+        'I': Heaviside function, 'J': delta function. Default is 'J'.
+
+    """
+
+    iw = ksp.thm_integration_weight(
+        float(omega),
+        np.array(tetrahedra_omegas, dtype='double', order='C'),
+        str(function))
+    return iw

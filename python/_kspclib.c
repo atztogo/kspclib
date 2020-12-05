@@ -47,6 +47,8 @@ static PyObject * py_version(PyObject *self, PyObject *args);
 static PyObject * py_all_grid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_grid_point_double_mesh(PyObject *self, PyObject *args);
 static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args);
+static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args);
+static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -75,6 +77,10 @@ static PyMethodDef _kspclib_methods[] = {
    "Return grid point index of grid address of mesh"},
   {"grid_address_double_mesh", py_grid_address_double_mesh, METH_VARARGS,
    "Convert grid address plus shift to double-grid address"},
+  {"thm_relative_grid_addresses", py_thm_relative_grid_addresses, METH_VARARGS,
+   "Return relative grid addresses of 24 tetrahedra"},
+  {"thm_integration_weight", py_thm_integration_weight, METH_VARARGS,
+   "Return integration weight of tetrahedron method for a grid point"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -235,4 +241,52 @@ static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args)
                                    is_shift);
 
   Py_RETURN_NONE;
+}
+
+static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_relative_grid_addresses;
+  PyArrayObject* py_rec_lattice; /* column vectors */
+
+  int (*relative_grid_addresses)[4][3];
+  double (*rec_lattice)[3];
+
+  if (!PyArg_ParseTuple(args, "OO",
+                        &py_relative_grid_addresses,
+                        &py_rec_lattice)) {
+    return NULL;
+  }
+
+  relative_grid_addresses = (int(*)[4][3])PyArray_DATA(py_relative_grid_addresses);
+  rec_lattice = (double(*)[3])PyArray_DATA(py_rec_lattice);
+
+  ksp_get_thm_relative_grid_addresses(relative_grid_addresses,
+                                      rec_lattice);
+
+  Py_RETURN_NONE;
+}
+
+static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
+{
+  double omega;
+  PyArrayObject* py_tetrahedra_omegas;
+  char* function;  /* I: Heaviside function, J: delta function */
+
+  double (*tetrahedra_omegas)[4];  /* [24][4] */
+  double iw;
+
+  if (!PyArg_ParseTuple(args, "dOs",
+                        &omega,
+                        &py_tetrahedra_omegas,
+                        &function)) {
+    return NULL;
+  }
+
+  tetrahedra_omegas = (double(*)[4])PyArray_DATA(py_tetrahedra_omegas);
+
+  iw = thm_get_integration_weight(omega,
+                                  tetrahedra_omegas,
+                                  function[0]);
+
+  return PyFloat_FromDouble(iw);
 }

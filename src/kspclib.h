@@ -36,6 +36,7 @@
 #define __kspclib_H__
 
 #include <stddef.h>
+#include "tetrahedron_method.h"
 
 int ksp_get_major_version(void);
 int ksp_get_minor_version(void);
@@ -47,5 +48,8 @@ void ksp_get_grid_address_double_mesh(int address_double[3],
                                       const int address[3],
                                       const int mesh[3],
                                       const int is_shift[3]);
+/* rec_lattice : column vectors */
+void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
+                                         THMCONST double rec_lattice[3][3]);
 
 #endif
