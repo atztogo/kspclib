@@ -15,7 +15,7 @@
 /*   the documentation and/or other materials provided with the */
 /*   distribution. */
 
-/* * Neither the name of the phonopy project nor the names of its */
+/* * Neither the name of the kspclib project nor the names of its */
 /*   contributors may be used to endorse or promote products derived */
 /*   from this software without specific prior written permission. */
 
@@ -51,14 +51,8 @@ void kgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
   get_all_grid_addresses(grid_address, mesh);
 }
 
-int kgd_get_grid_point_double_mesh(const int address_double[3],
-                                   const int mesh[3])
-{
-  return get_grid_point_double_mesh(address_double, mesh);
-}
-
-size_t kgd_get_dense_grid_point_double_mesh(const int address_double[3],
-                                            const int mesh[3])
+size_t kgd_get_grid_point_double_mesh(const int address_double[3],
+                                      const int mesh[3])
 {
   return get_grid_point_double_mesh(address_double, mesh);
 }

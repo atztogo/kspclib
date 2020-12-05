@@ -32,7 +32,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from .kspclib import (get_version, get_all_grid_addresses)
+from .kspclib import (get_version, get_all_grid_addresses,
+                      get_grid_point_double_mesh,
+                      get_grid_address_double_mesh)
 
 
 __version__ = "%d.%d.%d" % get_version()

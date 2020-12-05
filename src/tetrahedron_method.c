@@ -416,10 +416,10 @@ thm_get_dense_neighboring_grid_points(size_t neighboring_grid_points[],
                            relative_grid_address[i][j]) * 2;
       bz_address_double[j] = address_double[j];
     }
-    bz_gp = bz_map[kgd_get_dense_grid_point_double_mesh(bz_address_double, bzmesh)];
+    bz_gp = bz_map[kgd_get_grid_point_double_mesh(bz_address_double, bzmesh)];
     if (bz_gp == prod_bz_mesh) {
       neighboring_grid_points[i] =
-        kgd_get_dense_grid_point_double_mesh(address_double, mesh);
+        kgd_get_grid_point_double_mesh(address_double, mesh);
     } else {
       neighboring_grid_points[i] = bz_gp;
     }

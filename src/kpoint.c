@@ -356,7 +356,7 @@ kpt_get_dense_grid_points_by_rotations(size_t rot_grid_points[],
     mat_multiply_matrix_vector_i3(address_double,
                                   rot_reciprocal[i],
                                   address_double_orig);
-    rot_grid_points[i] = kgd_get_dense_grid_point_double_mesh(address_double, mesh);
+    rot_grid_points[i] = kgd_get_grid_point_double_mesh(address_double, mesh);
   }
 }
 
@@ -381,7 +381,7 @@ kpt_get_dense_BZ_grid_points_by_rotations(size_t rot_grid_points[],
                                   rot_reciprocal[i],
                                   address_double_orig);
     rot_grid_points[i] =
-      bz_map[kgd_get_dense_grid_point_double_mesh(address_double, bzmesh)];
+      bz_map[kgd_get_grid_point_double_mesh(address_double, bzmesh)];
   }
 }
 
@@ -652,7 +652,7 @@ static size_t get_dense_ir_reciprocal_mesh_normal(int grid_address[][3],
       mat_multiply_matrix_vector_i3(address_double_rot,
                                     rot_reciprocal->mat[j],
                                     address_double);
-      grid_point_rot = kgd_get_dense_grid_point_double_mesh(address_double_rot, mesh);
+      grid_point_rot = kgd_get_grid_point_double_mesh(address_double_rot, mesh);
       if (grid_point_rot < ir_mapping_table[i]) {
 #ifdef _OPENMP
         ir_mapping_table[i] = grid_point_rot;
@@ -720,7 +720,7 @@ get_dense_ir_reciprocal_mesh_distortion(int grid_address[][3],
       }
       if (indivisible) {continue;}
       grid_point_rot =
-        kgd_get_dense_grid_point_double_mesh(address_double_rot, mesh);
+        kgd_get_grid_point_double_mesh(address_double_rot, mesh);
       if (grid_point_rot < ir_mapping_table[i]) {
 #ifdef _OPENMP
         ir_mapping_table[i] = grid_point_rot;
@@ -817,7 +817,7 @@ static size_t relocate_dense_BZ_grid_address(int bz_grid_address[][3],
             grid_address[i][k] + bz_search_space[j][k] * mesh[k];
           bz_address_double[k] = bz_grid_address[gp][k] * 2 + is_shift[k];
         }
-        bzgp = kgd_get_dense_grid_point_double_mesh(bz_address_double, bzmesh);
+        bzgp = kgd_get_grid_point_double_mesh(bz_address_double, bzmesh);
         bz_map[bzgp] = gp;
         if (j != min_index) {
           boundary_num_gp++;

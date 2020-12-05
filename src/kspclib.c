@@ -34,8 +34,41 @@
 
 #include "kspclib.h"
 #include "kgrid.h"
+#include "version.h"
+
+int ksp_get_major_version(void)
+{
+  return KSPCLIB_MAJOR_VERSION;
+}
+
+int ksp_get_minor_version(void)
+{
+  return KSPCLIB_MINOR_VERSION;
+}
+
+int ksp_get_micro_version(void)
+{
+  return KSPCLIB_MICRO_VERSION;
+}
 
 void ksp_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
 {
   kgd_get_all_grid_addresses(grid_address, mesh);
+}
+
+size_t ksp_get_grid_point_double_mesh(const int address_double[3],
+                                      const int mesh[3])
+{
+  return kgd_get_grid_point_double_mesh(address_double, mesh);
+}
+
+void ksp_get_grid_address_double_mesh(int address_double[3],
+                                      const int address[3],
+                                      const int mesh[3],
+                                      const int is_shift[3])
+{
+  kgd_get_grid_address_double_mesh(address_double,
+                                   address,
+                                   mesh,
+                                   is_shift);
 }

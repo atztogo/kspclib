@@ -43,6 +43,25 @@ def get_version():
 def get_all_grid_addresses(mesh):
     """Return all grid addresses for mesh"""
     grid_address = np.zeros((np.prod(mesh), 3), dtype='intc', order='C')
-    ksp.get_grid_point_from_address(np.array(grid_address, dtype='intc'),
-                                    np.array(mesh, dtype='intc'))
+    ksp.all_grid_addresses(grid_address, np.array(mesh, dtype='intc'))
     return grid_address
+
+
+def get_grid_point_double_mesh(address_double, mesh):
+    """Return grid point index of grid address of mesh"""
+    return ksp.grid_point_double_mesh(np.array(address_double, dtype='intc'),
+                                      np.array(mesh, dtype='intc'))
+
+
+def get_grid_address_double_mesh(address, mesh, is_shift=None):
+    """Return grid point index of grid address of mesh"""
+    address_double = np.zeros(3, dtype='intc', order='C')
+    if is_shift is None:
+        _is_shift = np.zeros(3, dtype='intc', order='C')
+    else:
+        _is_shift = np.array(is_shift, dtype='intc')
+    ksp.grid_address_double_mesh(address_double,
+                                 np.array(address, dtype='intc'),
+                                 np.array(mesh, dtype='intc'),
+                                 _is_shift)
+    return address_double
