@@ -55,12 +55,12 @@ install(TARGETS kspc_static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 # Header file
 install(FILES ${PROJECT_SOURCE_DIR}/src/kspclib.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# add_executable(kspclibtest EXCLUDE_FROM_ALL ${PROJECT_SOURCE_DIR}/src/test.c ${SOURCES})
-# if(NOT MSVC)
-#   target_link_libraries(kspclibtest m)
-# endif()
-# enable_testing()
-# add_test(kspclibtest kspclibtest)
+add_executable(kspclibtest EXCLUDE_FROM_ALL ${PROJECT_SOURCE_DIR}/test/test_kgrid.c ${SOURCES})
+if(NOT MSVC)
+  target_link_libraries(kspclibtest m)
+endif()
+enable_testing()
+add_test(kspclibtest kspclibtest)
 
 # make check
 

@@ -93,7 +93,7 @@ def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
         at the grid points as given by ``get_thm_relative_grid_addresses``.
         shape=(24, 4), dtype='double', order='C'
     function : str, optional
-        'I': delta function, 'J': Heaviside function. Default is 'I'.
+        'I' for delta function and 'J' for Heaviside function. Default is 'I'.
 
     """
 

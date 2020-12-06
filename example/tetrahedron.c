@@ -21,7 +21,7 @@ int main(void)
 /* The values in this file are the phonon frequencies of NaCl */
 /* with 20x20x20 mesh. Calculation was done with reducing */
 /* k-points to the irreducible k-points using phonopy. */
-/* (http://phonopy.sf.net/) */
+/* (https://github.com/phonopy/phonopy) */
 static void test_tetrahedron_method(void)
 {
   printf("*** Example of tetrahedron method of NaCl to calculate DOS ***:\n");
