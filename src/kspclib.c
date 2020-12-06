@@ -79,3 +79,10 @@ void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
 {
   thm_get_relative_grid_address(relative_grid_addresses, rec_lattice);
 }
+
+double ksp_get_thm_integration_weight(const double omega,
+                                      THMCONST double tetrahedra_omegas[24][4],
+                                      const char function)
+{
+  return thm_get_integration_weight(omega, tetrahedra_omegas, function);
+}

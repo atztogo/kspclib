@@ -83,22 +83,22 @@ def get_thm_relative_grid_addresses(rec_lattice):
     return relative_addresses
 
 
-def get_thm_integration_weight(omega, tetrahedra_omegas, function='J'):
+def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
     """Return tetheradron method integration weight for a grid point
 
     omega : float
         Energy where integration weight is computed.
-    tetrahedra omegas : array_like
+    tetrahedra_omegas : array_like
         Energies of four vertices of 24 tetrahedra. These energies are those
         at the grid points as given by ``get_thm_relative_grid_addresses``.
-        shape=(24, 3), dtype='double', order='C'
+        shape=(24, 4), dtype='double', order='C'
     function : str, optional
-        'I': Heaviside function, 'J': delta function. Default is 'J'.
+        'I': delta function, 'J': Heaviside function. Default is 'I'.
 
     """
 
     iw = ksp.thm_integration_weight(
         float(omega),
         np.array(tetrahedra_omegas, dtype='double', order='C'),
-        str(function))
+        str(function.upper()))
     return iw

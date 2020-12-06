@@ -23,7 +23,20 @@ def sio2_lattice():
 @pytest.fixture(scope='session')
 def tio2_lattice():
     """row vectors"""
-    lattice = [[ -1.888070425000000, 1.888070425000000, 4.790243149999999 ],
-               [ 1.888070425000000, -1.888070424999999, 4.790243149999999 ],
-               [ 1.888070425000000, 1.888070424999999, -4.790243149999999 ]]
+    lattice = [[-1.888070425000000, 1.888070425000000, 4.790243149999999],
+               [1.888070425000000, -1.888070424999999, 4.790243149999999],
+               [1.888070425000000, 1.888070424999999, -4.790243149999999]]
     return lattice
+
+
+@pytest.fixture(scope='session')
+def nacl_phonon_frequences_101010():
+    """NaCl phonon frequency data
+
+    Phonons are sampled on 10x10x10 regular grid without shift.
+    Number of bands is six.
+
+    """
+    filename = os.path.join(current_dir, "frequency-101010.dat")
+    freqs = np.loadtxt(filename).reshape(-1, 6)
+    return freqs

@@ -270,7 +270,7 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 {
   double omega;
   PyArrayObject* py_tetrahedra_omegas;
-  char* function;  /* I: Heaviside function, J: delta function */
+  char* function;  /* I: delta function, J: Heaviside function */
 
   double (*tetrahedra_omegas)[4];  /* [24][4] */
   double iw;
@@ -284,9 +284,9 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 
   tetrahedra_omegas = (double(*)[4])PyArray_DATA(py_tetrahedra_omegas);
 
-  iw = thm_get_integration_weight(omega,
-                                  tetrahedra_omegas,
-                                  function[0]);
+  iw = ksp_get_thm_integration_weight(omega,
+                                      tetrahedra_omegas,
+                                      function[0]);
 
   return PyFloat_FromDouble(iw);
 }

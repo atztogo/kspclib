@@ -51,5 +51,8 @@ void ksp_get_grid_address_double_mesh(int address_double[3],
 /* rec_lattice : column vectors */
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
                                          THMCONST double rec_lattice[3][3]);
+double ksp_get_thm_integration_weight(const double omega,
+                                      THMCONST double tetrahedra_omegas[24][4],
+                                      const char function);
 
 #endif
