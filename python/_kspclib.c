@@ -49,6 +49,7 @@ static PyObject * py_grid_point_double_mesh(PyObject *self, PyObject *args);
 static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args);
 static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args);
+static PyObject * py_snf3x3(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -81,6 +82,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Return relative grid addresses of 24 tetrahedra"},
   {"thm_integration_weight", py_thm_integration_weight, METH_VARARGS,
    "Return integration weight of tetrahedron method for a grid point"},
+  {"snf3x3", py_snf3x3, METH_VARARGS,
+   "Return D, P, Q of Smith normal form"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -293,25 +296,23 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 
 static PyObject * py_snf3x3(PyObject *self, PyObject *args)
 {
-  PyArrayObject* DPQ_py;
-  PyArrayObject* A_py;
+  PyArrayObject* py_DPQ;
+  PyArrayObject* py_A;
 
   long (*DPQ)[3][3];  /* [3][3][3], left-most index gives D, P, Q. */
   long (*A)[3];  /* [3][3], left-most index gives D, P, Q. */
-
+  int succeeded;
 
   if (!PyArg_ParseTuple(args, "OO",
-                        &DPQ_py,
-                        &A_py)) {
+                        &py_DPQ,
+                        &py_A)) {
     return NULL;
   }
 
   DPQ = (long(*)[3][3])PyArray_DATA(py_DPQ);
   A = (long(*)[3])PyArray_DATA(py_A);
 
-  iw = ksp_get_thm_integration_weight(omega,
-                                      tetrahedra_omegas,
-                                      function[0]);
+  succeeded = ksp_get_snf3x3(DPQ[0], DPQ[1], DPQ[2], A);
 
-  return PyFloat_FromDouble(iw);
+  return PyBool_FromLong((long) succeeded);
 }

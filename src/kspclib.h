@@ -58,6 +58,11 @@ void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
 double ksp_get_thm_integration_weight(const double omega,
                                       THMCONST double tetrahedra_omegas[24][4],
                                       const char function);
+int ksp_get_snf3x3(long D[3][3],
+                   long P[3][3],
+                   long Q[3][3],
+                   THMCONST long A[3][3]);
+
 #ifdef __cplusplus
 }
 #endif

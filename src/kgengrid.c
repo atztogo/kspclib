@@ -40,7 +40,10 @@
 #include "snf3x3.h"
 
 
-int kgg_get_snf3x3(SNF3x3 * snf, MATCONST long A[3][3])
+int kgg_get_snf3x3(long D[3][3],
+                   long P[3][3],
+                   long Q[3][3],
+                   MATCONST long A[3][3])
 {
   int i, j, succeeded;
 
@@ -52,11 +55,11 @@ int kgg_get_snf3x3(SNF3x3 * snf, MATCONST long A[3][3])
 
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
-      snf->D[i][j] = A[i][j];
+      D[i][j] = A[i][j];
     }
   }
 
-  succeeded = snf3x3(snf->D, snf->P, snf->Q);
+  succeeded = snf3x3(D, P, Q);
 
 err:
   return succeeded;

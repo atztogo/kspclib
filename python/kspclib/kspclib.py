@@ -102,3 +102,15 @@ def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
         np.array(tetrahedra_omegas, dtype='double', order='C'),
         str(function.upper()))
     return iw
+
+
+def get_snf3x3(A):
+    DPQ = np.zeros((3, 3, 3), dtype='int_', order='C')
+    succeeded = ksp.snf3x3(DPQ, np.array(A, dtype='int_', order='C'))
+
+    if succeeded:
+        return (np.array(DPQ[0], dtype='int_', order='C'),
+                np.array(DPQ[1], dtype='int_', order='C'),
+                np.array(DPQ[2], dtype='int_', order='C'))
+    else:
+        return None
