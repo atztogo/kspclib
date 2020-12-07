@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.4)
+cmake_policy(SET CMP0007 NEW)
 
 project(kspclib C)
 set(CMAKE_MACOSX_RPATH 1)
@@ -33,6 +34,8 @@ set(SOURCES
   ${PROJECT_SOURCE_DIR}/src/kpoint.c
   ${PROJECT_SOURCE_DIR}/src/kspclib.c
   ${PROJECT_SOURCE_DIR}/src/mathfunc.c
+  ${PROJECT_SOURCE_DIR}/src/niggli.c
+  ${PROJECT_SOURCE_DIR}/src/snf3x3.c
   ${PROJECT_SOURCE_DIR}/src/tetrahedron_method.c)
 
 # Shared library

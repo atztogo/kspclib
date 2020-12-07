@@ -290,3 +290,28 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 
   return PyFloat_FromDouble(iw);
 }
+
+static PyObject * py_snf3x3(PyObject *self, PyObject *args)
+{
+  PyArrayObject* DPQ_py;
+  PyArrayObject* A_py;
+
+  long (*DPQ)[3][3];  /* [3][3][3], left-most index gives D, P, Q. */
+  long (*A)[3];  /* [3][3], left-most index gives D, P, Q. */
+
+
+  if (!PyArg_ParseTuple(args, "OO",
+                        &DPQ_py,
+                        &A_py)) {
+    return NULL;
+  }
+
+  DPQ = (long(*)[3][3])PyArray_DATA(py_DPQ);
+  A = (long(*)[3])PyArray_DATA(py_A);
+
+  iw = ksp_get_thm_integration_weight(omega,
+                                      tetrahedra_omegas,
+                                      function[0]);
+
+  return PyFloat_FromDouble(iw);
+}

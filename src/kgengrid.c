@@ -36,3 +36,61 @@
 #include <stddef.h>
 #include <assert.h>
 #include "kgengrid.h"
+#include "mathfunc.h"
+#include "snf3x3.h"
+
+
+int kgg_get_snf3x3(SNF3x3 * snf, MATCONST long A[3][3])
+{
+  int i, j, succeeded;
+
+  succeeded = 0;
+
+  if (mat_get_determinant_l3(A) == 0) {
+    goto err;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      snf->D[i][j] = A[i][j];
+    }
+  }
+
+  succeeded = snf3x3(snf->D, snf->P, snf->Q);
+
+err:
+  return succeeded;
+}
+
+/* rotations->mat: (long*)[3][3] */
+/*    Defined as q' = Rq */
+int kgg_sanity_check_rotations(MATCONST SNF3x3 *snf,
+                               MATCONST MatINT *rotations,
+                               const double symprec)
+{
+  int i, j;
+  double QD_inv[3][3], D_inv[3][3], r[3][3];
+  long r_long[3][3];
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      if (i == j) {
+        D_inv[i][i] = 1.0 / ((double) snf->D[i][i]);
+      } else {
+        D_inv[i][j] = 0;
+      }
+    }
+  }
+
+  /* D(Q^-1)RQ(D^-1) */
+  mat_multiply_matrix_ld3(QD_inv, snf->Q, D_inv);
+  for (i = 0; i < rotations->size; i++) {
+    mat_get_similar_matrix_id3(r, rotations->mat[i], QD_inv, 0);
+    mat_cast_matrix_3d_to_3l(r_long, r);
+    if (! mat_check_identity_matrix_ld3(r_long, r, symprec)) {
+      return 0;
+    }
+  }
+
+  return 1;
+}

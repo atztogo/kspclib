@@ -36,5 +36,17 @@
 #define __kgengrid_H__
 
 #include <stddef.h>
+#include "mathfunc.h"
+
+typedef struct {
+  long D[3][3];
+  long P[3][3];
+  long Q[3][3];
+} SNF3x3;
+
+int kgg_get_snf3x3(SNF3x3 * snf, MATCONST long A[3][3]);
+int kgg_sanity_check_rotations(MATCONST SNF3x3 *snf,
+                               MATCONST MatINT *rotations,
+                               const double symprec);
 
 #endif

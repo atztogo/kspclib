@@ -34,6 +34,8 @@
 
 #include "kspclib.h"
 #include "kgrid.h"
+#include "kgengrid.h"
+#include "mathfunc.h"
 #include "tetrahedron_method.h"
 #include "version.h"
 
@@ -85,4 +87,13 @@ double ksp_get_thm_integration_weight(const double omega,
                                       const char function)
 {
   return thm_get_integration_weight(omega, tetrahedra_omegas, function);
+}
+
+int kgg_get_snf3x3(long D[3][3],
+                   long P[3][3],
+                   long Q[3][3],
+                   THMCONST long A[3][3])
+{
+  SNF3x3 snf;
+  int kgg_get_snf3x3(&snf, A);
 }

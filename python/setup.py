@@ -11,10 +11,12 @@ include_dirs = [source_dir, numpy.get_include()]
 sources = [os.path.join(source_dir, filename) for filename
            in ('kspclib.c',
                'kpoint.c',
-               'tetrahedron_method.c',
                'kgengrid.c',
                'kgrid.c',
-               'mathfunc.c')]
+               'mathfunc.c',
+               'niggli.c',
+               'snf3x3.c',
+               'tetrahedron_method.c')]
 extra_compile_args = []
 extra_link_args = []
 define_macros = []
@@ -33,8 +35,10 @@ extension = Extension('kspclib._kspclib',
                       extra_link_args=extra_link_args,
                       define_macros=define_macros)
 
+version = ".".join(["%d" % n for n in version_nums])
+
 setup(name='kspclib',
-      version='0.1',
+      version=version,
       setup_requires=['numpy', 'setuptools'],
       description='This is the Kspclib module.',
       author='Atsushi Togo',
