@@ -41,20 +41,73 @@ def get_version():
 
 
 def get_all_grid_addresses(mesh):
-    """Return all grid addresses for mesh"""
+    """Return all grid addresses for mesh
+
+    Parameters
+    ----------
+    mesh : array_like
+        Conventional regular mesh for grid sampling.
+        shape=(3,), dtype='intc'
+
+    Returns
+    -------
+    grid_address : ndarray
+        Grid addresses of all grid points corresponding to input mesh.
+        shape=(all_grid_points, 3), dtype='intc'
+
+    """
+
     grid_address = np.zeros((np.prod(mesh), 3), dtype='intc', order='C')
     ksp.all_grid_addresses(grid_address, np.array(mesh, dtype='intc'))
     return grid_address
 
 
 def get_grid_point_double_mesh(address_double, mesh):
-    """Return grid point index of grid address of mesh"""
+    """Return grid point index of grid address of mesh
+
+    Parameters
+    ----------
+    address_double : array_like
+        Grid address in double grid method.
+        shape=(3,), dtype='intc'
+    mesh : array_like
+        Conventional regular mesh for grid sampling.
+        shape=(3,), dtype='intc'
+
+    Returns
+    -------
+    grid_point : int
+        Grid point index.
+
+    """
     return ksp.grid_point_double_mesh(np.array(address_double, dtype='intc'),
                                       np.array(mesh, dtype='intc'))
 
 
 def get_grid_address_double_mesh(address, mesh, is_shift=None):
-    """Return grid point index of grid address of mesh"""
+    """Return grid point index of grid address of mesh
+
+    Parameters
+    ----------
+    address : array_like
+        Grid address.
+        shape=(3,), dtype='intc'
+    mesh : array_like
+        Conventional regular mesh for grid sampling.
+        shape=(3,), dtype='intc'
+    is_shift : array_like, optional
+        Half grid shift for conventional regular mesh along reciprocal basis
+        vector directions. 0 and 1 mean no shift and half shift, recpectively.
+        shape=(3,), dtype='intc'
+
+    Returns
+    -------
+    address_double : ndarray
+        Grid address in double grid method.
+        shape=(3,), dtype='intc'
+
+    """
+
     address_double = np.zeros(3, dtype='intc', order='C')
     if is_shift is None:
         _is_shift = np.zeros(3, dtype='intc', order='C')
@@ -70,9 +123,18 @@ def get_grid_address_double_mesh(address, mesh, is_shift=None):
 def get_thm_relative_grid_addresses(rec_lattice):
     """Return relative grid addresses of 24 tetrahedra
 
+    Parameters
+    ----------
     rec_lattice : array_like
        Reciprocal basis vectors in column vectors.
        shape=(3, 3), dtype='double', order='C'
+
+    Returns
+    -------
+    relative_addresses : ndarray
+       Grid address shifts corresponding to 24 tetrahedra surrounding
+       a grid point for conventional regular grid.
+       shape=(24, 4, 3), dtype='intc', order='C'
 
     """
 
@@ -86,6 +148,8 @@ def get_thm_relative_grid_addresses(rec_lattice):
 def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
     """Return tetheradron method integration weight for a grid point
 
+    Parameters
+    ----------
     omega : float
         Energy where integration weight is computed.
     tetrahedra_omegas : array_like
@@ -94,6 +158,11 @@ def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
         shape=(24, 4), dtype='double', order='C'
     function : str, optional
         'I' for delta function and 'J' for Heaviside function. Default is 'I'.
+
+    Returns
+    -------
+    integration_weight : float
+        Integration weight for a grid point.
 
     """
 
@@ -105,12 +174,30 @@ def get_thm_integration_weight(omega, tetrahedra_omegas, function='I'):
 
 
 def get_snf3x3(A):
+    """Return Smith normal form of 3x3 integer matrix
+
+    Parameters
+    ----------
+    A : array_like
+        Integer transformation matrix from basis vectors of microzone to
+        those of primitive basis vectors.
+        shape=(3, 3), dtype='int_', order='C'
+
+    returns
+    -------
+    snf : dict
+        D, P, Q of Smith normal form of 3x3 integer matrix. The dict keys are
+        'D', 'P', 'Q', respectively.
+        D, P, Q: shape=(3, 3), dtype='int_', order='C'
+
+    """
+
     DPQ = np.zeros((3, 3, 3), dtype='int_', order='C')
     succeeded = ksp.snf3x3(DPQ, np.array(A, dtype='int_', order='C'))
 
     if succeeded:
-        return (np.array(DPQ[0], dtype='int_', order='C'),
-                np.array(DPQ[1], dtype='int_', order='C'),
-                np.array(DPQ[2], dtype='int_', order='C'))
+        return {'D': np.array(DPQ[0], dtype='int_', order='C'),
+                'P': np.array(DPQ[1], dtype='int_', order='C'),
+                'Q': np.array(DPQ[2], dtype='int_', order='C')}
     else:
         return None
