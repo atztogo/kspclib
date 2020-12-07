@@ -36,6 +36,7 @@
 #include "kgrid.h"
 #include "kgengrid.h"
 #include "mathfunc.h"
+#include "snf3x3.h"
 #include "tetrahedron_method.h"
 #include "version.h"
 
@@ -77,13 +78,13 @@ void ksp_get_grid_address_double_mesh(int address_double[3],
 }
 
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
-                                         THMCONST double rec_lattice[3][3])
+                                         MATCONST double rec_lattice[3][3])
 {
   thm_get_relative_grid_address(relative_grid_addresses, rec_lattice);
 }
 
 double ksp_get_thm_integration_weight(const double omega,
-                                      THMCONST double tetrahedra_omegas[24][4],
+                                      MATCONST double tetrahedra_omegas[24][4],
                                       const char function)
 {
   return thm_get_integration_weight(omega, tetrahedra_omegas, function);
@@ -92,7 +93,25 @@ double ksp_get_thm_integration_weight(const double omega,
 int ksp_get_snf3x3(long D[3][3],
                    long P[3][3],
                    long Q[3][3],
-                   THMCONST long A[3][3])
+                   MATCONST long A[3][3])
 {
   return kgg_get_snf3x3(D, P, Q, A);
+}
+
+int ksp_sanity_check_rotations(MATCONST long A[3][3],
+                               MATCONST MatINT *rotations,
+                               const double symprec)
+{
+  int succeeded;
+  SNF3x3 snf;
+
+  succeeded = 0;
+  if (!kgg_get_snf3x3(snf.D, snf.P, snf.Q, A)) {
+    goto err;
+  }
+
+  succeeded = kgg_sanity_check_rotations(&snf, rotations, symprec);
+
+err:
+  return succeeded;
 }
