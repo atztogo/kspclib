@@ -78,13 +78,13 @@ void ksp_get_grid_address_double_mesh(int address_double[3],
 }
 
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
-                                         MATCONST double rec_lattice[3][3])
+                                         KSPCONST double rec_lattice[3][3])
 {
   thm_get_relative_grid_address(relative_grid_addresses, rec_lattice);
 }
 
 double ksp_get_thm_integration_weight(const double omega,
-                                      MATCONST double tetrahedra_omegas[24][4],
+                                      KSPCONST double tetrahedra_omegas[24][4],
                                       const char function)
 {
   return thm_get_integration_weight(omega, tetrahedra_omegas, function);
@@ -93,24 +93,30 @@ double ksp_get_thm_integration_weight(const double omega,
 int ksp_get_snf3x3(long D[3][3],
                    long P[3][3],
                    long Q[3][3],
-                   MATCONST long A[3][3])
+                   KSPCONST long A[3][3])
 {
   return kgg_get_snf3x3(D, P, Q, A);
 }
 
-int ksp_sanity_check_rotations(MATCONST long A[3][3],
-                               MATCONST MatINT *rotations,
-                               const double symprec)
+int ksp_sanity_check_rotations(KSPCONST int (*rotations)[3][3],
+                               const int num_rot,
+                               KSPCONST long D[3][3],
+                               KSPCONST long Q[3][3])
 {
-  int succeeded;
-  SNF3x3 snf;
+  int i, succeeded;
+  MatINT *rots;
 
   succeeded = 0;
-  if (!kgg_get_snf3x3(snf.D, snf.P, snf.Q, A)) {
+
+  if ((rots = mat_alloc_MatINT(num_rot)) == NULL) {
     goto err;
   }
 
-  succeeded = kgg_sanity_check_rotations(&snf, rotations, symprec);
+  for (i = 0; i < num_rot; i++) {
+    mat_copy_matrix_i3(rots->mat[i], rotations[i]);
+  }
+
+  succeeded = kgg_sanity_check_rotations(rots, D, Q);
 
 err:
   return succeeded;

@@ -1,9 +1,91 @@
 import numpy as np
-from kspclib import (get_snf3x3, )
+from kspclib import (get_snf3x3, sanity_check_rotations)
+
+# (16, 3, 3)
+tio2_rots = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [0, 0, -1],
+    [1, 1, 1],
+    [0, -1, 0],
+    [0, 1, 0],
+    [1, 0, 0],
+    [-1, -1, -1],
+    [1, 1, 1],
+    [0, 0, -1],
+    [-1, 0, 0],
+    [-1, -1, -1],
+    [0, 0, 1],
+    [0, 1, 0],
+    [0, -1, 0],
+    [-1, 0, 0],
+    [0, 0, -1],
+    [0, 0, 1],
+    [-1, -1, -1],
+    [1, 0, 0],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [1, 1, 1],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [0, 0, -1],
+    [0, 0, 1],
+    [-1, -1, -1],
+    [0, 1, 0],
+    [0, -1, 0],
+    [-1, 0, 0],
+    [1, 1, 1],
+    [-1, -1, -1],
+    [0, 0, 1],
+    [1, 0, 0],
+    [1, 1, 1],
+    [0, 0, -1],
+    [0, -1, 0],
+    [0, 1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    [0, 0, -1],
+    [1, 1, 1],
+    [-1, 0, 0],
+    [1, 0, 0],
+    [0, 1, 0],
+    [-1, -1, -1]]
+tio2_grid_mat = [[0, 5, 5],
+                 [5, 0, 5],
+                 [2, 2, 0]]
+tio2_snf = {'D': [[1, 0, 0],
+                  [0, 5, 0],
+                  [0, 0, 20]],
+            'P': [[0, 1, -2],
+                  [1, 0, 0],
+                  [-2, 2, -5]],
+            'Q': [[1, -5, -9],
+                  [0, 0, -1],
+                  [0, 1, 1]]}
 
 
 def test_get_snf3x3():
-    A = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype='int_') * 100
+    A = tio2_grid_mat
     snf = get_snf3x3(A)
     _D = np.dot(snf['P'], np.dot(A, snf['Q']))
     np.testing.assert_array_equal(snf['D'], _D)
+    for symbol in ('D', 'P', 'Q'):
+        np.testing.assert_array_equal(tio2_snf[symbol], snf[symbol])
+
+
+def test_sanity_check_rotations():
+    """TiO2 anatase I4_1/amd (141)
+
+    Primitive cell of body centred tetragonal crystal requires generalized
+    regular mesh to let grid preserve symmetry. The conventional regular mesh
+    (Q=I) fails although |a*|=|b*|.
+
+    """
+
+    rotations = np.reshape(tio2_rots, (16, 3, 3))
+    # tio2_grid_mat = np.eye(3, dtype=int) * 4
+    assert sanity_check_rotations(rotations, grid_matrix=tio2_grid_mat)
+    assert sanity_check_rotations(rotations, D=tio2_snf['D'], Q=tio2_snf['Q'])
+    assert not sanity_check_rotations(
+        rotations, D=[4, 4, 8], Q=np.eye(3, dtype=int))

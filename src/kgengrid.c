@@ -39,6 +39,7 @@
 #include "mathfunc.h"
 #include "snf3x3.h"
 
+#define IDENTITY_TOL 1e-5
 
 int kgg_get_snf3x3(long D[3][3],
                    long P[3][3],
@@ -67,30 +68,31 @@ err:
 
 /* rotations->mat: (long*)[3][3] */
 /*    Defined as q' = Rq */
-int kgg_sanity_check_rotations(MATCONST SNF3x3 *snf,
-                               MATCONST MatINT *rotations,
-                               const double symprec)
+int kgg_sanity_check_rotations(MATCONST MatINT *rotations,
+                               MATCONST long D[3][3],
+                               MATCONST long Q[3][3])
 {
-  int i, j;
-  double QD_inv[3][3], D_inv[3][3], r[3][3];
+  int i, j, k;
+  double r[3][3], Q_double[3][3];
   long r_long[3][3];
 
-  for (i = 0; i < 3; i++) {
+  /* Compute D(Q^-1)RQ(D^-1) by three steps */
+  /* It is assumed that |det(Q)|=1 and Q^-1 has relatively small round-off */
+  /* error, and we want to divide by D carefully. */
+  /* 1. Compute (Q^-1)RQ */
+  /* 2. Compute D(Q^-1)RQ */
+  /* 3. Compute D(Q^-1)RQ(D^-1) */
+  mat_cast_matrix_3l_to_3d(Q_double, Q);
+  for (i = 0; i < rotations->size; i++) {
+    mat_get_similar_matrix_id3(r, rotations->mat[i], Q_double, 0);
     for (j = 0; j < 3; j++) {
-      if (i == j) {
-        D_inv[i][i] = 1.0 / ((double) snf->D[i][i]);
-      } else {
-        D_inv[i][j] = 0;
+      for (k = 0; k < 3; k++) {
+        r[j][k] *= D[j][j];
+        r[j][k] /= D[k][k];
       }
     }
-  }
-
-  /* D(Q^-1)RQ(D^-1) */
-  mat_multiply_matrix_ld3(QD_inv, snf->Q, D_inv);
-  for (i = 0; i < rotations->size; i++) {
-    mat_get_similar_matrix_id3(r, rotations->mat[i], QD_inv, 0);
     mat_cast_matrix_3d_to_3l(r_long, r);
-    if (! mat_check_identity_matrix_ld3(r_long, r, symprec)) {
+    if (! mat_check_identity_matrix_ld3(r_long, r, IDENTITY_TOL)) {
       return 0;
     }
   }

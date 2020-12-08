@@ -50,6 +50,7 @@ static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args);
 static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args);
 static PyObject * py_snf3x3(PyObject *self, PyObject *args);
+static PyObject * py_sanity_check_rotations(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -84,6 +85,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Return integration weight of tetrahedron method for a grid point"},
   {"snf3x3", py_snf3x3, METH_VARARGS,
    "Return D, P, Q of Smith normal form"},
+  {"sanity_check_rotations", py_sanity_check_rotations, METH_VARARGS,
+   "Check compatibility of grid generation matrix against rotations"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -300,7 +303,7 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
   PyArrayObject* py_A;
 
   long (*DPQ)[3][3];  /* [3][3][3], left-most index gives D, P, Q. */
-  long (*A)[3];  /* [3][3], left-most index gives D, P, Q. */
+  long (*A)[3];  /* [3][3] */
   int succeeded;
 
   if (!PyArg_ParseTuple(args, "OO",
@@ -313,6 +316,34 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
   A = (long(*)[3])PyArray_DATA(py_A);
 
   succeeded = ksp_get_snf3x3(DPQ[0], DPQ[1], DPQ[2], A);
+
+  return PyBool_FromLong((long) succeeded);
+}
+
+static PyObject * py_sanity_check_rotations(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_D;
+  PyArrayObject* py_Q;
+  PyArrayObject* py_rotations;
+
+  long (*D)[3];  /* [3][3] */
+  long (*Q)[3];  /* [3][3] */
+  int (*rotations)[3][3];
+  int succeeded, num_rot;
+
+  if (!PyArg_ParseTuple(args, "OOO",
+                        &py_D,
+                        &py_Q,
+                        &py_rotations)) {
+    return NULL;
+  }
+
+  D = (long(*)[3])PyArray_DATA(py_D);
+  Q = (long(*)[3])PyArray_DATA(py_Q);
+  rotations = (int(*)[3][3])PyArray_DATA(py_rotations);
+  num_rot = PyArray_DIMS(py_rotations)[0];
+
+  succeeded = ksp_sanity_check_rotations(D, Q, rotations, num_rot);
 
   return PyBool_FromLong((long) succeeded);
 }

@@ -201,3 +201,48 @@ def get_snf3x3(A):
                 'Q': np.array(DPQ[2], dtype='int_', order='C')}
     else:
         return None
+
+
+def sanity_check_rotations(rotations, grid_matrix=None, D=None, Q=None):
+    """Check compatibility of grid generation matrix against rotations
+
+    Parameters
+    ----------
+    D, Q : array_like, optional
+        D and Q of Smith normal form of grid matrix. Default is None.
+        shape=(3, 3), dtype='int_', order='C'.
+        For D, a sequence of diagonal elements with shape=(3,) is accepted.
+    grid_matrix : array_like, optional
+        Grid generation matrix. Default is None.
+        shape=(3, 3), dtype='int_', order='C'
+    rotations : array_like
+        Reciprocal rotation matrices.
+        shape=(num_rot, 3, 3), dtype='intc', order='C'
+
+    returns
+    -------
+    bool
+        True: compatible, False: incompatible.
+
+    """
+
+    if grid_matrix is not None:
+        snf = get_snf3x3(grid_matrix)
+        _D = snf['D']
+        _Q = snf['Q']
+    elif D is not None and Q is not None:
+        if len(np.ravel(D)) == 3:
+            _D = np.diag(np.ravel(D))
+        else:
+            _D = D
+        _Q = Q
+    else:
+        msg = "grid_matrix or D and Q unspecified."
+        raise RuntimeError(msg)
+
+    is_compatible = ksp.sanity_check_rotations(
+        np.array(_D, dtype='int_', order='C'),
+        np.array(_Q, dtype='int_', order='C'),
+        np.array(rotations, dtype='intc', order='C'))
+
+    return is_compatible

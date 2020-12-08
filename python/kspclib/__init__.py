@@ -38,7 +38,8 @@ from .kspclib import (get_version,
                       get_grid_address_double_mesh,
                       get_thm_relative_grid_addresses,
                       get_thm_integration_weight,
-                      get_snf3x3)
+                      get_snf3x3,
+                      sanity_check_rotations)
 
 
 __version__ = "%d.%d.%d" % get_version()
