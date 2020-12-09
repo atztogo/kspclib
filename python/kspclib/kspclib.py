@@ -203,8 +203,17 @@ def get_snf3x3(A):
         return None
 
 
-def sanity_check_rotations(rotations, grid_matrix=None, D=None, Q=None):
-    """Check compatibility of grid generation matrix against rotations
+def snf_transform_rotations(rotations, grid_matrix=None, D=None, Q=None):
+    """Transform rotations by SNF of grid generation matrix
+
+    Reciprocal rotation matrices of usual reciprocal basis vectors (R) are
+    transformed to those of reciprocal basis vectors transformed by D and Q
+    of Smith normal form of grid generation matrix. The formula implemented is
+
+        DQ^{-1}RQD^{-1}.
+
+    Grid generation matrix has to be compatible with R. Unless satisfied,
+    exception is raised.
 
     Parameters
     ----------
@@ -216,13 +225,14 @@ def sanity_check_rotations(rotations, grid_matrix=None, D=None, Q=None):
         Grid generation matrix. Default is None.
         shape=(3, 3), dtype='int_', order='C'
     rotations : array_like
-        Reciprocal rotation matrices.
+        Reciprocal rotation matrices of usual reciprocal basis vectors.
         shape=(num_rot, 3, 3), dtype='intc', order='C'
 
     returns
     -------
-    bool
-        True: compatible, False: incompatible.
+    transformed_rotations : ndarray
+        Transformed reciprocal rotation matrices.
+        shape=(num_rot, 3, 3), dtype='int_', order='C'
 
     """
 
@@ -240,9 +250,15 @@ def sanity_check_rotations(rotations, grid_matrix=None, D=None, Q=None):
         msg = "grid_matrix or D and Q unspecified."
         raise RuntimeError(msg)
 
-    is_compatible = ksp.sanity_check_rotations(
+    transformed_rots = np.zeros(rotations.shape, dtype='int_', order='C')
+    is_compatible = ksp.snf_transform_rotations(
+        transformed_rots,
+        np.array(rotations, dtype='intc', order='C'),
         np.array(_D, dtype='int_', order='C'),
-        np.array(_Q, dtype='int_', order='C'),
-        np.array(rotations, dtype='intc', order='C'))
+        np.array(_Q, dtype='int_', order='C'))
 
-    return is_compatible
+    if is_compatible:
+        return transformed_rots
+    else:
+        msg = "Grid generation matrix and rotation matrices are incompatible."
+        raise RuntimeError(msg)

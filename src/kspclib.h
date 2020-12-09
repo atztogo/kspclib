@@ -67,10 +67,11 @@ int ksp_get_snf3x3(long D[3][3],
                    long P[3][3],
                    long Q[3][3],
                    KSPCONST long A[3][3]);
-int ksp_sanity_check_rotations(KSPCONST int (*rotations)[3][3],
-                               const int num_rot,
-                               KSPCONST long D[3][3],
-                               KSPCONST long Q[3][3]);
+int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
+                                KSPCONST int (*rotations)[3][3],
+                                const int num_rot,
+                                KSPCONST long D[3][3],
+                                KSPCONST long Q[3][3]);
 
 #ifdef __cplusplus
 }

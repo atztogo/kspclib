@@ -1,5 +1,5 @@
 import numpy as np
-from kspclib import (get_snf3x3, sanity_check_rotations)
+from kspclib import (get_snf3x3, snf_transform_rotations)
 
 # (16, 3, 3)
 tio2_rots = [
@@ -64,6 +64,57 @@ tio2_snf = {'D': [[1, 0, 0],
                   [0, 0, -1],
                   [0, 1, 1]]}
 
+# (16, 3, 3)
+tio2_transformed_rots = [  # by phonopy's GeneralizedRegularGridPoints
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [-4, 3, 2],
+    [5, -4, -2],
+    [-20, 16, 9],
+    [-9, 8, 4],
+    [0, -1, 0],
+    [-20, 20, 9],
+    [-4, 5, 2],
+    [-5, 4, 2],
+    [0, 4, 1],
+    [-1, 0, 0],
+    [0, 1, 0],
+    [0, -4, -1],
+    [4, -5, -2],
+    [-5, 4, 2],
+    [20, -20, -9],
+    [9, -8, -4],
+    [0, -1, 0],
+    [20, -16, -9],
+    [4, -3, -2],
+    [5, -4, -2],
+    [0, 0, -1],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [0, 0, -1],
+    [4, -3, -2],
+    [-5, 4, 2],
+    [20, -16, -9],
+    [9, -8, -4],
+    [0, 1, 0],
+    [20, -20, -9],
+    [4, -5, -2],
+    [5, -4, -2],
+    [0, -4, -1],
+    [1, 0, 0],
+    [0, -1, 0],
+    [0, 4, 1],
+    [-4, 5, 2],
+    [5, -4, -2],
+    [-20, 20, 9],
+    [-9, 8, 4],
+    [0, 1, 0],
+    [-20, 16, 9],
+    [-4, 3, 2],
+    [-5, 4, 2],
+    [0, 0, 1]]
+
 
 def test_get_snf3x3():
     A = tio2_grid_mat
@@ -74,7 +125,7 @@ def test_get_snf3x3():
         np.testing.assert_array_equal(tio2_snf[symbol], snf[symbol])
 
 
-def test_sanity_check_rotations():
+def test_snf_transform_rotations():
     """TiO2 anatase I4_1/amd (141)
 
     Primitive cell of body centred tetragonal crystal requires generalized
@@ -85,7 +136,26 @@ def test_sanity_check_rotations():
 
     rotations = np.reshape(tio2_rots, (16, 3, 3))
     # tio2_grid_mat = np.eye(3, dtype=int) * 4
-    assert sanity_check_rotations(rotations, grid_matrix=tio2_grid_mat)
-    assert sanity_check_rotations(rotations, D=tio2_snf['D'], Q=tio2_snf['Q'])
-    assert not sanity_check_rotations(
-        rotations, D=[4, 4, 8], Q=np.eye(3, dtype=int))
+    try:
+        transformed_rots_1 = snf_transform_rotations(
+            rotations, grid_matrix=tio2_grid_mat)
+    except RuntimeError:
+        assert False
+
+    np.testing.assert_array_equal(
+        transformed_rots_1.reshape(-1, 3), tio2_transformed_rots)
+
+    try:
+        transformed_rots_2 = snf_transform_rotations(
+            rotations, D=tio2_snf['D'], Q=tio2_snf['Q'])
+    except RuntimeError:
+        assert False
+
+    np.testing.assert_array_equal(
+        transformed_rots_2.reshape(-1, 3), tio2_transformed_rots)
+
+    try:
+        transformed_rots_3 = snf_transform_rotations(
+            rotations, D=[4, 4, 8], Q=np.eye(3, dtype=int))
+    except RuntimeError:
+        assert True

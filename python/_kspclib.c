@@ -50,7 +50,7 @@ static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args);
 static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args);
 static PyObject * py_snf3x3(PyObject *self, PyObject *args);
-static PyObject * py_sanity_check_rotations(PyObject *self, PyObject *args);
+static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -85,8 +85,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Return integration weight of tetrahedron method for a grid point"},
   {"snf3x3", py_snf3x3, METH_VARARGS,
    "Return D, P, Q of Smith normal form"},
-  {"sanity_check_rotations", py_sanity_check_rotations, METH_VARARGS,
-   "Check compatibility of grid generation matrix against rotations"},
+  {"snf_transform_rotations", py_snf_transform_rotations, METH_VARARGS,
+   "Transform rotations by SNF of grid generation matrix"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -320,30 +320,35 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
   return PyBool_FromLong((long) succeeded);
 }
 
-static PyObject * py_sanity_check_rotations(PyObject *self, PyObject *args)
+static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
 {
+  PyArrayObject* py_transformed_rots;
   PyArrayObject* py_D;
   PyArrayObject* py_Q;
   PyArrayObject* py_rotations;
 
+  long (*transformed_rots)[3][3];
   long (*D)[3];  /* [3][3] */
   long (*Q)[3];  /* [3][3] */
   int (*rotations)[3][3];
   int succeeded, num_rot;
 
-  if (!PyArg_ParseTuple(args, "OOO",
+  if (!PyArg_ParseTuple(args, "OOOO",
+                        &py_transformed_rots,
+                        &py_rotations,
                         &py_D,
-                        &py_Q,
-                        &py_rotations)) {
+                        &py_Q)) {
     return NULL;
   }
 
+  transformed_rots = (long(*)[3][3])PyArray_DATA(py_transformed_rots);
   D = (long(*)[3])PyArray_DATA(py_D);
   Q = (long(*)[3])PyArray_DATA(py_Q);
   rotations = (int(*)[3][3])PyArray_DATA(py_rotations);
   num_rot = PyArray_DIMS(py_rotations)[0];
 
-  succeeded = ksp_sanity_check_rotations(D, Q, rotations, num_rot);
+  succeeded = ksp_snf_transform_rotations(transformed_rots,
+                                          rotations, num_rot, D, Q);
 
   return PyBool_FromLong((long) succeeded);
 }

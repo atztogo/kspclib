@@ -98,26 +98,16 @@ int ksp_get_snf3x3(long D[3][3],
   return kgg_get_snf3x3(D, P, Q, A);
 }
 
-int ksp_sanity_check_rotations(KSPCONST int (*rotations)[3][3],
-                               const int num_rot,
-                               KSPCONST long D[3][3],
-                               KSPCONST long Q[3][3])
+int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
+                                KSPCONST int (*rotations)[3][3],
+                                const int num_rot,
+                                KSPCONST long D[3][3],
+                                KSPCONST long Q[3][3])
 {
-  int i, succeeded;
-  MatINT *rots;
+  int succeeded;
 
-  succeeded = 0;
+  succeeded = kgg_transform_rotations(transformed_rots,
+                                      rotations, num_rot, D, Q);
 
-  if ((rots = mat_alloc_MatINT(num_rot)) == NULL) {
-    goto err;
-  }
-
-  for (i = 0; i < num_rot; i++) {
-    mat_copy_matrix_i3(rots->mat[i], rotations[i]);
-  }
-
-  succeeded = kgg_sanity_check_rotations(rots, D, Q);
-
-err:
   return succeeded;
 }

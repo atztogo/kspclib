@@ -68,13 +68,14 @@ err:
 
 /* rotations->mat: (long*)[3][3] */
 /*    Defined as q' = Rq */
-int kgg_sanity_check_rotations(MATCONST MatINT *rotations,
-                               MATCONST long D[3][3],
-                               MATCONST long Q[3][3])
+int kgg_transform_rotations(long (*transformed_rots)[3][3],
+                            MATCONST int (*rotations)[3][3],
+                            const int num_rot,
+                            MATCONST long D[3][3],
+                            MATCONST long Q[3][3])
 {
   int i, j, k;
   double r[3][3], Q_double[3][3];
-  long r_long[3][3];
 
   /* Compute D(Q^-1)RQ(D^-1) by three steps */
   /* It is assumed that |det(Q)|=1 and Q^-1 has relatively small round-off */
@@ -83,16 +84,16 @@ int kgg_sanity_check_rotations(MATCONST MatINT *rotations,
   /* 2. Compute D(Q^-1)RQ */
   /* 3. Compute D(Q^-1)RQ(D^-1) */
   mat_cast_matrix_3l_to_3d(Q_double, Q);
-  for (i = 0; i < rotations->size; i++) {
-    mat_get_similar_matrix_id3(r, rotations->mat[i], Q_double, 0);
+  for (i = 0; i < num_rot; i++) {
+    mat_get_similar_matrix_id3(r, rotations[i], Q_double, 0);
     for (j = 0; j < 3; j++) {
       for (k = 0; k < 3; k++) {
         r[j][k] *= D[j][j];
         r[j][k] /= D[k][k];
       }
     }
-    mat_cast_matrix_3d_to_3l(r_long, r);
-    if (! mat_check_identity_matrix_ld3(r_long, r, IDENTITY_TOL)) {
+    mat_cast_matrix_3d_to_3l(transformed_rots[i], r);
+    if (!mat_check_identity_matrix_ld3(transformed_rots[i], r, IDENTITY_TOL)) {
       return 0;
     }
   }

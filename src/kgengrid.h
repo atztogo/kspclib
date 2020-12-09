@@ -48,8 +48,10 @@ int kgg_get_snf3x3(long D[3][3],
                    long P[3][3],
                    long Q[3][3],
                    MATCONST long A[3][3]);
-int kgg_sanity_check_rotations(MATCONST MatINT *rotations,
-                               MATCONST long D[3][3],
-                               MATCONST long Q[3][3]);
+int kgg_transform_rotations(long (*transformed_rots)[3][3],
+                            MATCONST int (*rotations)[3][3],
+                            const int num_rot,
+                            MATCONST long D[3][3],
+                            MATCONST long Q[3][3]);
 
 #endif
