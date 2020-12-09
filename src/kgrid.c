@@ -36,13 +36,13 @@
 #include <stddef.h>
 #include <assert.h>
 #include "kgrid.h"
+#include "mathfunc.h"
 
 static void get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
 static size_t get_grid_point_double_mesh(const int address_double[3],
                                          const int mesh[3]);
 static size_t get_grid_point_single_mesh(const int address[3],
                                          const int mesh[3]);
-static void modulo_i3(int v[3], const int m[3]);
 static void reduce_grid_address(int address[3], const int mesh[3]);
 static void reduce_grid_address_double(int address[3], const int mesh[3]);
 
@@ -107,8 +107,8 @@ static size_t get_grid_point_double_mesh(const int address_double[3],
     } else {
       address[i] = (address_double[i] - 1) / 2;
     }
+    address[i] = mat_modulo_i(address[i], mesh[i]);
   }
-  modulo_i3(address, mesh);
 
   return get_grid_point_single_mesh(address, mesh);
 }
@@ -123,19 +123,6 @@ static size_t get_grid_point_single_mesh(const int address[3],
   return (address[0] * mesh[1] * (size_t)(mesh[2])
           + address[1] * mesh[2] + address[2]);
 #endif
-}
-
-static void modulo_i3(int v[3], const int m[3])
-{
-  int i;
-
-  for (i = 0; i < 3; i++) {
-    v[i] = v[i] % m[i];
-
-    if (v[i] < 0) {
-      v[i] += m[i];
-    }
-  }
 }
 
 static void reduce_grid_address(int address[3], const int mesh[3])

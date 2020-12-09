@@ -143,6 +143,8 @@ void mat_cross_product_d3(double v[3], const double a[3], const double b[3]);
 double mat_Dabs(const double a);
 int mat_Nint(const double a);
 double mat_Dmod1(const double a);
+int mat_modulo_i(const int a, const int b);
+long mat_modulo_l(const long a, const long b);
 MatINT * mat_alloc_MatINT(const int size);
 MatLONG * mat_alloc_MatLONG(const int size);
 void mat_free_MatINT(MatINT * mat);

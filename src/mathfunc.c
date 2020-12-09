@@ -567,6 +567,26 @@ double mat_Dmod1(const double a)
     return b;
 }
 
+int mat_modulo_i(const int a, const int b)
+{
+  int c;
+  c = a % b;
+  if (c < 0) {
+    c += b;
+  }
+  return c;
+}
+
+long mat_modulo_l(const long a, const long b)
+{
+  int c;
+  c = a % b;
+  if (c < 0) {
+    c += b;
+  }
+  return c;
+}
+
 MatINT * mat_alloc_MatINT(const int size)
 {
   MatINT *mat;
