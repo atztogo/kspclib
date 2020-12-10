@@ -60,21 +60,21 @@ void ksp_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
   kgd_get_all_grid_addresses(grid_address, mesh);
 }
 
-size_t ksp_get_grid_point_double_mesh(const int address_double[3],
-                                      const int mesh[3])
-{
-  return kgd_get_grid_point_double_mesh(address_double, mesh);
-}
-
-void ksp_get_grid_address_double_mesh(int address_double[3],
-                                      const int address[3],
-                                      const int mesh[3],
-                                      const int is_shift[3])
+void ksp_get_double_grid_address(int address_double[3],
+                                 const int address[3],
+                                 const int mesh[3],
+                                 const int is_shift[3])
 {
   kgd_get_grid_address_double_mesh(address_double,
                                    address,
                                    mesh,
                                    is_shift);
+}
+
+size_t ksp_get_double_grid_point(const int address_double[3],
+                                 const int mesh[3])
+{
+  return kgd_get_grid_point_double_mesh(address_double, mesh);
 }
 
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
@@ -110,4 +110,30 @@ int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
                                       rotations, num_rot, D_diag, Q);
 
   return succeeded;
+}
+
+void ksp_get_all_grgrid_addresses(long grid_address[][3],
+                                  const long D_diag[3])
+{
+  kgg_get_all_grid_addresses(grid_address, D_diag);
+}
+
+void ksp_get_double_grgrid_address(long address_double[3],
+                                   const long address[3],
+                                   const long D_diag[3],
+                                   const long PS[3])
+{
+  kgg_get_double_grid_address(address_double,
+                              address,
+                              D_diag,
+                              PS);
+}
+
+size_t ksp_get_double_grgrid_point(const long address_double[3],
+                                   const long D_diag[3],
+                                   const long PS[3])
+{
+  return kgg_get_double_grid_point(address_double,
+                                   D_diag,
+                                   PS);
 }

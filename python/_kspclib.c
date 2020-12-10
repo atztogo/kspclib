@@ -45,12 +45,15 @@
 
 static PyObject * py_version(PyObject *self, PyObject *args);
 static PyObject * py_all_grid_addresses(PyObject *self, PyObject *args);
-static PyObject * py_grid_point_double_mesh(PyObject *self, PyObject *args);
-static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args);
+static PyObject * py_double_grid_point(PyObject *self, PyObject *args);
+static PyObject * py_double_grid_address(PyObject *self, PyObject *args);
 static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args);
 static PyObject * py_snf3x3(PyObject *self, PyObject *args);
 static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args);
+static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args);
+static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args);
+static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -74,10 +77,10 @@ static PyMethodDef _kspclib_methods[] = {
   {"error_out", (PyCFunction)error_out, METH_NOARGS, NULL},
   {"version", py_version, METH_VARARGS, "kspclib version"},
   {"all_grid_addresses", py_all_grid_addresses, METH_VARARGS,
-   "Return all grid addresses for mesh"},
-  {"grid_point_double_mesh", py_grid_point_double_mesh, METH_VARARGS,
-   "Return grid point index of grid address of mesh"},
-  {"grid_address_double_mesh", py_grid_address_double_mesh, METH_VARARGS,
+   "Return all single-grid addresses"},
+  {"double_grid_point", py_double_grid_point, METH_VARARGS,
+   "Return grid point index of a double-grid address"},
+  {"double_grid_address", py_double_grid_address, METH_VARARGS,
    "Convert grid address plus shift to double-grid address"},
   {"thm_relative_grid_addresses", py_thm_relative_grid_addresses, METH_VARARGS,
    "Return relative grid addresses of 24 tetrahedra"},
@@ -87,6 +90,12 @@ static PyMethodDef _kspclib_methods[] = {
    "Return D, P, Q of Smith normal form"},
   {"snf_transform_rotations", py_snf_transform_rotations, METH_VARARGS,
    "Transform rotations by SNF of grid generation matrix"},
+  {"all_grgrid_addresses", py_all_grgrid_addresses, METH_VARARGS,
+   "Return all generalized regular grid addresses for diagonal elements of D"},
+  {"double_grgrid_point", py_double_grgrid_point, METH_VARARGS,
+   "Return generalized-regular-grid point index of a double-grid address"},
+  {"double_grgrid_address", py_double_grgrid_address, METH_VARARGS,
+   "Convert generalized-regular-grid address plus shift to double-grid address"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -191,7 +200,7 @@ static PyObject * py_all_grid_addresses(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
-static PyObject * py_grid_point_double_mesh(PyObject *self, PyObject *args)
+static PyObject * py_double_grid_point(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address_double;
   PyArrayObject* py_mesh;
@@ -210,13 +219,13 @@ static PyObject * py_grid_point_double_mesh(PyObject *self, PyObject *args)
   address_double = (int*)PyArray_DATA(py_address_double);
   mesh = (int*)PyArray_DATA(py_mesh);
 
-  grid_point = ksp_get_grid_point_double_mesh(address_double, mesh);
+  grid_point = ksp_get_double_grid_point(address_double, mesh);
 
   return PyLong_FromSize_t(grid_point);
 
 }
 
-static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args)
+static PyObject * py_double_grid_address(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address_double;
   PyArrayObject* py_address;
@@ -241,10 +250,10 @@ static PyObject * py_grid_address_double_mesh(PyObject *self, PyObject *args)
   is_shift = (int*)PyArray_DATA(py_is_shift);
   mesh = (int*)PyArray_DATA(py_mesh);
 
-  ksp_get_grid_address_double_mesh(address_double,
-                                   address,
-                                   mesh,
-                                   is_shift);
+  ksp_get_double_grid_address(address_double,
+                              address,
+                              mesh,
+                              is_shift);
 
   Py_RETURN_NONE;
 }
@@ -359,4 +368,88 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
                                           rotations, num_rot, D_diag, Q);
 
   return PyBool_FromLong((long) succeeded);
+}
+
+static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_grgrid_address;
+  PyArrayObject* py_D_diag;
+
+  long (*grgrid_address)[3];
+  long *D_diag;
+
+  if (!PyArg_ParseTuple(args, "OO",
+                        &py_grgrid_address,
+                        &py_D_diag)) {
+    return NULL;
+  }
+
+  grgrid_address = (long(*)[3])PyArray_DATA(py_grgrid_address);
+  D_diag = (long*)PyArray_DATA(py_D_diag);
+
+  ksp_get_all_grgrid_addresses(grgrid_address, D_diag);
+
+  Py_RETURN_NONE;
+}
+
+static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_address_double;
+  PyArrayObject* py_D_diag;
+  PyArrayObject* py_PS;
+
+  long* address_double;
+  long* D_diag;
+  long* PS;
+  size_t grid_point;
+
+
+  if (!PyArg_ParseTuple(args, "OOO",
+                        &py_address_double,
+                        &py_D_diag,
+                        &py_PS)) {
+    return NULL;
+  }
+
+  address_double = (long*)PyArray_DATA(py_address_double);
+  D_diag = (long*)PyArray_DATA(py_D_diag);
+  PS = (long*)PyArray_DATA(py_PS);
+
+  grid_point = ksp_get_double_grgrid_point(address_double, D_diag, PS);
+
+  return PyLong_FromSize_t(grid_point);
+
+}
+
+static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_address_double;
+  PyArrayObject* py_address;
+  PyArrayObject* py_D_diag;
+  PyArrayObject* py_PS;
+
+  long* address_double;
+  long* address;
+  long* D_diag;
+  long* PS;
+
+  if (!PyArg_ParseTuple(args, "OOOO",
+                        &py_address_double,
+                        &py_address,
+                        &py_D_diag,
+                        &py_PS)) {
+    return NULL;
+  }
+
+  address_double = (long*)PyArray_DATA(py_address_double);
+  address = (long*)PyArray_DATA(py_address);
+  D_diag = (long*)PyArray_DATA(py_D_diag);
+  PS = (long*)PyArray_DATA(py_PS);
+
+  ksp_get_double_grgrid_address(address_double,
+                                address,
+                                D_diag,
+                                PS);
+
+  Py_RETURN_NONE;
 }

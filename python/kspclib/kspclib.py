@@ -41,7 +41,7 @@ def get_version():
 
 
 def get_all_grid_addresses(mesh):
-    """Return all grid addresses for mesh
+    """Return all single-grid addresses
 
     Parameters
     ----------
@@ -62,13 +62,13 @@ def get_all_grid_addresses(mesh):
     return grid_address
 
 
-def get_grid_point_double_mesh(address_double, mesh):
-    """Return grid point index of grid address of mesh
+def get_double_grid_point(address_double, mesh):
+    """Return grid point index of a double-grid address
 
     Parameters
     ----------
     address_double : array_like
-        Grid address in double grid method.
+        Grid address in double-grid method.
         shape=(3,), dtype='intc'
     mesh : array_like
         Conventional regular mesh for grid sampling.
@@ -80,12 +80,12 @@ def get_grid_point_double_mesh(address_double, mesh):
         Grid point index.
 
     """
-    return ksp.grid_point_double_mesh(np.array(address_double, dtype='intc'),
-                                      np.array(mesh, dtype='intc'))
+    return ksp.double_grid_point(np.array(address_double, dtype='intc'),
+                                 np.array(mesh, dtype='intc'))
 
 
-def get_grid_address_double_mesh(address, mesh, is_shift=None):
-    """Return grid point index of grid address of mesh
+def get_double_grid_address(address, mesh, is_shift=None):
+    """Convert grid address plus shift to double-grid address
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ def get_grid_address_double_mesh(address, mesh, is_shift=None):
     Returns
     -------
     address_double : ndarray
-        Grid address in double grid method.
+        Grid address in double-grid method.
         shape=(3,), dtype='intc'
 
     """
@@ -113,10 +113,10 @@ def get_grid_address_double_mesh(address, mesh, is_shift=None):
         _is_shift = np.zeros(3, dtype='intc', order='C')
     else:
         _is_shift = np.array(is_shift, dtype='intc')
-    ksp.grid_address_double_mesh(address_double,
-                                 np.array(address, dtype='intc'),
-                                 np.array(mesh, dtype='intc'),
-                                 _is_shift)
+    ksp.double_grid_address(address_double,
+                            np.array(address, dtype='intc'),
+                            np.array(mesh, dtype='intc'),
+                            _is_shift)
     return address_double
 
 
@@ -269,3 +269,26 @@ def snf_transform_rotations(rotations,
     else:
         msg = "Grid generation matrix and rotation matrices are incompatible."
         raise RuntimeError(msg)
+
+
+def get_all_grgrid_addresses(D_diag):
+    """Return all grid addresses for mesh
+
+    Parameters
+    ----------
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    grgrid_address : ndarray
+        Genralized regular grid addresses of all grid points corresponding
+        to D_diag.
+        shape=(all_grid_points, 3), dtype='int_'
+
+    """
+
+    grgrid_address = np.zeros((np.prod(D_diag), 3), dtype='int_', order='C')
+    ksp.all_grgrid_addresses(grgrid_address, np.array(D_diag, dtype='int_'))
+    return grgrid_address

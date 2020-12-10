@@ -1,5 +1,6 @@
 import numpy as np
-from kspclib import (get_snf3x3, snf_transform_rotations)
+from kspclib import (get_snf3x3, snf_transform_rotations,
+                     get_all_grgrid_addresses)
 
 # (16, 3, 3)
 tio2_rots = [
@@ -113,6 +114,39 @@ tio2_transformed_rots = [  # by phonopy's GeneralizedRegularGridPoints
     [-5, 4, 2],
     [0, 0, 1]]
 
+addresses_244 = np.array([[0, 0, 0],
+                          [1, 0, 0],
+                          [0, 1, 0],
+                          [1, 1, 0],
+                          [0, 2, 0],
+                          [1, 2, 0],
+                          [0, 3, 0],
+                          [1, 3, 0],
+                          [0, 0, 1],
+                          [1, 0, 1],
+                          [0, 1, 1],
+                          [1, 1, 1],
+                          [0, 2, 1],
+                          [1, 2, 1],
+                          [0, 3, 1],
+                          [1, 3, 1],
+                          [0, 0, 2],
+                          [1, 0, 2],
+                          [0, 1, 2],
+                          [1, 1, 2],
+                          [0, 2, 2],
+                          [1, 2, 2],
+                          [0, 3, 2],
+                          [1, 3, 2],
+                          [0, 0, 3],
+                          [1, 0, 3],
+                          [0, 1, 3],
+                          [1, 1, 3],
+                          [0, 2, 3],
+                          [1, 2, 3],
+                          [0, 3, 3],
+                          [1, 3, 3]])
+
 
 def test_get_snf3x3():
     A = tio2_grid_mat
@@ -167,3 +201,11 @@ def test_snf_transform_rotations():
             rotations, D_diag=[4, 4, 8], Q=np.eye(3, dtype=int))
     except RuntimeError:
         assert True
+
+
+def test_get_all_grgrid_addresses():
+    D_diag = [2, 4, 4]
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    # for v in grgrid_addresses:
+    #     print("[%d, %d, %d]," % tuple(v))
+    np.testing.assert_array_equal(grgrid_addresses, addresses_244)
