@@ -90,24 +90,24 @@ double ksp_get_thm_integration_weight(const double omega,
   return thm_get_integration_weight(omega, tetrahedra_omegas, function);
 }
 
-int ksp_get_snf3x3(long D[3][3],
+int ksp_get_snf3x3(long D_diag[3],
                    long P[3][3],
                    long Q[3][3],
                    KSPCONST long A[3][3])
 {
-  return kgg_get_snf3x3(D, P, Q, A);
+  return kgg_get_snf3x3(D_diag, P, Q, A);
 }
 
 int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
                                 KSPCONST int (*rotations)[3][3],
                                 const int num_rot,
-                                KSPCONST long D[3][3],
+                                const long D_diag[3],
                                 KSPCONST long Q[3][3])
 {
   int succeeded;
 
   succeeded = kgg_transform_rotations(transformed_rots,
-                                      rotations, num_rot, D, Q);
+                                      rotations, num_rot, D_diag, Q);
 
   return succeeded;
 }

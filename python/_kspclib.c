@@ -299,23 +299,31 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 
 static PyObject * py_snf3x3(PyObject *self, PyObject *args)
 {
-  PyArrayObject* py_DPQ;
+  PyArrayObject* py_D_diag;
+  PyArrayObject* py_P;
+  PyArrayObject* py_Q;
   PyArrayObject* py_A;
 
-  long (*DPQ)[3][3];  /* [3][3][3], left-most index gives D, P, Q. */
+  long *D_diag;  /* [3] */
+  long (*P)[3];  /* [3][3] */
+  long (*Q)[3];  /* [3][3] */
   long (*A)[3];  /* [3][3] */
   int succeeded;
 
-  if (!PyArg_ParseTuple(args, "OO",
-                        &py_DPQ,
+  if (!PyArg_ParseTuple(args, "OOOO",
+                        &py_D_diag,
+                        &py_P,
+                        &py_Q,
                         &py_A)) {
     return NULL;
   }
 
-  DPQ = (long(*)[3][3])PyArray_DATA(py_DPQ);
+  D_diag = (long(*))PyArray_DATA(py_D_diag);
+  P = (long(*)[3])PyArray_DATA(py_P);
+  Q = (long(*)[3])PyArray_DATA(py_Q);
   A = (long(*)[3])PyArray_DATA(py_A);
 
-  succeeded = ksp_get_snf3x3(DPQ[0], DPQ[1], DPQ[2], A);
+  succeeded = ksp_get_snf3x3(D_diag, P, Q, A);
 
   return PyBool_FromLong((long) succeeded);
 }
@@ -323,12 +331,12 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
 static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_transformed_rots;
-  PyArrayObject* py_D;
+  PyArrayObject* py_D_diag;
   PyArrayObject* py_Q;
   PyArrayObject* py_rotations;
 
   long (*transformed_rots)[3][3];
-  long (*D)[3];  /* [3][3] */
+  long *D_diag;  /* [3] */
   long (*Q)[3];  /* [3][3] */
   int (*rotations)[3][3];
   int succeeded, num_rot;
@@ -336,19 +344,19 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "OOOO",
                         &py_transformed_rots,
                         &py_rotations,
-                        &py_D,
+                        &py_D_diag,
                         &py_Q)) {
     return NULL;
   }
 
   transformed_rots = (long(*)[3][3])PyArray_DATA(py_transformed_rots);
-  D = (long(*)[3])PyArray_DATA(py_D);
+  D_diag = (long(*))PyArray_DATA(py_D_diag);
   Q = (long(*)[3])PyArray_DATA(py_Q);
   rotations = (int(*)[3][3])PyArray_DATA(py_rotations);
   num_rot = PyArray_DIMS(py_rotations)[0];
 
   succeeded = ksp_snf_transform_rotations(transformed_rots,
-                                          rotations, num_rot, D, Q);
+                                          rotations, num_rot, D_diag, Q);
 
   return PyBool_FromLong((long) succeeded);
 }

@@ -186,24 +186,30 @@ def get_snf3x3(A):
     returns
     -------
     snf : dict
-        D, P, Q of Smith normal form of 3x3 integer matrix. The dict keys are
-        'D', 'P', 'Q', respectively.
-        D, P, Q: shape=(3, 3), dtype='int_', order='C'
+        D, P, Q of Smith normal form of 3x3 integer matrix.
+        The dict keys are ``D``, ``D_diag``, ``P``, ``Q``, respectively.
+        D, P, Q : shape=(3, 3), dtype='int_', order='C'
+        D_diag : Diagonal elements of D, shape=(3,), dtype='int_', order='C'
 
     """
 
-    DPQ = np.zeros((3, 3, 3), dtype='int_', order='C')
-    succeeded = ksp.snf3x3(DPQ, np.array(A, dtype='int_', order='C'))
+    D_diag = np.zeros(3, dtype='int_', order='C')
+    P = np.zeros((3, 3), dtype='int_', order='C')
+    Q = np.zeros((3, 3), dtype='int_', order='C')
+    succeeded = ksp.snf3x3(D_diag, P, Q, np.array(A, dtype='int_', order='C'))
+    D = np.array(np.diag(D_diag), dtype='int_', order='C')
 
     if succeeded:
-        return {'D': np.array(DPQ[0], dtype='int_', order='C'),
-                'P': np.array(DPQ[1], dtype='int_', order='C'),
-                'Q': np.array(DPQ[2], dtype='int_', order='C')}
+        return {'D_diag': D_diag, 'D': D, 'P': P, 'Q': Q}
     else:
         return None
 
 
-def snf_transform_rotations(rotations, grid_matrix=None, D=None, Q=None):
+def snf_transform_rotations(rotations,
+                            grid_matrix=None,
+                            D=None,
+                            D_diag=None,
+                            Q=None):
     """Transform rotations by SNF of grid generation matrix
 
     Reciprocal rotation matrices of usual reciprocal basis vectors (R) are
@@ -217,10 +223,11 @@ def snf_transform_rotations(rotations, grid_matrix=None, D=None, Q=None):
 
     Parameters
     ----------
-    D, Q : array_like, optional
-        D and Q of Smith normal form of grid matrix. Default is None.
-        shape=(3, 3), dtype='int_', order='C'.
-        For D, a sequence of diagonal elements with shape=(3,) is accepted.
+    D, D_diag, Q : array_like, optional
+        D or diagonal elemets of D and Q of Smith normal form of grid matrix.
+        Default is None.
+        D, Q : shape=(3, 3), dtype='int_', order='C'.
+        D_diag : shape=(3,), dtype='int_', order='C'.
     grid_matrix : array_like, optional
         Grid generation matrix. Default is None.
         shape=(3, 3), dtype='int_', order='C'
@@ -238,13 +245,13 @@ def snf_transform_rotations(rotations, grid_matrix=None, D=None, Q=None):
 
     if grid_matrix is not None:
         snf = get_snf3x3(grid_matrix)
-        _D = snf['D']
+        _D_diag = snf['D_diag']
         _Q = snf['Q']
+    elif D_diag is not None and Q is not None:
+        _D_diag = D_diag
+        _Q = Q
     elif D is not None and Q is not None:
-        if len(np.ravel(D)) == 3:
-            _D = np.diag(np.ravel(D))
-        else:
-            _D = D
+        _D_diag = np.diagonal(D)
         _Q = Q
     else:
         msg = "grid_matrix or D and Q unspecified."
@@ -254,7 +261,7 @@ def snf_transform_rotations(rotations, grid_matrix=None, D=None, Q=None):
     is_compatible = ksp.snf_transform_rotations(
         transformed_rots,
         np.array(rotations, dtype='intc', order='C'),
-        np.array(_D, dtype='int_', order='C'),
+        np.array(_D_diag, dtype='int_', order='C'),
         np.array(_Q, dtype='int_', order='C'))
 
     if is_compatible:

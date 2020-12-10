@@ -54,9 +54,7 @@ tio2_rots = [
 tio2_grid_mat = [[0, 5, 5],
                  [5, 0, 5],
                  [2, 2, 0]]
-tio2_snf = {'D': [[1, 0, 0],
-                  [0, 5, 0],
-                  [0, 0, 20]],
+tio2_snf = {'D_diag': [1, 5, 20],
             'P': [[0, 1, -2],
                   [1, 0, 0],
                   [-2, 2, -5]],
@@ -121,8 +119,9 @@ def test_get_snf3x3():
     snf = get_snf3x3(A)
     _D = np.dot(snf['P'], np.dot(A, snf['Q']))
     np.testing.assert_array_equal(snf['D'], _D)
-    for symbol in ('D', 'P', 'Q'):
+    for symbol in ('D_diag', 'P', 'Q'):
         np.testing.assert_array_equal(tio2_snf[symbol], snf[symbol])
+    np.testing.assert_array_equal(snf['D'], np.diag(snf['D_diag']))
 
 
 def test_snf_transform_rotations():
@@ -147,7 +146,7 @@ def test_snf_transform_rotations():
 
     try:
         transformed_rots_2 = snf_transform_rotations(
-            rotations, D=tio2_snf['D'], Q=tio2_snf['Q'])
+            rotations, D_diag=tio2_snf['D_diag'], Q=tio2_snf['Q'])
     except RuntimeError:
         assert False
 
@@ -156,6 +155,15 @@ def test_snf_transform_rotations():
 
     try:
         transformed_rots_3 = snf_transform_rotations(
-            rotations, D=[4, 4, 8], Q=np.eye(3, dtype=int))
+            rotations, D=np.diag(tio2_snf['D_diag']), Q=tio2_snf['Q'])
+    except RuntimeError:
+        assert False
+
+    np.testing.assert_array_equal(
+        transformed_rots_3.reshape(-1, 3), tio2_transformed_rots)
+
+    try:
+        transformed_rots_4 = snf_transform_rotations(
+            rotations, D_diag=[4, 4, 8], Q=np.eye(3, dtype=int))
     except RuntimeError:
         assert True

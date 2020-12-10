@@ -38,20 +38,26 @@
 #include <stddef.h>
 #include "mathfunc.h"
 
-typedef struct {
-  long D[3][3];
-  long P[3][3];
-  long Q[3][3];
-} SNF3x3;
-
-int kgg_get_snf3x3(long D[3][3],
+int kgg_get_snf3x3(long D_diag[3],
                    long P[3][3],
                    long Q[3][3],
                    MATCONST long A[3][3]);
 int kgg_transform_rotations(long (*transformed_rots)[3][3],
                             MATCONST int (*rotations)[3][3],
                             const int num_rot,
-                            MATCONST long D[3][3],
+                            const long D_diag[3],
                             MATCONST long Q[3][3]);
+void kgg_get_all_grid_addresses(long grid_address[][3], const long D_diag[3]);
+void kgg_get_double_grid_address(long address_double[3],
+                                 const long address[3],
+                                 const long D_diag[3],
+                                 const long PS[3]);
+void kgg_get_single_grid_address(long address[3],
+                                 const long address_double[3],
+                                 const long D_diag[3],
+                                 const long PS[3]);
+size_t kgg_get_double_grid_point(const long address_double[3],
+                                 const long D_diag[3],
+                                 const long PS[3]);
 
 #endif

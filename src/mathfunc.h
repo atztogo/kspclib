@@ -69,6 +69,7 @@ void mat_copy_matrix_i3(int a[3][3], MATCONST int b[3][3]);
 void mat_copy_matrix_l3(long a[3][3], MATCONST long b[3][3]);
 void mat_copy_vector_d3(double a[3], const double b[3]);
 void mat_copy_vector_i3(int a[3], const int b[3]);
+void mat_copy_vector_l3(long a[3], const long b[3]);
 int mat_check_identity_matrix_i3(MATCONST int a[3][3],
                                  MATCONST int b[3][3]);
 int mat_check_identity_matrix_d3(MATCONST double a[3][3],

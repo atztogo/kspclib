@@ -117,6 +117,13 @@ void mat_copy_vector_i3(int a[3], const int b[3])
   a[2] = b[2];
 }
 
+void mat_copy_vector_l3(long a[3], const long b[3])
+{
+  a[0] = b[0];
+  a[1] = b[1];
+  a[2] = b[2];
+}
+
 int mat_check_identity_matrix_i3(MATCONST int a[3][3],
                                  MATCONST int b[3][3])
 {
