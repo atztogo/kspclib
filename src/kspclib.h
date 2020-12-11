@@ -83,6 +83,9 @@ extern "C" {
   size_t ksp_get_double_grgrid_point(const long address_double[3],
                                      const long D_diag[3],
                                      const long PS[3]);
+  int ksp_niggli_reduce(double red_lattice[3][3],
+                        KSPCONST double lattice[3][3],
+                        const double eps);
 
 #ifdef __cplusplus
 }

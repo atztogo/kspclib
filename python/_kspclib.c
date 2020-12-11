@@ -55,6 +55,7 @@ static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args);
 static PyObject * py_grgrid_point(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args);
+static PyObject * py_niggli_reduce(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -99,6 +100,9 @@ static PyMethodDef _kspclib_methods[] = {
    "Return generalized-regular-grid point index of a single-grid address"},
   {"double_grgrid_point", py_double_grgrid_point, METH_VARARGS,
    "Return generalized-regular-grid point index of a double-grid address"},
+  {"niggli_reduce", py_niggli_reduce, METH_VARARGS,
+   "Perform Niggli reduction"},
+
   {NULL, NULL, 0, NULL}
 };
 
@@ -480,4 +484,28 @@ static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args)
 
   return PyLong_FromSize_t(grid_point);
 
+}
+
+static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_red_lattice;
+  PyArrayObject* py_lattice;
+  double eps;
+
+  double (*red_lattice)[3];  /* [3][3] column vectors */
+  double (*lattice)[3];  /* [3][3] column vectors */
+  int succeeded;
+
+  if (!PyArg_ParseTuple(args, "OOd",
+                        &py_red_lattice,
+                        &py_lattice,
+                        &eps)) {
+    return NULL;
+  }
+
+  red_lattice = (double(*)[3])PyArray_DATA(py_red_lattice);
+  lattice = (double(*)[3])PyArray_DATA(py_lattice);
+  succeeded = ksp_niggli_reduce(red_lattice, lattice, eps);
+
+  return PyBool_FromLong((long) succeeded);
 }

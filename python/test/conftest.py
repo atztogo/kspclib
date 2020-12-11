@@ -22,7 +22,7 @@ def sio2_lattice():
 
 @pytest.fixture(scope='session')
 def tio2_lattice():
-    """row vectors"""
+    """Primitive cell basis vectors of TiO2 anatase in row vectors"""
     lattice = [[-1.888070425000000, 1.888070425000000, 4.790243149999999],
                [1.888070425000000, -1.888070424999999, 4.790243149999999],
                [1.888070425000000, 1.888070424999999, -4.790243149999999]]

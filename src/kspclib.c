@@ -36,6 +36,7 @@
 #include "kgrid.h"
 #include "kgengrid.h"
 #include "mathfunc.h"
+#include "niggli.h"
 #include "snf3x3.h"
 #include "tetrahedron_method.h"
 #include "version.h"
@@ -143,4 +144,33 @@ size_t ksp_get_double_grgrid_point(const long address_double[3],
   return kgg_get_double_grid_point(address_double,
                                    D_diag,
                                    PS);
+}
+
+/* red_lattice, lattice : column vectors */
+int ksp_niggli_reduce(double red_lattice[3][3],
+                      KSPCONST double lattice[3][3],
+                      const double eps)
+{
+  int i, j, succeeded;
+  double lat[9];
+
+  succeeded = 0;
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      lat[i * 3 + j] = lattice[i][j];
+    }
+  }
+
+  succeeded = niggli_reduce(lat, eps);
+
+  if (succeeded) {
+    for (i = 0; i < 3; i++) {
+      for (j = 0; j < 3; j++) {
+        red_lattice[i][j] = lat[i * 3 + j];
+      }
+    }
+  }
+
+  return succeeded;
 }

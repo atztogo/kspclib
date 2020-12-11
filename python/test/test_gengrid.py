@@ -3,7 +3,8 @@ from kspclib import (get_snf3x3, snf_transform_rotations,
                      get_all_grgrid_addresses,
                      get_double_grgrid_address,
                      get_grgrid_point,
-                     get_double_grgrid_point)
+                     get_double_grgrid_point,
+                     niggli_reduce)
 
 # (16, 3, 3)
 tio2_rots = [

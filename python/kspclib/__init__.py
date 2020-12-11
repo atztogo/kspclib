@@ -43,7 +43,8 @@ from .kspclib import (get_version,
                       get_all_grgrid_addresses,
                       get_double_grgrid_address,
                       get_grgrid_point,
-                      get_double_grgrid_point)
+                      get_double_grgrid_point,
+                      niggli_reduce)
 
 
 __version__ = "%d.%d.%d" % get_version()

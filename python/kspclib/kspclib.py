@@ -389,3 +389,27 @@ def get_double_grgrid_point(address_double, D_diag, PS=None):
     return ksp.double_grgrid_point(np.array(address_double, dtype='int_'),
                                    np.array(D_diag, dtype='int_'),
                                    _PS)
+
+
+def niggli_reduce(lattice, eps=1e-5):
+    """Perform Niggli reduction
+
+    Parameters
+    ----------
+    lattice : array_like
+        Basis vectors in column vectors.
+        shape=(3,3), dtype='double', order='C'
+    eps : float, optional
+        Tolerance parameter. Default is 1e-5.
+
+    """
+
+    red_lattice = np.zeros((3, 3), dtype='double', order='C')
+    succeeded = ksp.niggli_reduce(red_lattice,
+                                  np.array(lattice, dtype='double', order='C'),
+                                  float(eps))
+    if succeeded:
+        return red_lattice
+    else:
+        msg = "Niggli reduction failed."
+        raise RuntimeError(msg)
