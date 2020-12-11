@@ -40,7 +40,9 @@ from .kspclib import (get_version,
                       get_thm_integration_weight,
                       get_snf3x3,
                       snf_transform_rotations,
-                      get_all_grgrid_addresses)
+                      get_all_grgrid_addresses,
+                      get_double_grgrid_address,
+                      get_double_grgrid_point)
 
 
 __version__ = "%d.%d.%d" % get_version()

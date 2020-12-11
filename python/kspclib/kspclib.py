@@ -62,13 +62,52 @@ def get_all_grid_addresses(mesh):
     return grid_address
 
 
+def get_double_grid_address(address, mesh, shift=None):
+    """Convert grid address plus shift to double-grid address
+
+    address_double = 2 * address + shift, where values are reduced to
+    be closet to 0, -mesh/2 < address_double <= mesh/2.
+
+    Parameters
+    ----------
+    address : array_like
+        Grid address.
+        shape=(3,), dtype='intc'
+    mesh : array_like
+        Conventional regular mesh for grid sampling.
+        shape=(3,), dtype='intc'
+    shift : array_like, optional
+        Half grid shift for conventional regular mesh along reciprocal basis
+        vector directions. 0 and 1 mean no shift and half shift, recpectively.
+        shape=(3,), dtype='intc'
+
+    Returns
+    -------
+    address_double : ndarray
+        Double-grid address.
+        shape=(3,), dtype='intc'
+
+    """
+
+    address_double = np.zeros(3, dtype='intc', order='C')
+    if shift is None:
+        _shift = np.zeros(3, dtype='intc', order='C')
+    else:
+        _shift = np.array(shift, dtype='intc')
+    ksp.double_grid_address(address_double,
+                            np.array(address, dtype='intc'),
+                            np.array(mesh, dtype='intc'),
+                            _shift)
+    return address_double
+
+
 def get_double_grid_point(address_double, mesh):
     """Return grid point index of a double-grid address
 
     Parameters
     ----------
     address_double : array_like
-        Grid address in double-grid method.
+        Double-grid address.
         shape=(3,), dtype='intc'
     mesh : array_like
         Conventional regular mesh for grid sampling.
@@ -82,42 +121,6 @@ def get_double_grid_point(address_double, mesh):
     """
     return ksp.double_grid_point(np.array(address_double, dtype='intc'),
                                  np.array(mesh, dtype='intc'))
-
-
-def get_double_grid_address(address, mesh, is_shift=None):
-    """Convert grid address plus shift to double-grid address
-
-    Parameters
-    ----------
-    address : array_like
-        Grid address.
-        shape=(3,), dtype='intc'
-    mesh : array_like
-        Conventional regular mesh for grid sampling.
-        shape=(3,), dtype='intc'
-    is_shift : array_like, optional
-        Half grid shift for conventional regular mesh along reciprocal basis
-        vector directions. 0 and 1 mean no shift and half shift, recpectively.
-        shape=(3,), dtype='intc'
-
-    Returns
-    -------
-    address_double : ndarray
-        Grid address in double-grid method.
-        shape=(3,), dtype='intc'
-
-    """
-
-    address_double = np.zeros(3, dtype='intc', order='C')
-    if is_shift is None:
-        _is_shift = np.zeros(3, dtype='intc', order='C')
-    else:
-        _is_shift = np.array(is_shift, dtype='intc')
-    ksp.double_grid_address(address_double,
-                            np.array(address, dtype='intc'),
-                            np.array(mesh, dtype='intc'),
-                            _is_shift)
-    return address_double
 
 
 def get_thm_relative_grid_addresses(rec_lattice):
@@ -292,3 +295,75 @@ def get_all_grgrid_addresses(D_diag):
     grgrid_address = np.zeros((np.prod(D_diag), 3), dtype='int_', order='C')
     ksp.all_grgrid_addresses(grgrid_address, np.array(D_diag, dtype='int_'))
     return grgrid_address
+
+
+def get_double_grgrid_address(address, D_diag, PS=None):
+    """Convert grid address plus shift to double-grid address
+
+    address_double = 2 * address + shift, where values are reduced to
+    be closet to 0, -mesh/2 < address_double <= mesh/2.
+
+    Parameters
+    ----------
+    address : array_like
+        Grid address.
+        shape=(3,), dtype='int_'
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+    PS : array_like, optional
+        Half grid shifts after transformation by P of Smith normal form.
+        Let half grid shifts along reciprocal basis vector directions be S,
+        where s_i = 0 or 1, this array corresponds to np.dot(P, S).
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    address_double : ndarray
+        Double-grid address.
+        shape=(3,), dtype='intc'
+
+    """
+
+    address_double = np.zeros(3, dtype='int_', order='C')
+    if PS is None:
+        _PS = np.zeros(3, dtype='int_')
+    else:
+        _PS = np.array(PS, dtype='int_')
+    ksp.double_grgrid_address(address_double,
+                              np.array(address, dtype='int_'),
+                              np.array(D_diag, dtype='int_'),
+                              _PS)
+    return address_double
+
+
+def get_double_grgrid_point(address_double, D_diag, PS=None):
+    """Return grid point index of a double-grid address
+
+    Parameters
+    ----------
+    address_double : array_like
+        Double-grid address.
+        shape=(3,), dtype='int_'
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+    PS : array_like, optional
+        Half grid shifts after transformation by P of Smith normal form.
+        Let half grid shifts along reciprocal basis vector directions be S,
+        where s_i = 0 or 1, this array corresponds to np.dot(P, S).
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    grid_point : int
+        Grid point index.
+
+    """
+    if PS is None:
+        _PS = np.zeros(3, dtype='int_')
+    else:
+        _PS = np.array(PS, dtype='int_')
+    return ksp.double_grgrid_point(np.array(address_double, dtype='int_'),
+                                   np.array(D_diag, dtype='int_'),
+                                   _PS)

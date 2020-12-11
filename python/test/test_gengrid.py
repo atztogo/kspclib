@@ -1,6 +1,8 @@
 import numpy as np
 from kspclib import (get_snf3x3, snf_transform_rotations,
-                     get_all_grgrid_addresses)
+                     get_all_grgrid_addresses,
+                     get_double_grgrid_address,
+                     get_double_grgrid_point)
 
 # (16, 3, 3)
 tio2_rots = [
@@ -209,3 +211,27 @@ def test_get_all_grgrid_addresses():
     # for v in grgrid_addresses:
     #     print("[%d, %d, %d]," % tuple(v))
     np.testing.assert_array_equal(grgrid_addresses, addresses_244)
+
+
+def test_get_double_grid_point():
+    D_diag = tio2_snf['D_diag']
+    P = tio2_snf['P']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    for shift in np.ndindex((2, 2, 2)):
+        PS = np.dot(P, shift)
+        for i, address in enumerate(grgrid_addresses):
+            gp = get_double_grgrid_point(address * 2 + PS, D_diag, PS=PS)
+            assert i == gp
+
+
+def test_get_double_grid_address():
+    D_diag = tio2_snf['D_diag']
+    P = tio2_snf['P']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    for shift in np.ndindex((2, 2, 2)):
+        PS = np.dot(P, shift)
+        for i, address in enumerate(grgrid_addresses):
+            gp = get_double_grgrid_point(address * 2 + PS, D_diag, PS=PS)
+            ga = get_double_grgrid_address(address, D_diag, PS=PS)
+            ga_gp = get_double_grgrid_point(ga, D_diag, PS=PS)
+            assert gp == ga_gp
