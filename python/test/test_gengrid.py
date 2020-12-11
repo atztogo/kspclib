@@ -213,6 +213,20 @@ def test_get_all_grgrid_addresses():
     np.testing.assert_array_equal(grgrid_addresses, addresses_244)
 
 
+# def test_get_all_grgrid_addresses_for_q(tio2_lattice):
+#     D_diag = tio2_snf['D_diag']
+#     Q = np.array(tio2_snf['Q'])
+#     grgrid_addresses = get_all_grgrid_addresses(D_diag)
+#     q = np.dot(grgrid_addresses / np.array(D_diag, dtype=float), Q.T)
+#     q -= np.rint(q)
+#     from phonopy.structure.atoms import PhonopyAtoms
+#     from phonopy.interface.vasp import write_vasp
+#     cell = PhonopyAtoms(cell=tio2_lattice,
+#                         scaled_positions=q,
+#                         numbers=[1, ] * len(q))
+#     write_vasp("POSCAR", cell)
+
+
 def test_get_double_grid_point():
     D_diag = tio2_snf['D_diag']
     P = tio2_snf['P']
