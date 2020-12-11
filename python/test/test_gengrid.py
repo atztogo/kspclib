@@ -2,6 +2,7 @@ import numpy as np
 from kspclib import (get_snf3x3, snf_transform_rotations,
                      get_all_grgrid_addresses,
                      get_double_grgrid_address,
+                     get_grgrid_point,
                      get_double_grgrid_point)
 
 # (16, 3, 3)
@@ -227,6 +228,42 @@ def test_get_all_grgrid_addresses():
 #     write_vasp("POSCAR", cell)
 
 
+def test_rotate_all_grgrid_addresses():
+    D_diag = tio2_snf['D_diag']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    ids = np.arange(len(grgrid_addresses))
+    for r in np.reshape(tio2_transformed_rots, (-1, 3, 3)):
+        rot_addresses = np.dot(grgrid_addresses, r.T)
+        gps = [get_grgrid_point(adrs, D_diag)
+               for adrs in rot_addresses]
+        np.testing.assert_array_equal(np.sort(gps), ids)
+
+
+def test_rotate_all_grgrid_double_addresses():
+    """
+
+    Primitive cell of TiO2 anataze, body centred tetragonal.
+    Shifts have to be limited to (0, 0, 0), (1, 1, 0), (0, 0, 1),
+    (1, 1, 1). Other shifts can fail rotating grid points, but not
+    necessarily always failing.
+
+    """
+
+    D_diag = tio2_snf['D_diag']
+    P = tio2_snf['P']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    ids = np.arange(len(grgrid_addresses))
+    for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
+        PS = np.dot(P, shift)
+        d_addresses = [get_double_grgrid_address(adrs, D_diag, PS=PS)
+                       for adrs in grgrid_addresses]
+        for r in np.reshape(tio2_transformed_rots, (-1, 3, 3)):
+            rot_addresses = np.dot(d_addresses, r.T)
+            gps = [get_double_grgrid_point(adrs, D_diag, PS=PS)
+                   for adrs in rot_addresses]
+            np.testing.assert_array_equal(np.sort(gps), ids)
+
+
 def test_get_double_grid_point():
     D_diag = tio2_snf['D_diag']
     P = tio2_snf['P']
@@ -234,8 +271,17 @@ def test_get_double_grid_point():
     for shift in np.ndindex((2, 2, 2)):
         PS = np.dot(P, shift)
         for i, address in enumerate(grgrid_addresses):
-            gp = get_double_grgrid_point(address * 2 + PS, D_diag, PS=PS)
-            assert i == gp
+            d_ga = get_double_grgrid_address(address, D_diag, PS=PS)
+            d_gp = get_double_grgrid_point(d_ga, D_diag, PS=PS)
+            assert i == d_gp
+
+
+def test_get_grid_point():
+    D_diag = tio2_snf['D_diag']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    for i, address in enumerate(grgrid_addresses):
+        s_gp = get_grgrid_point(address, D_diag)
+        assert i == s_gp
 
 
 def test_get_double_grid_address():

@@ -337,6 +337,28 @@ def get_double_grgrid_address(address, D_diag, PS=None):
     return address_double
 
 
+def get_grgrid_point(address, D_diag):
+    """Return grid point index of a single-grid address
+
+    Parameters
+    ----------
+    address : array_like
+        Single-grid address.
+        shape=(3,), dtype='int_'
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    grid_point : int
+        Grid point index.
+
+    """
+    return ksp.grgrid_point(np.array(address, dtype='int_'),
+                            np.array(D_diag, dtype='int_'))
+
+
 def get_double_grgrid_point(address_double, D_diag, PS=None):
     """Return grid point index of a double-grid address
 

@@ -52,10 +52,12 @@ void kgg_get_double_grid_address(long address_double[3],
                                  const long address[3],
                                  const long D_diag[3],
                                  const long PS[3]);
-void kgg_get_single_grid_address(long address[3],
-                                 const long address_double[3],
-                                 const long D_diag[3],
-                                 const long PS[3]);
+void kgg_get_grid_address(long address[3],
+                          const long address_double[3],
+                          const long D_diag[3],
+                          const long PS[3]);
+size_t kgg_get_grid_point(const long address[3],
+                          const long D_diag[3]);
 size_t kgg_get_double_grid_point(const long address_double[3],
                                  const long D_diag[3],
                                  const long PS[3]);

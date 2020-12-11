@@ -42,6 +42,7 @@ from .kspclib import (get_version,
                       snf_transform_rotations,
                       get_all_grgrid_addresses,
                       get_double_grgrid_address,
+                      get_grgrid_point,
                       get_double_grgrid_point)
 
 

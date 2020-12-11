@@ -53,6 +53,7 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args);
 static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args);
 static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args);
+static PyObject * py_grgrid_point(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args);
 
 struct module_state {
@@ -94,6 +95,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Return all generalized regular grid addresses for diagonal elements of D"},
   {"double_grgrid_address", py_double_grgrid_address, METH_VARARGS,
    "Convert generalized-regular-grid address plus shift to double-grid address"},
+  {"grgrid_point", py_grgrid_point, METH_VARARGS,
+   "Return generalized-regular-grid point index of a single-grid address"},
   {"double_grgrid_point", py_double_grgrid_point, METH_VARARGS,
    "Return generalized-regular-grid point index of a double-grid address"},
   {NULL, NULL, 0, NULL}
@@ -423,6 +426,31 @@ static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args)
                                 PS);
 
   Py_RETURN_NONE;
+}
+
+static PyObject * py_grgrid_point(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_address;
+  PyArrayObject* py_D_diag;
+
+  long* address;
+  long* D_diag;
+  size_t grid_point;
+
+
+  if (!PyArg_ParseTuple(args, "OO",
+                        &py_address,
+                        &py_D_diag)) {
+    return NULL;
+  }
+
+  address = (long*)PyArray_DATA(py_address);
+  D_diag = (long*)PyArray_DATA(py_D_diag);
+
+  grid_point = ksp_get_grgrid_point(address, D_diag);
+
+  return PyLong_FromSize_t(grid_point);
+
 }
 
 static PyObject * py_double_grgrid_point(PyObject *self, PyObject *args)

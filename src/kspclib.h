@@ -78,6 +78,8 @@ extern "C" {
                                      const long address[3],
                                      const long D_diag[3],
                                      const long PS[3]);
+  size_t ksp_get_grgrid_point(const long address_double[3],
+                              const long D_diag[3]);
   size_t ksp_get_double_grgrid_point(const long address_double[3],
                                      const long D_diag[3],
                                      const long PS[3]);

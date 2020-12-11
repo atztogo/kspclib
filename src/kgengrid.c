@@ -159,10 +159,10 @@ void kgg_get_double_grid_address(long address_double[3],
 /* address_double : Double grid address. */
 /* D_diag : Diagnal elements of D. */
 /* PS : Shifts transformed by P. s_i is 0 or 1. */
-void kgg_get_single_grid_address(long address[3],
-                                 const long address_double[3],
-                                 const long D_diag[3],
-                                 const long PS[3])
+void kgg_get_grid_address(long address[3],
+                          const long address_double[3],
+                          const long D_diag[3],
+                          const long PS[3])
 {
   int i;
 
@@ -183,6 +183,21 @@ size_t kgg_get_double_grid_point(const long address_double[3],
                                  const long PS[3])
 {
   return get_double_grid_point_index(address_double, D_diag, PS);
+}
+
+/* -------------------------------------------------*/
+/* Get grid point index from address in single grid */
+/* -------------------------------------------------*/
+/* address : Single grid address. */
+/* D_diag : Diagnal elements of D. */
+size_t kgg_get_grid_point(const long address[3],
+                          const long D_diag[3])
+{
+  long red_adrs[3];
+
+  mat_copy_vector_l3(red_adrs, address);
+  reduce_single_grid_address(red_adrs, D_diag);
+  return get_grid_point_index(red_adrs, D_diag);
 }
 
 static void reduce_single_grid_address(long address[3], const long D_diag[3])
@@ -210,10 +225,10 @@ static size_t get_double_grid_point_index(const long address_double[3],
 {
   long address[3];
 
-  kgg_get_single_grid_address(address,
-                              address_double,
-                              D_diag,
-                              PS);
+  kgg_get_grid_address(address,
+                       address_double,
+                       D_diag,
+                       PS);
   return get_grid_point_index(address, D_diag);
 }
 
