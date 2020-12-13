@@ -34,7 +34,7 @@
 
 from .kspclib import (get_version,
                       get_all_grid_addresses,
-                      get_double_grid_point,
+                      get_double_grid_index,
                       get_double_grid_address,
                       get_thm_relative_grid_addresses,
                       get_thm_integration_weight,
@@ -42,8 +42,8 @@ from .kspclib import (get_version,
                       snf_transform_rotations,
                       get_all_grgrid_addresses,
                       get_double_grgrid_address,
-                      get_grgrid_point,
-                      get_double_grgrid_point,
+                      get_grgrid_index,
+                      get_double_grgrid_index,
                       niggli_reduce)
 
 

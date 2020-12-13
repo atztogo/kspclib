@@ -55,7 +55,7 @@ extern "C" {
                                    const int address[3],
                                    const int mesh[3],
                                    const int is_shift[3]);
-  size_t ksp_get_double_grid_point(const int address_double[3],
+  size_t ksp_get_double_grid_index(const int address_double[3],
                                    const int mesh[3]);
 /* rec_lattice : column vectors */
   void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
@@ -78,11 +78,14 @@ extern "C" {
                                      const long address[3],
                                      const long D_diag[3],
                                      const long PS[3]);
-  size_t ksp_get_grgrid_point(const long address_double[3],
+  size_t ksp_get_grgrid_index(const long address_double[3],
                               const long D_diag[3]);
-  size_t ksp_get_double_grgrid_point(const long address_double[3],
+  size_t ksp_get_double_grgrid_index(const long address_double[3],
                                      const long D_diag[3],
                                      const long PS[3]);
+  void ksp_get_grgrid_address_from_grgrid_index(long address[3],
+                                                const size_t grid_index,
+                                                const long D_diag[3]);
   int ksp_niggli_reduce(double red_lattice[3][3],
                         KSPCONST double lattice[3][3],
                         const double eps);

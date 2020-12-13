@@ -101,7 +101,7 @@ def get_double_grid_address(address, mesh, shift=None):
     return address_double
 
 
-def get_double_grid_point(address_double, mesh):
+def get_double_grid_index(address_double, mesh):
     """Return grid point index of a double-grid address
 
     Parameters
@@ -115,11 +115,11 @@ def get_double_grid_point(address_double, mesh):
 
     Returns
     -------
-    grid_point : int
+    grid_index : int
         Grid point index.
 
     """
-    return ksp.double_grid_point(np.array(address_double, dtype='intc'),
+    return ksp.double_grid_index(np.array(address_double, dtype='intc'),
                                  np.array(mesh, dtype='intc'))
 
 
@@ -337,7 +337,7 @@ def get_double_grgrid_address(address, D_diag, PS=None):
     return address_double
 
 
-def get_grgrid_point(address, D_diag):
+def get_grgrid_index(address, D_diag):
     """Return grid point index of a single-grid address
 
     Parameters
@@ -351,15 +351,15 @@ def get_grgrid_point(address, D_diag):
 
     Returns
     -------
-    grid_point : int
+    grid_index : int
         Grid point index.
 
     """
-    return ksp.grgrid_point(np.array(address, dtype='int_'),
+    return ksp.grgrid_index(np.array(address, dtype='int_'),
                             np.array(D_diag, dtype='int_'))
 
 
-def get_double_grgrid_point(address_double, D_diag, PS=None):
+def get_double_grgrid_index(address_double, D_diag, PS=None):
     """Return grid point index of a double-grid address
 
     Parameters
@@ -378,7 +378,7 @@ def get_double_grgrid_point(address_double, D_diag, PS=None):
 
     Returns
     -------
-    grid_point : int
+    grid_index : int
         Grid point index.
 
     """
@@ -386,7 +386,7 @@ def get_double_grgrid_point(address_double, D_diag, PS=None):
         _PS = np.zeros(3, dtype='int_')
     else:
         _PS = np.array(PS, dtype='int_')
-    return ksp.double_grgrid_point(np.array(address_double, dtype='int_'),
+    return ksp.double_grgrid_index(np.array(address_double, dtype='int_'),
                                    np.array(D_diag, dtype='int_'),
                                    _PS)
 

@@ -29,12 +29,11 @@ set(soserial "1")
 # Source code
 include_directories("${PROJECT_SOURCE_DIR}/src")
 set(SOURCES
-  ${PROJECT_SOURCE_DIR}/src/kgengrid.c
-  ${PROJECT_SOURCE_DIR}/src/kgrid.c
-  ${PROJECT_SOURCE_DIR}/src/kpoint.c
+  ${PROJECT_SOURCE_DIR}/src/grgrid.c
   ${PROJECT_SOURCE_DIR}/src/kspclib.c
   ${PROJECT_SOURCE_DIR}/src/mathfunc.c
   ${PROJECT_SOURCE_DIR}/src/niggli.c
+  ${PROJECT_SOURCE_DIR}/src/rgrid.c
   ${PROJECT_SOURCE_DIR}/src/snf3x3.c
   ${PROJECT_SOURCE_DIR}/src/tetrahedron_method.c)
 

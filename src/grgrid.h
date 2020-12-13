@@ -32,34 +32,37 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __kgengrid_H__
-#define __kgengrid_H__
+#ifndef __grgrid_H__
+#define __grgrid_H__
 
 #include <stddef.h>
 #include "mathfunc.h"
 
-int kgg_get_snf3x3(long D_diag[3],
+int grg_get_snf3x3(long D_diag[3],
                    long P[3][3],
                    long Q[3][3],
                    MATCONST long A[3][3]);
-int kgg_transform_rotations(long (*transformed_rots)[3][3],
+int grg_transform_rotations(long (*transformed_rots)[3][3],
                             MATCONST int (*rotations)[3][3],
                             const int num_rot,
                             const long D_diag[3],
                             MATCONST long Q[3][3]);
-void kgg_get_all_grid_addresses(long grid_address[][3], const long D_diag[3]);
-void kgg_get_double_grid_address(long address_double[3],
+void grg_get_all_grid_addresses(long grid_address[][3], const long D_diag[3]);
+void grg_get_double_grid_address(long address_double[3],
                                  const long address[3],
                                  const long D_diag[3],
                                  const long PS[3]);
-void kgg_get_grid_address(long address[3],
+void grg_get_grid_address(long address[3],
                           const long address_double[3],
                           const long D_diag[3],
                           const long PS[3]);
-size_t kgg_get_grid_point(const long address[3],
+size_t grg_get_grid_index(const long address[3],
                           const long D_diag[3]);
-size_t kgg_get_double_grid_point(const long address_double[3],
+size_t grg_get_double_grid_index(const long address_double[3],
                                  const long D_diag[3],
                                  const long PS[3]);
+void grg_get_grid_address_from_grid_index(long address[3],
+                                          const size_t grid_index,
+                                          const long D_diag[3]);
 
 #endif

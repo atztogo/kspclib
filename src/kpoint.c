@@ -37,7 +37,7 @@
 #include <stddef.h>
 #include "mathfunc.h"
 #include "kpoint.h"
-#include "kgrid.h"
+#include "rgrid.h"
 
 #define KPT_NUM_BZ_SEARCH_SPACE 125
 

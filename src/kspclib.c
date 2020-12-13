@@ -33,10 +33,10 @@
 /* POSSIBILITY OF SUCH DAMAGE. */
 
 #include "kspclib.h"
-#include "kgrid.h"
-#include "kgengrid.h"
+#include "grgrid.h"
 #include "mathfunc.h"
 #include "niggli.h"
+#include "rgrid.h"
 #include "snf3x3.h"
 #include "tetrahedron_method.h"
 #include "version.h"
@@ -58,7 +58,7 @@ int ksp_get_micro_version(void)
 
 void ksp_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
 {
-  kgd_get_all_grid_addresses(grid_address, mesh);
+  rgd_get_all_grid_addresses(grid_address, mesh);
 }
 
 void ksp_get_double_grid_address(int address_double[3],
@@ -66,16 +66,16 @@ void ksp_get_double_grid_address(int address_double[3],
                                  const int mesh[3],
                                  const int is_shift[3])
 {
-  kgd_get_grid_address_double_mesh(address_double,
+  rgd_get_grid_address_double_mesh(address_double,
                                    address,
                                    mesh,
                                    is_shift);
 }
 
-size_t ksp_get_double_grid_point(const int address_double[3],
+size_t ksp_get_double_grid_index(const int address_double[3],
                                  const int mesh[3])
 {
-  return kgd_get_grid_point_double_mesh(address_double, mesh);
+  return rgd_get_grid_index_double_mesh(address_double, mesh);
 }
 
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
@@ -96,7 +96,7 @@ int ksp_get_snf3x3(long D_diag[3],
                    long Q[3][3],
                    KSPCONST long A[3][3])
 {
-  return kgg_get_snf3x3(D_diag, P, Q, A);
+  return grg_get_snf3x3(D_diag, P, Q, A);
 }
 
 int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
@@ -107,7 +107,7 @@ int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
 {
   int succeeded;
 
-  succeeded = kgg_transform_rotations(transformed_rots,
+  succeeded = grg_transform_rotations(transformed_rots,
                                       rotations, num_rot, D_diag, Q);
 
   return succeeded;
@@ -116,7 +116,7 @@ int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
 void ksp_get_all_grgrid_addresses(long grid_address[][3],
                                   const long D_diag[3])
 {
-  kgg_get_all_grid_addresses(grid_address, D_diag);
+  grg_get_all_grid_addresses(grid_address, D_diag);
 }
 
 void ksp_get_double_grgrid_address(long address_double[3],
@@ -124,26 +124,33 @@ void ksp_get_double_grgrid_address(long address_double[3],
                                    const long D_diag[3],
                                    const long PS[3])
 {
-  kgg_get_double_grid_address(address_double,
+  grg_get_double_grid_address(address_double,
                               address,
                               D_diag,
                               PS);
 }
 
-size_t ksp_get_grgrid_point(const long address_double[3],
+size_t ksp_get_grgrid_index(const long address_double[3],
                             const long D_diag[3])
 {
-  return kgg_get_grid_point(address_double,
+  return grg_get_grid_index(address_double,
                             D_diag);
 }
 
-size_t ksp_get_double_grgrid_point(const long address_double[3],
+size_t ksp_get_double_grgrid_index(const long address_double[3],
                                    const long D_diag[3],
                                    const long PS[3])
 {
-  return kgg_get_double_grid_point(address_double,
+  return grg_get_double_grid_index(address_double,
                                    D_diag,
                                    PS);
+}
+
+void ksp_get_grgrid_address_from_grgrid_index(long address[3],
+                                              const size_t grid_index,
+                                              const long D_diag[3])
+{
+  grg_get_grid_address_from_grid_index(address, grid_index, D_diag);
 }
 
 /* red_lattice, lattice : column vectors */

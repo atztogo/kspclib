@@ -1,7 +1,7 @@
 import numpy as np
 from kspclib import (get_thm_relative_grid_addresses,
                      get_all_grid_addresses,
-                     get_double_grid_point,
+                     get_double_grid_index,
                      get_double_grid_address,
                      get_thm_integration_weight)
 
@@ -57,7 +57,7 @@ def test_get_thm_integration_weight(nacl_lattice,
     dos = np.zeros_like(fpoints)
     acc = np.zeros_like(fpoints)
     for ga in grid_addresses:
-        tetrahedra_gps = _get_tetrahedra_grid_points(
+        tetrahedra_gps = _get_tetrahedra_grid_indices(
             ga + relative_addresses, mesh, shift)
         tetrahedra_freqs = freqs[tetrahedra_gps]
         for i, fpt in enumerate(fpoints):
@@ -80,11 +80,11 @@ def _get_frequency_points(freqs, df=0.1):
     return fpoints
 
 
-def _get_tetrahedra_grid_points(tetrahedra_ga, mesh, shift):
+def _get_tetrahedra_grid_indices(tetrahedra_ga, mesh, shift):
     tetrahedra_gps = np.zeros((24, 4), dtype='uintp', order='C')
     for j in range(24):
         for k in range(4):
             ga_d = get_double_grid_address(
                 tetrahedra_ga[j, k], mesh, shift=shift)
-            tetrahedra_gps[j, k] = get_double_grid_point(ga_d, mesh)
+            tetrahedra_gps[j, k] = get_double_grid_index(ga_d, mesh)
     return tetrahedra_gps

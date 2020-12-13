@@ -32,8 +32,8 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __kgrid_H__
-#define __kgrid_H__
+#ifndef __rgrid_H__
+#define __rgrid_H__
 
 #include <stddef.h>
 
@@ -72,10 +72,10 @@
 /* without GRID_BOUNDARY_AS_NEGATIVE, e.g., [-2, -1, 0, 1, 2, 3]. */
 /* with GRID_BOUNDARY_AS_NEGATIVE, e.g., [-3, -2, -1, 0, 1, 2]. */
 
-void kgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
-size_t kgd_get_grid_point_double_mesh(const int address_double[3],
+void rgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
+size_t rgd_get_grid_index_double_mesh(const int address_double[3],
                                       const int mesh[3]);
-void kgd_get_grid_address_double_mesh(int address_double[3],
+void rgd_get_grid_address_double_mesh(int address_double[3],
                                       const int address[3],
                                       const int mesh[3],
                                       const int is_shift[3]);
