@@ -1,7 +1,7 @@
-/* Copyright (C) 2014 Atsushi Togo */
+/* Copyright (C) 2015 Atsushi Togo */
 /* All rights reserved. */
 
-/* This file was originally part of spglib and is part of kspclib. */
+/* This file is part of niggli. */
 
 /* Redistribution and use in source and binary forms, with or without */
 /* modification, are permitted provided that the following conditions */
@@ -15,7 +15,7 @@
 /*   the documentation and/or other materials provided with the */
 /*   distribution. */
 
-/* * Neither the name of the kspclib project nor the names of its */
+/* * Neither the name of the niggli project nor the names of its */
 /*   contributors may be used to endorse or promote products derived */
 /*   from this software without specific prior written permission. */
 
@@ -32,20 +32,16 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __tetrahedron_method_H__
-#define __tetrahedron_method_H__
+#ifndef __NIGGLI_H__
+#define __NIGGLI_H__
 
-#ifndef THMCONST
-#define THMCONST
-#endif
+#define NIGGLI_MAJOR_VERSION 0
+#define NIGGLI_MINOR_VERSION 2
+#define NIGGLI_MICRO_VERSION 0
 
-#include <stddef.h>
-
-void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
-                                   THMCONST double rec_lattice[3][3]);
-void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3]);
-double thm_get_integration_weight(const double omega,
-                                  THMCONST double tetrahedra_omegas[24][4],
-                                  const char function);
+int niggli_get_major_version(void);
+int niggli_get_minor_version(void);
+int niggli_get_micro_version(void);
+int niggli_reduce(double *lattice_, const double eps_);
 
 #endif

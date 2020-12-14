@@ -7,8 +7,8 @@ static void test_tetrahedron_method(void);
 static void mat_copy_matrix_d3(double a[3][3], double b[3][3]);
 static double mat_get_determinant_d3(double a[3][3]);
 static int mat_inverse_matrix_d3(double m[3][3],
-				 double a[3][3],
-				 const double precision);
+                                 double a[3][3],
+                                 const double precision);
 
 int main(void)
 {
@@ -21,7 +21,7 @@ int main(void)
 /* The values in this file are the phonon frequencies of NaCl */
 /* with 20x20x20 mesh. Calculation was done with reducing */
 /* k-points to the irreducible k-points using phonopy. */
-/* (http://phonopy.sf.net/) */
+/* (https://github.com/phonopy/phonopy) */
 static void test_tetrahedron_method(void)
 {
   printf("*** Example of tetrahedron method of NaCl to calculate DOS ***:\n");
@@ -39,7 +39,7 @@ static void test_tetrahedron_method(void)
   int num_atom = 2;
   int m = 20; /* m = 10 for 10x10x10 mesh */
   int mesh[3] = {m, m, m};
-  int num_gp = mesh[0] * mesh[1] * mesh[2];
+  size_t num_gp = mesh[0] * mesh[1] * mesh[2];
   int is_shift[3] = {0, 0, 0};
   int grid_address[num_gp][3];
   int relative_grid_address[24][4][3];
@@ -53,7 +53,7 @@ static void test_tetrahedron_method(void)
   double t_omegas[24][4];
   int g_addr[3];
   int g_addr_double[3];
-  int gp;
+  size_t gp;
   int num_freqs = 201;
   double dos[num_freqs];
   double integral_dos[num_freqs];
@@ -67,9 +67,9 @@ static void test_tetrahedron_method(void)
   /* for (i = 0; i < 24; i++) { */
   /*   for (j = 0; j < 4; j++) { */
   /*     printf("[%2d %2d %2d] ", */
-  /* 	     relative_grid_address[i][j][0], */
-  /* 	     relative_grid_address[i][j][1], */
-  /* 	     relative_grid_address[i][j][2]); */
+  /*         relative_grid_address[i][j][0], */
+  /*         relative_grid_address[i][j][1], */
+  /*         relative_grid_address[i][j][2]); */
   /*   } */
   /*   printf("\n"); */
   /* } */
@@ -105,23 +105,23 @@ static void test_tetrahedron_method(void)
     omegas[i] = min_f + (max_f - min_f) / (num_freqs - 1) * i;
     for (j = 0; j < num_gp;  j++) {
       for (k = 0; k < num_atom * 3; k++) {
-	for (l = 0; l < 24; l++) {
-	  for (q = 0; q < 4; q++) {
-	    for (r = 0; r < 3; r++) {
-	      g_addr[r] = grid_address[j][r] + relative_grid_address[l][q][r];
-	    }
-	    kgd_get_grid_address_double_mesh(g_addr_double,
-					     g_addr,
-					     mesh,
-					     is_shift);
-	    gp = kgd_get_grid_point_double_mesh(g_addr_double, mesh);
-	    t_omegas[l][q] = frequency[gp * num_atom * 3 + k];
-	  }
-	}
-	iw = thm_get_integration_weight(omegas[i], t_omegas, 'J');
-	dos[i] += iw;
-	iw = thm_get_integration_weight(omegas[i], t_omegas, 'I');
-	integral_dos[i] += iw;
+        for (l = 0; l < 24; l++) {
+          for (q = 0; q < 4; q++) {
+            for (r = 0; r < 3; r++) {
+              g_addr[r] = grid_address[j][r] + relative_grid_address[l][q][r];
+            }
+            kgd_get_grid_address_double_mesh(g_addr_double,
+                                             g_addr,
+                                             mesh,
+                                             is_shift);
+            gp = kgd_get_grid_point_double_mesh(g_addr_double, mesh);
+            t_omegas[l][q] = frequency[gp * num_atom * 3 + k];
+          }
+        }
+        iw = thm_get_integration_weight(omegas[i], t_omegas, 'J');
+        dos[i] += iw;
+        iw = thm_get_integration_weight(omegas[i], t_omegas, 'I');
+        integral_dos[i] += iw;
       }
     }
   }
@@ -133,11 +133,11 @@ static void test_tetrahedron_method(void)
   }
 
   fprintf(fp, "\n\n");
-  
+
   for (i = 0; i < num_freqs; i++) {
     fprintf(fp, "%f %f\n", omegas[i], integral_dos[i] / num_gp);
   }
-    
+
   fclose(fp);
 }
 
@@ -162,8 +162,8 @@ static double mat_get_determinant_d3(double a[3][3])
 }
 
 static int mat_inverse_matrix_d3(double m[3][3],
-				 double a[3][3],
-				 const double precision)
+                                 double a[3][3],
+                                 const double precision)
 {
   double det;
   double c[3][3];

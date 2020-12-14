@@ -1,7 +1,7 @@
-/* Copyright (C) 2014 Atsushi Togo */
+/* Copyright (C) 2020 Atsushi Togo */
 /* All rights reserved. */
 
-/* This file was originally part of spglib and is part of kspclib. */
+/* This file is part of kspclib. */
 
 /* Redistribution and use in source and binary forms, with or without */
 /* modification, are permitted provided that the following conditions */
@@ -32,20 +32,11 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __tetrahedron_method_H__
-#define __tetrahedron_method_H__
+#ifndef __version_H__
+#define __version_H__
 
-#ifndef THMCONST
-#define THMCONST
-#endif
-
-#include <stddef.h>
-
-void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
-                                   THMCONST double rec_lattice[3][3]);
-void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3]);
-double thm_get_integration_weight(const double omega,
-                                  THMCONST double tetrahedra_omegas[24][4],
-                                  const char function);
+#define KSPCLIB_MAJOR_VERSION 0
+#define KSPCLIB_MINOR_VERSION 1
+#define KSPCLIB_MICRO_VERSION 0
 
 #endif
