@@ -5,6 +5,7 @@ from kspclib import (get_snf3x3, snf_transform_rotations,
                      get_grgrid_index,
                      get_double_grgrid_index,
                      get_grgrid_address_from_index,
+                     rotate_grgrid_index,
                      niggli_reduce)
 
 # (16, 3, 3)
@@ -305,3 +306,25 @@ def test_get_grgrid_address_from_index():
     for gp_index, address in enumerate(grgrid_addresses):
         adrs = get_grgrid_address_from_index(gp_index, D_diag)
         np.testing.assert_array_equal(adrs, address)
+
+
+def test_rotate_grgrid_index(tio2_lattice):
+    reclat = np.linalg.inv(tio2_lattice)
+    D_diag = tio2_snf['D_diag']
+    Q = tio2_snf['Q']
+    QD_inv = Q / np.array(D_diag, dtype=float)
+    rots = np.reshape(tio2_transformed_rots, (16, 3, 3))
+    orig_rots = np.reshape(tio2_rots, (16, 3, 3))
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+
+    for gp_index, address in enumerate(grgrid_addresses):
+        for r, orig_r in zip(rots, orig_rots):
+            q = np.dot(QD_inv, address)
+            q -= np.rint(q)
+            Rq = np.dot(orig_r, q)
+            Rq -= np.rint(Rq)
+            qp = np.dot(QD_inv, np.dot(r, address))
+            qp -= np.rint(qp)
+            diff = Rq - qp
+            diff -= np.rint(diff)
+            assert (np.dot(reclat, diff) ** 2).sum() < 1e-5

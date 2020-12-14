@@ -416,6 +416,44 @@ def get_grgrid_address_from_index(gp_index, D_diag):
     return address
 
 
+def rotate_grgrid_index(gp_index, rotation, D_diag, PS=None):
+    """Return grid point index of a double-grid address
+
+    Parameters
+    ----------
+    gp_index : int
+        Grid point index.
+    rotation : array_like
+        SNF transformed reciprocal rotation matrix. See some more detail
+        in the docstring of ``snf_transform_rotations``.
+        shape=(3, 3), dtype='int_', order='C'
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+    PS : array_like, optional
+        Half grid shifts after transformation by P of Smith normal form.
+        Let half grid shifts along reciprocal basis vector directions be S,
+        where s_i = 0 or 1, this array corresponds to np.dot(P, S).
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    rotated_gp_index : int
+        Grid point index of the rotated point.
+
+    """
+
+    if PS is None:
+        _PS = np.zeros(3, dtype='int_')
+    else:
+        _PS = np.array(PS, dtype='int_')
+    rotated_gp_index = ksp.rotate_grid_index(int(gp_index),
+                                             np.array(rotation, dtype='int_'),
+                                             np.array(D_diag, dtype='int_'),
+                                             _PS)
+    return rotated_gp_index
+
+
 def niggli_reduce(lattice, eps=1e-5):
     """Perform Niggli reduction
 
