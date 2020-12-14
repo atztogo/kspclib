@@ -6,6 +6,7 @@ from kspclib import (get_snf3x3, snf_transform_rotations,
                      get_double_grgrid_index,
                      get_grgrid_address_from_index,
                      rotate_grgrid_index,
+                     get_ir_grgrid_map,
                      niggli_reduce)
 
 # (16, 3, 3)
@@ -309,22 +310,57 @@ def test_get_grgrid_address_from_index():
 
 
 def test_rotate_grgrid_index(tio2_lattice):
+    """
+
+    rotate_grgrid_index returns grid point index by
+
+        r_gp_index = rotate_grgrid_index(gp_index, r, D_diag, PS=PS)
+
+    When we want to see q-point in the original coordinates,
+    we need three steps from the rotated grid point index:
+
+        r_adrs = get_grgrid_address_from_index(r_gp_index, D_diag)
+        r_dadrs = get_double_grgrid_address(r_adrs, D_diag, PS=PS)
+        r_q = np.dot(QD_inv, r_dadrs) / 2
+
+    """
+
     reclat = np.linalg.inv(tio2_lattice)
     D_diag = tio2_snf['D_diag']
+    P = tio2_snf['P']
     Q = tio2_snf['Q']
     QD_inv = Q / np.array(D_diag, dtype=float)
     rots = np.reshape(tio2_transformed_rots, (16, 3, 3))
     orig_rots = np.reshape(tio2_rots, (16, 3, 3))
-    grgrid_addresses = get_all_grgrid_addresses(D_diag)
 
-    for gp_index, address in enumerate(grgrid_addresses):
-        for r, orig_r in zip(rots, orig_rots):
-            q = np.dot(QD_inv, address)
-            q -= np.rint(q)
-            Rq = np.dot(orig_r, q)
-            Rq -= np.rint(Rq)
-            qp = np.dot(QD_inv, np.dot(r, address))
-            qp -= np.rint(qp)
-            diff = Rq - qp
-            diff -= np.rint(diff)
-            assert (np.dot(reclat, diff) ** 2).sum() < 1e-5
+    for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
+        PS = np.dot(P, shift)
+        grgrid_addresses = get_all_grgrid_addresses(D_diag)
+        for gp_index, adrs in enumerate(grgrid_addresses):
+            for r, orig_r in zip(rots, orig_rots):
+                dadrs = get_double_grgrid_address(adrs, D_diag, PS=PS)
+                q = np.dot(QD_inv, dadrs) / 2
+                q -= np.rint(q)
+                Rq = np.dot(orig_r, q)
+                Rq -= np.rint(Rq)
+                r_gp_index = rotate_grgrid_index(gp_index, r, D_diag, PS=PS)
+                r_adrs = get_grgrid_address_from_index(r_gp_index, D_diag)
+                r_dadrs = get_double_grgrid_address(r_adrs, D_diag, PS=PS)
+                r_q = np.dot(QD_inv, r_dadrs) / 2
+                r_q -= np.rint(r_q)
+                diff = Rq - r_q
+                diff -= np.rint(diff)
+                assert (np.dot(reclat, diff) ** 2).sum() < 1e-5
+
+
+def test_get_ir_grgrid_indices():
+    D_diag = tio2_snf['D_diag']
+    P = tio2_snf['P']
+    rots = np.reshape(tio2_transformed_rots, (16, 3, 3))
+    num_gps = np.prod(D_diag)
+
+    for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
+        PS = np.dot(P, shift)
+        ir_map = get_ir_grgrid_map(rots, D_diag, PS=PS)
+        assert num_gps == np.sum([len(np.where(ir_map == ugp)[0])
+                                  for ugp in np.unique(ir_map)])

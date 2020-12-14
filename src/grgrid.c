@@ -44,15 +44,15 @@
 static void reduce_grid_address(long address[3], const long D_diag[3]);
 static void reduce_double_grid_address(long address_double[3],
                                        const long D_diag[3]);
-static size_t get_double_grid_index(const long address_double[3],
-                                    const long D_diag[3],
-                                    const long PS[3]);
-static size_t get_grid_index_from_address(const long address[3],
-                                          const long D_diag[3]);
+static long get_double_grid_index(const long address_double[3],
+                                  const long D_diag[3],
+                                  const long PS[3]);
+static long get_grid_index_from_address(const long address[3],
+                                        const long D_diag[3]);
 static void get_all_grid_addresses(long grid_address[][3],
                                    const long D_diag[3]);
 static void get_grid_address_from_index(long address[3],
-                                        const size_t grid_index,
+                                        const long grid_index,
                                         const long D_diag[3]);
 static void get_grid_address(long address[3],
                              const long address_double[3],
@@ -60,10 +60,15 @@ static void get_grid_address(long address[3],
 static void get_double_grid_address(long address_double[3],
                                     const long address[3],
                                     const long PS[3]);
-static size_t rotate_grid_index(const size_t grid_index,
-                                MATCONST long rotation[3][3],
-                                const long D_diag[3],
-                                const long PS[3]);
+static long rotate_grid_index(const long grid_index,
+                              MATCONST long rotation[3][3],
+                              const long D_diag[3],
+                              const long PS[3]);
+static void get_ir_grid_map(long ir_grid_indices[],
+                            MATCONST long (*rotations)[3][3],
+                            const int num_rot,
+                            const long D_diag[3],
+                            const long PS[3]);
 
 int grg_get_snf3x3(long D_diag[3],
                    long P[3][3],
@@ -183,9 +188,9 @@ void grg_get_grid_address(long address[3],
 /* address_double : Double grid address. */
 /* D_diag : Diagnal elements of D. */
 /* PS : Shifts transformed by P. s_i is 0 or 1. */
-size_t grg_get_double_grid_index(const long address_double[3],
-                                 const long D_diag[3],
-                                 const long PS[3])
+long grg_get_double_grid_index(const long address_double[3],
+                               const long D_diag[3],
+                               const long PS[3])
 {
   return get_double_grid_index(address_double, D_diag, PS);
 }
@@ -195,7 +200,7 @@ size_t grg_get_double_grid_index(const long address_double[3],
 /* -------------------------------------------------*/
 /* address : Single grid address. */
 /* D_diag : Diagnal elements of D. */
-size_t grg_get_grid_index(const long address[3], const long D_diag[3])
+long grg_get_grid_index(const long address[3], const long D_diag[3])
 {
   long red_adrs[3];
 
@@ -210,7 +215,7 @@ size_t grg_get_grid_index(const long address[3], const long D_diag[3])
 /* address : Single grid address. */
 /* D_diag : Diagnal elements of D. */
 void grg_get_grid_address_from_index(long address[3],
-                                     const size_t grid_index,
+                                     const long grid_index,
                                      const long D_diag[3])
 {
   get_grid_address_from_index(address, grid_index, D_diag);
@@ -220,13 +225,30 @@ void grg_get_grid_address_from_index(long address[3],
 /* ---------------------------*/
 /* Rotate grid point by index */
 /* ---------------------------*/
-size_t grg_rotate_grid_index(const size_t grid_index,
-                             MATCONST long rotation[3][3],
-                             const long D_diag[3],
-                             const long PS[3])
+long grg_rotate_grid_index(const long grid_index,
+                           MATCONST long rotation[3][3],
+                           const long D_diag[3],
+                           const long PS[3])
 {
   return rotate_grid_index(grid_index, rotation, D_diag, PS);
 }
+
+/* -----------------------------*/
+/* Find irreducible grid points */
+/* -----------------------------*/
+void grg_get_ir_grid_map(long ir_grid_indices[],
+                         MATCONST long (*rotations)[3][3],
+                         const int num_rot,
+                         const long D_diag[3],
+                         const long PS[3])
+{
+  get_ir_grid_map(ir_grid_indices,
+                  rotations,
+                  num_rot,
+                  D_diag,
+                  PS);
+}
+
 
 static void reduce_grid_address(long address[3], const long D_diag[3])
 {
@@ -247,9 +269,9 @@ static void reduce_double_grid_address(long address_double[3],
   }
 }
 
-static size_t get_double_grid_index(const long address_double[3],
-                                    const long D_diag[3],
-                                    const long PS[3])
+static long get_double_grid_index(const long address_double[3],
+                                  const long D_diag[3],
+                                  const long PS[3])
 {
   long address[3];
 
@@ -264,8 +286,8 @@ static size_t get_double_grid_index(const long address_double[3],
 /* Therefore reduction to interval [0, D_diag[i]) has to be */
 /* done outside of this function. */
 /* See kgrid.h about GRID_ORDER_XYZ information. */
-static size_t get_grid_index_from_address(const long address[3],
-                                          const long D_diag[3])
+static long get_grid_index_from_address(const long address[3],
+                                        const long D_diag[3])
 {
 #ifndef GRID_ORDER_XYZ
   return (address[2] * D_diag[0] * D_diag[1]
@@ -279,15 +301,14 @@ static size_t get_grid_index_from_address(const long address[3],
 static void get_all_grid_addresses(long grid_address[][3],
                                    const long D_diag[3])
 {
-  size_t i, j, k;
-  size_t grid_index;
+  long i, j, k, grid_index;
   long address[3];
 
-  for (i = 0; i < (size_t)D_diag[0]; i++) {
+  for (i = 0; i < D_diag[0]; i++) {
     address[0] = i;
-    for (j = 0; j < (size_t)D_diag[1]; j++) {
+    for (j = 0; j < D_diag[1]; j++) {
       address[1] = j;
-      for (k = 0; k < (size_t)D_diag[2]; k++) {
+      for (k = 0; k < D_diag[2]; k++) {
         address[2] = k;
         grid_index = get_grid_index_from_address(address, D_diag);
         mat_copy_vector_l3(grid_address[grid_index], address);
@@ -298,7 +319,7 @@ static void get_all_grid_addresses(long grid_address[][3],
 
 /* See grg_get_grid_address_from_index */
 static void get_grid_address_from_index(long address[3],
-                                        const size_t grid_index,
+                                        const long grid_index,
                                         const long D_diag[3])
 {
   long nn;
@@ -343,10 +364,10 @@ static void get_double_grid_address(long address_double[3],
   }
 }
 
-static size_t rotate_grid_index(const size_t grid_index,
-                                MATCONST long rotation[3][3],
-                                const long D_diag[3],
-                                const long PS[3])
+static long rotate_grid_index(const long grid_index,
+                              MATCONST long rotation[3][3],
+                              const long D_diag[3],
+                              const long PS[3])
 {
   long adrs[3], dadrs[3], dadrs_rot[3];
 
@@ -354,4 +375,36 @@ static size_t rotate_grid_index(const size_t grid_index,
   get_double_grid_address(dadrs, adrs, PS);
   mat_multiply_matrix_vector_l3(dadrs_rot, rotation, dadrs);
   return get_double_grid_index(dadrs_rot, D_diag, PS);
+}
+
+static void get_ir_grid_map(long ir_grid_indices[],
+                            MATCONST long (*rotations)[3][3],
+                            const int num_rot,
+                            const long D_diag[3],
+                            const long PS[3])
+{
+  long gp, num_gp, r_gp;
+  int i;
+
+  num_gp = D_diag[0] * D_diag[1] * D_diag[2];
+
+  for (gp = 0; gp < num_gp; gp++) {
+    ir_grid_indices[gp] = num_gp;
+  }
+
+  /* Do not simply multithreaded this for-loop. */
+  /* This algorithm contains race condition in different gp's. */
+  for (gp = 0; gp < num_gp; gp++) {
+    for (i = 0; i < num_rot; i++) {
+      r_gp = rotate_grid_index(gp, rotations[i], D_diag, PS);
+      if (r_gp < gp) {
+        ir_grid_indices[gp] = ir_grid_indices[r_gp];
+        break;
+      }
+    }
+    if (ir_grid_indices[gp] == num_gp) {
+      ir_grid_indices[gp] = gp;
+    }
+  }
+
 }

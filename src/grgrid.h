@@ -56,17 +56,22 @@ void grg_get_grid_address(long address[3],
                           const long address_double[3],
                           const long D_diag[3],
                           const long PS[3]);
-size_t grg_get_grid_index(const long address[3],
-                          const long D_diag[3]);
-size_t grg_get_double_grid_index(const long address_double[3],
-                                 const long D_diag[3],
-                                 const long PS[3]);
+long grg_get_grid_index(const long address[3],
+                        const long D_diag[3]);
+long grg_get_double_grid_index(const long address_double[3],
+                               const long D_diag[3],
+                               const long PS[3]);
 void grg_get_grid_address_from_index(long address[3],
-                                     const size_t grid_index,
+                                     const long grid_index,
                                      const long D_diag[3]);
-size_t grg_rotate_grid_index(const size_t grid_index,
-                             MATCONST long rotations[3][3],
-                             const long D_diag[3],
-                             const long PS[3]);
+long grg_rotate_grid_index(const long grid_index,
+                           MATCONST long rotations[3][3],
+                           const long D_diag[3],
+                           const long PS[3]);
+void grg_get_ir_grid_map(long ir_grid_indices[],
+                         MATCONST long (*rotations)[3][3],
+                         const int num_rot,
+                         const long D_diag[3],
+                         const long PS[3]);
 
 #endif

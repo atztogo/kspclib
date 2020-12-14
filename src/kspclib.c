@@ -72,8 +72,8 @@ void ksp_get_double_grid_address(int address_double[3],
                                    is_shift);
 }
 
-size_t ksp_get_double_grid_index(const int address_double[3],
-                                 const int mesh[3])
+long ksp_get_double_grid_index(const int address_double[3],
+                               const int mesh[3])
 {
   return rgd_get_grid_index_double_mesh(address_double, mesh);
 }
@@ -130,16 +130,16 @@ void ksp_get_double_grgrid_address(long address_double[3],
                               PS);
 }
 
-size_t ksp_get_grgrid_index(const long address_double[3],
-                            const long D_diag[3])
+long ksp_get_grgrid_index(const long address_double[3],
+                          const long D_diag[3])
 {
   return grg_get_grid_index(address_double,
                             D_diag);
 }
 
-size_t ksp_get_double_grgrid_index(const long address_double[3],
-                                   const long D_diag[3],
-                                   const long PS[3])
+long ksp_get_double_grgrid_index(const long address_double[3],
+                                 const long D_diag[3],
+                                 const long PS[3])
 {
   return grg_get_double_grid_index(address_double,
                                    D_diag,
@@ -147,18 +147,31 @@ size_t ksp_get_double_grgrid_index(const long address_double[3],
 }
 
 void ksp_get_grgrid_address_from_index(long address[3],
-                                       const size_t grid_index,
+                                       const long grid_index,
                                        const long D_diag[3])
 {
   grg_get_grid_address_from_index(address, grid_index, D_diag);
 }
 
-size_t ksp_rotate_grid_index(const size_t grid_index,
+long ksp_rotate_grgrid_index(const long grid_index,
                              KSPCONST long rotation[3][3],
                              const long D_diag[3],
                              const long PS[3])
 {
   return grg_rotate_grid_index(grid_index, rotation, D_diag, PS);
+}
+
+void ksp_get_ir_grgrid_map(long ir_grid_indices[],
+                           KSPCONST long (*rotations)[3][3],
+                           const int num_rot,
+                           const long D_diag[3],
+                           const long PS[3])
+{
+  grg_get_ir_grid_map(ir_grid_indices,
+                      rotations,
+                      num_rot,
+                      D_diag,
+                      PS);
 }
 
 /* red_lattice, lattice : column vectors */

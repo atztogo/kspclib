@@ -275,7 +275,9 @@ def snf_transform_rotations(rotations,
 
 
 def get_all_grgrid_addresses(D_diag):
-    """Return all grid addresses for mesh
+    """Return all grid addresses
+
+    (Generalized-regular-grid version)
 
     Parameters
     ----------
@@ -286,7 +288,7 @@ def get_all_grgrid_addresses(D_diag):
     Returns
     -------
     grgrid_address : ndarray
-        Genralized regular grid addresses of all grid points corresponding
+        Genralized-regular-grid addresses of all grid points corresponding
         to D_diag.
         shape=(all_grid_points, 3), dtype='int_'
 
@@ -299,6 +301,8 @@ def get_all_grgrid_addresses(D_diag):
 
 def get_double_grgrid_address(address, D_diag, PS=None):
     """Convert grid address plus shift to double-grid address
+
+    (Generalized-regular-grid version)
 
     address_double = 2 * address + shift, where values are reduced to
     be closet to 0, -mesh/2 < address_double <= mesh/2.
@@ -340,6 +344,8 @@ def get_double_grgrid_address(address, D_diag, PS=None):
 def get_grgrid_index(address, D_diag):
     """Return grid point index of a single-grid address
 
+    (Generalized-regular-grid version)
+
     Parameters
     ----------
     address : array_like
@@ -361,6 +367,8 @@ def get_grgrid_index(address, D_diag):
 
 def get_double_grgrid_index(address_double, D_diag, PS=None):
     """Return grid point index of a double-grid address
+
+    (Generalized-regular-grid version)
 
     Parameters
     ----------
@@ -394,6 +402,8 @@ def get_double_grgrid_index(address_double, D_diag, PS=None):
 def get_grgrid_address_from_index(gp_index, D_diag):
     """Return grid point index of a double-grid address
 
+    (Generalized-regular-grid version)
+
     Parameters
     ----------
     gp_index : int
@@ -418,6 +428,8 @@ def get_grgrid_address_from_index(gp_index, D_diag):
 
 def rotate_grgrid_index(gp_index, rotation, D_diag, PS=None):
     """Return grid point index of a double-grid address
+
+    (Generalized-regular-grid version)
 
     Parameters
     ----------
@@ -447,11 +459,62 @@ def rotate_grgrid_index(gp_index, rotation, D_diag, PS=None):
         _PS = np.zeros(3, dtype='int_')
     else:
         _PS = np.array(PS, dtype='int_')
-    rotated_gp_index = ksp.rotate_grid_index(int(gp_index),
-                                             np.array(rotation, dtype='int_'),
-                                             np.array(D_diag, dtype='int_'),
-                                             _PS)
+    rotated_gp_index = ksp.rotate_grgrid_index(
+        int(gp_index),
+        np.array(rotation, dtype='int_'),
+        np.array(D_diag, dtype='int_'),
+        _PS)
+
     return rotated_gp_index
+
+
+def get_ir_grgrid_map(rotations, D_diag, PS=None):
+    """Return grid point index mapping table to irreducible grid points
+
+    (Generalized-regular-grid version)
+
+    Parameters
+    ----------
+    rotations : array_like
+        SNF transformed reciprocal rotation matrices. See some more detail
+        in the docstring of ``snf_transform_rotations``.
+        shape=(3, 3), dtype='int_', order='C'
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+    PS : array_like, optional
+        Half grid shifts after transformation by P of Smith normal form.
+        Let half grid shifts along reciprocal basis vector directions be S,
+        where s_i = 0 or 1, this array corresponds to np.dot(P, S).
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    ir_grid_mapping_table : ndarray
+        Grid point index mapping table to irreducible grid points such as
+
+            [0, 1, 2, 3, 1, 0, 0, 0]
+
+        for 8 grid points with 4 irreducible grid points. The grid point
+        indices of 0, 6, and 7 are found symmetrically equivalent.
+        Those of 1 and 4 are also found symmetrically equivalent.
+
+        shape=(prod(D_diag),), dtype='int_'
+
+    """
+
+    if PS is None:
+        _PS = np.zeros(3, dtype='int_')
+    else:
+        _PS = np.array(PS, dtype='int_')
+
+    ir_grid_mapping_table = np.zeros(np.prod(D_diag), dtype='int_')
+    ksp.ir_grgrid_map(ir_grid_mapping_table,
+                      np.array(rotations, dtype='int_', order='C'),
+                      np.array(D_diag, dtype='int_'),
+                      _PS)
+
+    return ir_grid_mapping_table
 
 
 def niggli_reduce(lattice, eps=1e-5):

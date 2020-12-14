@@ -73,8 +73,8 @@
 /* with GRID_BOUNDARY_AS_NEGATIVE, e.g., [-3, -2, -1, 0, 1, 2]. */
 
 void rgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
-size_t rgd_get_grid_index_double_mesh(const int address_double[3],
-                                      const int mesh[3]);
+long rgd_get_grid_index_double_mesh(const int address_double[3],
+                                    const int mesh[3]);
 void rgd_get_grid_address_double_mesh(int address_double[3],
                                       const int address[3],
                                       const int mesh[3],
