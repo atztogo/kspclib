@@ -37,6 +37,22 @@ def nacl_phonon_frequences_101010():
     Number of bands is six.
 
     """
-    filename = os.path.join(current_dir, "frequency-101010.dat")
+    filename = os.path.join(current_dir, "NaCl-freqs-101010.dat")
     freqs = np.loadtxt(filename).reshape(-1, 6)
+    return freqs
+
+
+@pytest.fixture(scope='session')
+def tio2_phonon_frequences_grg():
+    """TiO2 phonon frequency data
+
+    Phonons are sampled on the grid matrix defined below.
+
+    grid_matrix = [[0, 11, 11],
+                   [11, 0, 11],
+                   [4, 4, 0]]
+
+    """
+    filename = os.path.join(current_dir, "TiO2-freqs-grg.dat")
+    freqs = np.loadtxt(filename).reshape(-1, 18)
     return freqs

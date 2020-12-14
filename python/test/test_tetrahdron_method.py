@@ -1,8 +1,11 @@
 import numpy as np
 from kspclib import (get_thm_relative_grid_addresses,
                      get_all_grid_addresses,
+                     get_all_grgrid_addresses,
                      get_double_grid_index,
                      get_double_grid_address,
+                     get_double_grgrid_index,
+                     get_double_grgrid_address,
                      get_thm_integration_weight)
 
 
@@ -73,9 +76,53 @@ def test_get_thm_integration_weight(nacl_lattice,
     # np.savetxt('dos.dat', dos_dat)
 
 
+def test_get_thm_integration_weight_tio2(tio2_lattice,
+                                         tio2_phonon_frequences_grg):
+    freqs = tio2_phonon_frequences_grg
+    grid_matrix = [[0, 11, 11],
+                   [11, 0, 11],
+                   [4, 4, 0]]
+    D_diag = [1, 11, 88]
+    P = [[0, -1, 3],
+         [1, 0, 0],
+         [-4, 4, -11]]
+    Q = [[1, 11, 23],
+         [0, 0, -1],
+         [0, 1, 1]]
+    num_gps = np.prod(D_diag)
+    num_bands = freqs.shape[1]
+    shift = [0, 0, 0]
+    df = 0.1
+    rec_lat = np.linalg.inv(tio2_lattice)
+    microzone = np.dot(rec_lat, np.linalg.inv(grid_matrix))
+    grid_addresses = get_all_grgrid_addresses(D_diag)
+    print(grid_addresses[:20])
+    relative_addresses = get_thm_relative_grid_addresses(microzone)
+    gr_relative_addresses = np.dot(relative_addresses, np.transpose(P))
+    fpoints = _get_frequency_points(freqs, df=df)
+    print(fpoints)
+    dos = np.zeros_like(fpoints)
+    acc = np.zeros_like(fpoints)
+    for ga in grid_addresses:
+        tetrahedra_gps = _get_tetrahedra_grgrid_indices(
+            ga + gr_relative_addresses, D_diag, shift)
+        tetrahedra_freqs = freqs[tetrahedra_gps]
+        for i, fpt in enumerate(fpoints):
+            for j in range(num_bands):
+                dos[i] += get_thm_integration_weight(
+                    fpt, tetrahedra_freqs[:, :, j])
+                acc[i] += get_thm_integration_weight(
+                    fpt, tetrahedra_freqs[:, :, j], function='J')
+
+    dos_dat = np.array([fpoints, dos / num_gps, acc / num_gps]).T
+    # dos_ref = np.fromstring(dos_str_df_1, sep=' ')
+    # np.testing.assert_allclose(dos_dat.ravel(), dos_ref, atol=1e-5)
+    np.savetxt('dos.dat', dos_dat)
+
+
 def _get_frequency_points(freqs, df=0.1):
     fmax = np.amax(freqs)
-    fmin = 0
+    fmin = 0.0429161884
     fpoints = np.arange(fmin, fmax, df)
     return fpoints
 
@@ -87,4 +134,14 @@ def _get_tetrahedra_grid_indices(tetrahedra_ga, mesh, shift):
             ga_d = get_double_grid_address(
                 tetrahedra_ga[j, k], mesh, shift=shift)
             tetrahedra_gps[j, k] = get_double_grid_index(ga_d, mesh)
+    return tetrahedra_gps
+
+
+def _get_tetrahedra_grgrid_indices(tetrahedra_ga, D_diag, PS):
+    tetrahedra_gps = np.zeros((24, 4), dtype='int_', order='C')
+    for j in range(24):
+        for k in range(4):
+            ga_d = get_double_grgrid_address(
+                tetrahedra_ga[j, k], D_diag, PS=PS)
+            tetrahedra_gps[j, k] = get_double_grgrid_index(ga_d, D_diag, PS=PS)
     return tetrahedra_gps
