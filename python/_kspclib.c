@@ -562,7 +562,7 @@ static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args)
   int num_rot;
 
   if (!PyArg_ParseTuple(args, "OOOO",
-                        &py_ir_grid_indices,  /* uintp */
+                        &py_ir_grid_indices,
                         &py_rotations,
                         &py_D_diag,
                         &py_PS)) {

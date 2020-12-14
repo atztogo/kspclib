@@ -353,7 +353,7 @@ def test_rotate_grgrid_index(tio2_lattice):
                 assert (np.dot(reclat, diff) ** 2).sum() < 1e-5
 
 
-def test_get_ir_grgrid_indices():
+def test_get_ir_grgrid_map():
     D_diag = tio2_snf['D_diag']
     P = tio2_snf['P']
     rots = np.reshape(tio2_transformed_rots, (16, 3, 3))
@@ -362,5 +362,23 @@ def test_get_ir_grgrid_indices():
     for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
         PS = np.dot(P, shift)
         ir_map = get_ir_grgrid_map(rots, D_diag, PS=PS)
-        assert num_gps == np.sum([len(np.where(ir_map == ugp)[0])
-                                  for ugp in np.unique(ir_map)])
+        ir_gps = np.unique(ir_map)
+        assert num_gps == np.sum([len(np.where(ir_map == ir_gp)[0])
+                                  for ir_gp in ir_gps])
+        all_kstar = []
+        for irgp in ir_gps:
+            rgps = [rotate_grgrid_index(irgp, r, D_diag, PS=PS)
+                    for r in rots]
+            kstar = np.sort(np.unique(rgps))
+            all_kstar += kstar.tolist()
+            # Assert whether members of kstar are recovered.
+            np.testing.assert_array_equal(
+                np.sort(np.where(ir_map == irgp)[0]), np.sort(kstar))
+            mults = [len(np.where(rgps == arm)[0]) for arm in kstar]
+            # Assert all multiplicities are equal.
+            assert len(np.unique(mults)) == 1
+            # Assert multiplicity * number of arms is number of rotations.
+            assert mults[0] * len(mults) == len(rots)
+
+        # Assert recovery of all grid points
+        np.testing.assert_array_equal(np.sort(all_kstar), np.arange(num_gps))
