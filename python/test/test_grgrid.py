@@ -4,6 +4,7 @@ from kspclib import (get_snf3x3, snf_transform_rotations,
                      get_double_grgrid_address,
                      get_grgrid_index,
                      get_double_grgrid_index,
+                     get_grgrid_address_from_index,
                      niggli_reduce)
 
 # (16, 3, 3)
@@ -296,3 +297,11 @@ def test_get_double_grid_address():
             ga = get_double_grgrid_address(address, D_diag, PS=PS)
             ga_gp = get_double_grgrid_index(ga, D_diag, PS=PS)
             assert gp == ga_gp
+
+
+def test_get_grgrid_address_from_index():
+    D_diag = tio2_snf['D_diag']
+    grgrid_addresses = get_all_grgrid_addresses(D_diag)
+    for gp_index, address in enumerate(grgrid_addresses):
+        adrs = get_grgrid_address_from_index(gp_index, D_diag)
+        np.testing.assert_array_equal(adrs, address)

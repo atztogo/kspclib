@@ -105,6 +105,9 @@ void mat_multiply_matrix_ld3(double m[3][3],
 void mat_multiply_matrix_vector_i3(int v[3],
                                    MATCONST int a[3][3],
                                    const int b[3]);
+void mat_multiply_matrix_vector_l3(long v[3],
+                                   MATCONST long a[3][3],
+                                   const long b[3]);
 void mat_multiply_matrix_vector_d3(double v[3],
                                    MATCONST double a[3][3],
                                    const double b[3]);

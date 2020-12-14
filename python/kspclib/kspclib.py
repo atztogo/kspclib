@@ -391,6 +391,31 @@ def get_double_grgrid_index(address_double, D_diag, PS=None):
                                    _PS)
 
 
+def get_grgrid_address_from_index(gp_index, D_diag):
+    """Return grid point index of a double-grid address
+
+    Parameters
+    ----------
+    gp_index : int
+        Grid point index.
+    D_diag : array_like
+        Diagonal elements of D of Smith normal form.
+        shape=(3,), dtype='int_'
+
+    Returns
+    -------
+    address : ndarray
+        Single-grid address.
+        shape=(3,), dtype='int_'
+
+    """
+    address = np.zeros(3, dtype='int_')
+    ksp.grgrid_address_from_index(address,
+                                  int(gp_index),
+                                  np.array(D_diag, dtype='int_'))
+    return address
+
+
 def niggli_reduce(lattice, eps=1e-5):
     """Perform Niggli reduction
 

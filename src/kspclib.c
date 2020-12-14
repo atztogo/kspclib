@@ -146,11 +146,19 @@ size_t ksp_get_double_grgrid_index(const long address_double[3],
                                    PS);
 }
 
-void ksp_get_grgrid_address_from_grgrid_index(long address[3],
-                                              const size_t grid_index,
-                                              const long D_diag[3])
+void ksp_get_grgrid_address_from_index(long address[3],
+                                       const size_t grid_index,
+                                       const long D_diag[3])
 {
-  grg_get_grid_address_from_grid_index(address, grid_index, D_diag);
+  grg_get_grid_address_from_index(address, grid_index, D_diag);
+}
+
+size_t ksp_rotate_grid_index(const size_t grid_index,
+                             KSPCONST long rotation[3][3],
+                             const long D_diag[3],
+                             const long PS[3])
+{
+  return grg_rotate_grid_index(grid_index, rotation, D_diag, PS);
 }
 
 /* red_lattice, lattice : column vectors */

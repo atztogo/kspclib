@@ -61,8 +61,12 @@ size_t grg_get_grid_index(const long address[3],
 size_t grg_get_double_grid_index(const long address_double[3],
                                  const long D_diag[3],
                                  const long PS[3]);
-void grg_get_grid_address_from_grid_index(long address[3],
-                                          const size_t grid_index,
-                                          const long D_diag[3]);
+void grg_get_grid_address_from_index(long address[3],
+                                     const size_t grid_index,
+                                     const long D_diag[3]);
+size_t grg_rotate_grid_index(const size_t grid_index,
+                             MATCONST long rotations[3][3],
+                             const long D_diag[3],
+                             const long PS[3]);
 
 #endif

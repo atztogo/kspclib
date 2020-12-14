@@ -55,8 +55,8 @@ static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args);
 static PyObject * py_grgrid_index(PyObject *self, PyObject *args);
 static PyObject * py_double_grgrid_index(PyObject *self, PyObject *args);
-static PyObject * py_grgrid_address_from_grgrid_index(PyObject *self,
-                                                      PyObject *args);
+static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args);
+static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args);
 static PyObject * py_niggli_reduce(PyObject *self, PyObject *args);
 
 struct module_state {
@@ -102,11 +102,12 @@ static PyMethodDef _kspclib_methods[] = {
    "Return generalized-regular-grid point index of a single-grid address"},
   {"double_grgrid_index", py_double_grgrid_index, METH_VARARGS,
    "Return generalized-regular-grid point index of a double-grid address"},
-  {"grgrid_address_from_grgrid_index", py_grgrid_address_from_grgrid_index,
-   METH_VARARGS, "Return generalized-regular-grid address from the index"},
+  {"grgrid_address_from_index", py_grgrid_address_from_index, METH_VARARGS,
+   "Return generalized-regular-grid address from its index"},
+  {"rotate_grgrid_index", py_rotate_grgrid_index, METH_VARARGS,
+   "Rotate a grid point by index"},
   {"niggli_reduce", py_niggli_reduce, METH_VARARGS,
    "Perform Niggli reduction"},
-
   {NULL, NULL, 0, NULL}
 };
 
@@ -490,8 +491,7 @@ static PyObject * py_double_grgrid_index(PyObject *self, PyObject *args)
 
 }
 
-static PyObject * py_grgrid_address_from_grgrid_index(PyObject *self,
-                                                      PyObject *args)
+static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address;
   PyArrayObject* py_D_diag;
@@ -509,9 +509,40 @@ static PyObject * py_grgrid_address_from_grgrid_index(PyObject *self,
 
   address = (long*)PyArray_DATA(py_address);
   D_diag = (long*)PyArray_DATA(py_D_diag);
-  ksp_get_grgrid_address_from_grgrid_index(address, grid_index, D_diag);
+  ksp_get_grgrid_address_from_index(address, grid_index, D_diag);
 
   Py_RETURN_NONE;
+}
+
+static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_D_diag;
+  PyArrayObject* py_rotation;
+  PyArrayObject* py_PS;
+
+  long* D_diag;
+  long (*rotation)[3];
+  long* PS;
+  Py_ssize_t grid_index;
+  size_t rot_grid_index;
+
+
+  if (!PyArg_ParseTuple(args, "nOOO",
+                        &grid_index,
+                        &py_rotation,
+                        &py_D_diag,
+                        &py_PS)) {
+    return NULL;
+  }
+
+  rotation = (long(*)[3])PyArray_DATA(py_rotation);
+  D_diag = (long*)PyArray_DATA(py_D_diag);
+  PS = (long*)PyArray_DATA(py_PS);
+
+  rot_grid_index = ksp_rotate_grid_index(grid_index, rotation, D_diag, PS);
+
+  return PyLong_FromSize_t(rot_grid_index);
+
 }
 
 static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
