@@ -348,15 +348,35 @@ module kspclib_f08
        integer(c_int) :: ksp_get_major_version
      end function ksp_get_major_version
 
+
      function ksp_get_minor_version() bind(c)
        import c_int
        integer(c_int) :: ksp_get_minor_version
      end function ksp_get_minor_version
 
+
      function ksp_get_micro_version() bind(c)
        import c_int
        integer(c_int) :: ksp_get_micro_version
      end function ksp_get_micro_version
+
+
+     subroutine ksp_get_all_grid_addresses(grid_address, mesh) bind(c)
+       import c_int
+       integer(c_int), intent(in) :: mesh(3)
+       integer(c_int), intent(inout) :: grid_address(3, *)
+     end subroutine ksp_get_all_grid_addresses
+
+
+     subroutine ksp_get_double_grid_address(address_double, address, mesh, &
+          is_shift) bind(c)
+       import c_int
+       integer(c_int), intent(in) :: mesh(3)
+       integer(c_int), intent(in) :: address(3)
+       integer(c_int), intent(in) :: is_shift(3)
+       integer(c_int), intent(inout) :: address_double(3)
+     end subroutine ksp_get_double_grid_address
+
 
      function ksp_get_snf3x3(D_diag, P, Q, A) bind(c)
        import c_long, c_int
@@ -369,7 +389,8 @@ module kspclib_f08
 
   end interface
 
-  public :: ksp_get_snf3x3, ksp_get_major_version,  ksp_get_minor_version, &
-       ksp_get_micro_version
+  public :: ksp_get_major_version,  ksp_get_minor_version, &
+       ksp_get_micro_version, ksp_get_all_grid_addresses, ksp_get_snf3x3, &
+       ksp_get_double_grid_address
 
 end module kspclib_f08
