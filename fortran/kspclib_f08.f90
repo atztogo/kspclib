@@ -378,6 +378,22 @@ module kspclib_f08
      end subroutine ksp_get_double_grid_address
 
 
+     function ksp_get_double_grid_index(address_double, mesh) bind(c)
+       import c_int, c_long
+       integer(c_int), intent(in) :: mesh(3)
+       integer(c_int), intent(in) :: address_double(3)
+       integer(c_long) :: ksp_get_double_grid_index
+     end function ksp_get_double_grid_index
+
+
+     subroutine ksp_get_thm_relative_grid_addresses(relative_grid_addresses, &
+          rec_lattice) bind(c)
+       import c_int, c_double
+       integer(c_int), intent(inout) :: relative_grid_addresses(3, 4, 24)
+       real(c_double), intent(in) :: rec_lattice(3, 3)
+     end subroutine ksp_get_thm_relative_grid_addresses
+
+
      function ksp_get_snf3x3(D_diag, P, Q, A) bind(c)
        import c_long, c_int
        integer(c_long), intent(inout) :: D_diag(3)
@@ -391,6 +407,7 @@ module kspclib_f08
 
   public :: ksp_get_major_version,  ksp_get_minor_version, &
        ksp_get_micro_version, ksp_get_all_grid_addresses, ksp_get_snf3x3, &
-       ksp_get_double_grid_address
+       ksp_get_double_grid_address, ksp_get_double_grid_index, &
+       ksp_get_thm_relative_grid_addresses
 
 end module kspclib_f08
