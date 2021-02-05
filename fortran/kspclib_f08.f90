@@ -394,6 +394,16 @@ module kspclib_f08
      end subroutine ksp_get_thm_relative_grid_addresses
 
 
+     function ksp_get_thm_integration_weight(omega, &
+          tetrahedra_omegas, function_char) bind(c)
+       import c_char, c_double
+       real(c_double), intent(in) :: omega
+       real(c_double), intent(in) :: tetrahedra_omegas(4, 24)
+       character(kind=c_char), intent(in) :: function_char
+       real(c_double) :: ksp_get_thm_integration_weight
+     end function ksp_get_thm_integration_weight
+
+
      function ksp_get_snf3x3(D_diag, P, Q, A) bind(c)
        import c_long, c_int
        integer(c_long), intent(inout) :: D_diag(3)
@@ -408,6 +418,7 @@ module kspclib_f08
   public :: ksp_get_major_version,  ksp_get_minor_version, &
        ksp_get_micro_version, ksp_get_all_grid_addresses, ksp_get_snf3x3, &
        ksp_get_double_grid_address, ksp_get_double_grid_index, &
-       ksp_get_thm_relative_grid_addresses
+       ksp_get_thm_relative_grid_addresses, ksp_get_thm_integration_weight
+
 
 end module kspclib_f08
