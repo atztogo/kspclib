@@ -70,10 +70,10 @@ module kspclib_f08
      subroutine ksp_get_double_grid_address(address_double, address, mesh, &
           is_shift) bind(c)
        import c_int
-       integer(c_int), intent(in) :: mesh(3)
-       integer(c_int), intent(in) :: address(3)
-       integer(c_int), intent(in) :: is_shift(3)
        integer(c_int), intent(inout) :: address_double(3)
+       integer(c_int), intent(in) :: address(3)
+       integer(c_int), intent(in) :: mesh(3)
+       integer(c_int), intent(in) :: is_shift(3)
      end subroutine ksp_get_double_grid_address
 
 
@@ -123,6 +123,23 @@ module kspclib_f08
        integer(c_int) :: ksp_get_snf3x3
      end function ksp_get_snf3x3
 
+
+     subroutine ksp_get_all_grgrid_addresses(grid_address, D_diag) bind(c)
+       import c_long
+       integer(c_long), intent(inout) :: grid_address(3, *)
+       integer(c_long), intent(in) :: D_diag(3)
+     end subroutine ksp_get_all_grgrid_addresses
+
+
+     subroutine ksp_get_double_grgrid_address(address_double, address, &
+          D_diag, PS) bind(c)
+       import c_long
+       integer(c_long), intent(inout) :: address_double(3)
+       integer(c_long), intent(in) :: D_diag(3)
+       integer(c_long), intent(in) :: address(3)
+       integer(c_long), intent(in) :: PS(3)
+     end subroutine ksp_get_double_grgrid_address
+
   end interface
 
 
@@ -130,7 +147,8 @@ module kspclib_f08
        ksp_get_micro_version, ksp_get_all_grid_addresses, ksp_get_snf3x3, &
        ksp_get_double_grid_address, ksp_get_double_grid_index, &
        ksp_get_thm_relative_grid_addresses, ksp_get_thm_integration_weight, &
-       ksp_snf_transform_rotations
+       ksp_snf_transform_rotations, ksp_get_all_grgrid_addresses, &
+       ksp_get_double_grgrid_address
 
 
 end module kspclib_f08

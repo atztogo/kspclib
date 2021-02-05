@@ -12,7 +12,7 @@ module kspclib_example
     major = ksp_get_major_version()
     minor = ksp_get_minor_version()
     micro = ksp_get_micro_version()
-    print '("ksp_get_*_version example")'
+    print '("ksp_get_*_version")'
     print '("Kspclib version ", i0, ".", i0, ".", i0)', major, minor, micro
     print *
   end subroutine kspclib_version
@@ -30,11 +30,12 @@ module kspclib_example
     allocate(grid_address(3, product(mesh)))
     call ksp_get_all_grid_addresses(grid_address, mesh)
 
-    print '("ksp_get_all_grid_addresses example")'
+    print '("ksp_get_all_grid_addresses")'
     print '("All grid addresses for sampling mesh ", i0, "x", i0, "x", i0)', mesh(:)
     do i = 1, product(mesh)
        print '(i0, 3i4)', i - 1, grid_address(:, i)
     end do
+    print *, ""
     deallocate(grid_address)
   end subroutine get_all_grid_addresses
 
@@ -291,6 +292,51 @@ module kspclib_example
   end subroutine snf_transform_rotations
 
 
+  subroutine get_all_grgrid_addresses()
+    use kspclib_f08, only: ksp_get_all_grgrid_addresses
+
+    integer(8) :: D_diag(3)
+    integer(8), allocatable :: grid_address(:, :)
+    integer :: i
+
+    D_diag(:) = 4
+
+    allocate(grid_address(3, product(D_diag)))
+    call ksp_get_all_grgrid_addresses(grid_address, D_diag)
+
+    print '("ksp_get_all_grgrid_addresses")'
+    print '("All generalized grid addresses for D_diag ", i0, "x", i0, "x", i0)', &
+         D_diag(:)
+    do i = 1, product(D_diag)
+       print '(i0, 3i4)', i - 1, grid_address(:, i)
+    end do
+    print *, ""
+    deallocate(grid_address)
+  end subroutine get_all_grgrid_addresses
+
+
+  subroutine get_double_grgrid_address()
+    use kspclib_f08, only: ksp_get_double_grgrid_address
+
+    integer(8) :: address(3), D_diag(3), PS(3)
+    integer(8) :: address_double(3)
+
+    D_diag(:) = 4
+    address(:) = 1
+    PS(:) = 1
+
+    call ksp_get_double_grgrid_address(address_double, address, D_diag, PS)
+
+    print '("ksp_get_double_grid_address")'
+    print '("D_diag", 3i3)', D_diag(:)
+    print '("Single-grid address", 3i3)', address(:)
+    print '("Half-shift", 3i3)', PS(:)
+    print '("Double-grid address (address * 2 + PS)", 3i3)', address_double(:)
+    print *, ""
+  end subroutine get_double_grgrid_address
+
+
+
 end module kspclib_example
 
 
@@ -299,7 +345,8 @@ program kspclib_example_f08
   use kspclib_example, only: kspclib_version, get_all_grid_addresses, &
        get_double_grid_address, get_double_grid_index, &
        get_thm_relative_grid_addresses, get_thm_integration_weight, &
-       snf3x3, snf_transform_rotations
+       snf3x3, snf_transform_rotations, get_all_grgrid_addresses, &
+       get_double_grgrid_address
 
   call kspclib_version()
   call get_all_grid_addresses()
@@ -309,5 +356,7 @@ program kspclib_example_f08
   call get_thm_integration_weight()
   call snf3x3()
   call snf_transform_rotations()
+  call get_all_grgrid_addresses()
+  call get_double_grgrid_address()
 
 end program kspclib_example_f08
