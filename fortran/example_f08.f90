@@ -33,6 +33,7 @@ module kspclib_example
     do i = 1, product(mesh)
        print '(i0, 3i4)', i - 1, grid_address(:, i)
     end do
+    deallocate(grid_address)
   end subroutine get_all_grid_addresses
 
 
@@ -101,7 +102,7 @@ module kspclib_example
          ksp_get_thm_relative_grid_addresses, ksp_get_all_grid_addresses, &
          ksp_get_double_grid_address, ksp_get_double_grid_index
 
-    integer :: i, j, k, bi, fi
+    integer(8) :: i, j, k, bi, fi
     integer(4) :: ga_d(3), ga(3)
     integer(8) :: gp
     real(8) :: buf(6000)
@@ -112,7 +113,7 @@ module kspclib_example
     integer(4) :: tetrahedra_ga(3, 4, 24)
     integer(8) :: tetrahedra_gps(4, 24)
     real(8) :: tetrahedra_freqs(4, 24)
-    real(8) :: f
+    real(8) :: freq
     real(8) :: dos(8), acc(8)
 
     dos(:) = 0
@@ -120,6 +121,7 @@ module kspclib_example
 
     mesh(:) = 10
     shift(:) = 0
+
     allocate(grid_address(3, product(mesh)))
     call ksp_get_all_grid_addresses(grid_address, mesh)
 
@@ -151,17 +153,20 @@ module kspclib_example
                    tetrahedra_freqs(k, j) = buf(gp * 6 + bi)
                 end do
              end do
-             f = fi - 1
-             dos(fi) = dos(fi) + &
-                  ksp_get_thm_integration_weight(f, tetrahedra_freqs, 'J')
+             freq = fi - 1
+             dos(fi) = dos(fi) + ksp_get_thm_integration_weight(freq, &
+                  tetrahedra_freqs, "I")
+             acc(fi) = acc(fi) + ksp_get_thm_integration_weight(freq, &
+                  tetrahedra_freqs, "J")
           end do
        end do
     end do
 
     do fi = 1, 8
-       print *, dos(fi) / 1000
+       print *, fi - 1, dos(fi) / 1000, acc(fi) / 1000
     end do
 
+    deallocate(grid_address)
   end subroutine get_thm_integration_weight
 
 
