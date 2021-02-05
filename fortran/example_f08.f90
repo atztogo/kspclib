@@ -65,17 +65,17 @@ module kspclib_example
     use kspclib_f08, only: ksp_get_double_grid_index
 
     integer(4) :: address_double(3), mesh(3)
-    integer(8) :: grid_point
+    integer(8) :: grid_index
 
     mesh(:) = 4
     address_double(:) = 3
-    grid_point = ksp_get_double_grid_index(address_double, mesh)
+    grid_index = ksp_get_double_grid_index(address_double, mesh)
 
     print '("ksp_get_double_grid_index")'
     print '("(Note that the index starts with 0.)")'
     print '("Mesh", 3i3)', mesh(:)
     print '("Double-grid address", 3i3)', address_double(:)
-    print '("Grid point ", i0)', grid_point
+    print '("Grid index ", i0)', grid_index
     print *, ""
   end subroutine get_double_grid_index
 
@@ -336,6 +336,113 @@ module kspclib_example
   end subroutine get_double_grgrid_address
 
 
+  subroutine get_grgrid_index()
+    use kspclib_f08, only: ksp_get_grgrid_index
+
+    integer(8) :: address(3), D_diag(3)
+    integer(8) :: grid_index
+
+    D_diag(:) = 4
+    address(:) = 3
+    grid_index = ksp_get_grgrid_index(address, D_diag)
+
+    print '("ksp_get_grgrid_index")'
+    print '("(Note that the index starts with 0.)")'
+    print '("D_diag", 3i3)', D_diag(:)
+    print '("Single-grid address", 3i3)', address(:)
+    print '("Grid index ", i0)', grid_index
+    print *, ""
+  end subroutine get_grgrid_index
+
+
+  subroutine get_double_grgrid_index()
+    use kspclib_f08, only: ksp_get_double_grgrid_index, &
+         ksp_get_double_grgrid_address
+
+    integer(8) :: address(3), address_double(3), D_diag(3), PS(3)
+    integer(8) :: grid_index
+
+    D_diag(:) = 4
+    address(:) = 1
+    PS(:) = 1
+
+    call ksp_get_double_grgrid_address(address_double, address, D_diag, PS)
+    grid_index = ksp_get_double_grgrid_index(address_double, D_diag, PS)
+
+    print '("ksp_get_double_grgrid_index")'
+    print '("(Note that the index starts with 0.)")'
+    print '("D_diag", 3i3)', D_diag(:)
+    print '("Single-grid address", 3i3)', address(:)
+    print '("Double-grid address", 3i3)', address_double(:)
+    print '("PS", 3i3)', PS(:)
+    print '("Grid index ", i0)', grid_index
+    print *, ""
+  end subroutine get_double_grgrid_index
+
+
+  subroutine get_grgrid_address_from_index
+    use kspclib_f08, only: ksp_get_grgrid_address_from_index
+
+    integer(8) :: address(3), D_diag(3)
+    integer(8) :: grid_index
+
+    grid_index = 21
+    D_diag(:) = 4
+    call ksp_get_grgrid_address_from_index(address, grid_index, D_diag)
+
+    print '("ksp_get_grgrid_address_from_index")'
+    print '("(Note that the index starts with 0.)")'
+    print '("D_diag", 3i3)', D_diag(:)
+    print '("Grid index ", i0)', grid_index
+    print '("Single-grid address", 3i3)', address(:)
+    print *, ""
+  end subroutine get_grgrid_address_from_index
+
+
+  subroutine rotate_grgrid_index
+    use kspclib_f08, only: ksp_rotate_grgrid_index, &
+         ksp_get_grgrid_address_from_index, ksp_get_double_grgrid_address
+
+    integer(8) :: D_diag(3), PS(3)
+    integer(8) :: rotation(3, 3)
+    integer(8) :: grid_index, gp_rot
+    integer(8) :: P(3, 3)
+    integer(8) :: shift(3)
+    integer(8) :: address(3), address_rot(3)
+    integer(8) :: address_double(3), address_double_rot(3), address_double_matmul(3)
+    integer :: i
+
+    shift(:) = 1
+    D_diag(:) = [1, 5, 20]
+    P(:, :) = reshape([0, 1, -2, 1, 0, 0, -2, 2, -5], [3, 3])
+    rotation(:, :) = reshape([4, -5, -2, -5, 4, 2, 20, -20, -9], [3, 3])
+    PS(:) = matmul(transpose(P), shift)
+    grid_index = 21
+    gp_rot = ksp_rotate_grgrid_index(grid_index, rotation, D_diag, PS)
+
+    call ksp_get_grgrid_address_from_index(address, grid_index, D_diag)
+    call ksp_get_double_grgrid_address(address_double, address, D_diag, PS)
+    call ksp_get_grgrid_address_from_index(address_rot, gp_rot, D_diag)
+    call ksp_get_double_grgrid_address(address_double_rot, address_rot, &
+         D_diag, PS)
+
+    print '("ksp_rotate_grgrid_index")'
+    print '("(Note that the index starts with 0.)")'
+    print '("D_diag", 3i3)', D_diag
+    print '("P", 9i5)', P
+    print '("PS", 3i3)', PS
+    print '("rotation", 9i5)', rotation
+    print '("Grid index ", i0)', grid_index
+    print '("Grid index after rotation ", i0)', gp_rot
+    print '("Double-grid address", 3i3)', address_double
+    print '("Double-grid address after rotation", 3i3)', address_double_rot
+    address_double_matmul = matmul(transpose(rotation), address_double)
+    do i = 1, 3
+       address_double_matmul(i) = modulo(address_double_matmul(i), D_diag(i) * 2)
+    end do
+    print '("Double-grid address after rotation (matmul)", 3i3)', address_double_matmul
+    print *, ""
+  end subroutine rotate_grgrid_index
 
 end module kspclib_example
 
@@ -346,7 +453,8 @@ program kspclib_example_f08
        get_double_grid_address, get_double_grid_index, &
        get_thm_relative_grid_addresses, get_thm_integration_weight, &
        snf3x3, snf_transform_rotations, get_all_grgrid_addresses, &
-       get_double_grgrid_address
+       get_double_grgrid_address, get_grgrid_index, get_double_grgrid_index, &
+       get_grgrid_address_from_index, rotate_grgrid_index
 
   call kspclib_version()
   call get_all_grid_addresses()
@@ -358,5 +466,9 @@ program kspclib_example_f08
   call snf_transform_rotations()
   call get_all_grgrid_addresses()
   call get_double_grgrid_address()
+  call get_grgrid_index()
+  call get_double_grgrid_index()
+  call get_grgrid_address_from_index()
+  call rotate_grgrid_index()
 
 end program kspclib_example_f08

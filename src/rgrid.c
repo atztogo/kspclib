@@ -39,35 +39,35 @@
 #include "rgrid.h"
 
 static void get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
-static long get_grid_index_double_mesh(const int address_double[3],
-                                       const int mesh[3]);
+static long get_double_grid_index(const int address_double[3],
+                                  const int mesh[3]);
 static long get_grid_index_single_mesh(const int address[3],
                                        const int mesh[3]);
 static void reduce_grid_address(int address[3], const int mesh[3]);
-static void reduce_grid_address_double(int address[3], const int mesh[3]);
+static void reduce_double_grid_address(int address[3], const int mesh[3]);
 
 void rgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
 {
   get_all_grid_addresses(grid_address, mesh);
 }
 
-long rgd_get_grid_index_double_mesh(const int address_double[3],
-                                    const int mesh[3])
+long rgd_get_double_grid_index(const int address_double[3],
+                               const int mesh[3])
 {
-  return get_grid_index_double_mesh(address_double, mesh);
+  return get_double_grid_index(address_double, mesh);
 }
 
-void rgd_get_grid_address_double_mesh(int address_double[3],
-                                      const int address[3],
-                                      const int mesh[3],
-                                      const int is_shift[3])
+void rgd_get_double_grid_address(int address_double[3],
+                                 const int address[3],
+                                 const int mesh[3],
+                                 const int is_shift[3])
 {
   int i;
 
   for (i = 0; i < 3; i++) {
     address_double[i] = address[i] * 2 + (is_shift[i] != 0);
   }
-  reduce_grid_address_double(address_double, mesh);
+  reduce_double_grid_address(address_double, mesh);
 }
 
 static void get_all_grid_addresses(int grid_address[][3], const int mesh[3])
@@ -95,8 +95,8 @@ static void get_all_grid_addresses(int grid_address[][3], const int mesh[3])
   }
 }
 
-static long get_grid_index_double_mesh(const int address_double[3],
-                                       const int mesh[3])
+static long get_double_grid_index(const int address_double[3],
+                                  const int mesh[3])
 {
   int i;
   int address[3];
@@ -138,7 +138,7 @@ static void reduce_grid_address(int address[3], const int mesh[3])
   }
 }
 
-static void reduce_grid_address_double(int address[3], const int mesh[3])
+static void reduce_double_grid_address(int address[3], const int mesh[3])
 {
   int i;
 

@@ -140,6 +140,42 @@ module kspclib_f08
        integer(c_long), intent(in) :: PS(3)
      end subroutine ksp_get_double_grgrid_address
 
+
+     function ksp_get_grgrid_index(address, D_diag) bind(c)
+       import c_long
+       integer(c_long), intent(in) :: address(3)
+       integer(c_long), intent(in) :: D_diag(3)
+       integer(c_long) :: ksp_get_grgrid_index
+     end function ksp_get_grgrid_index
+
+
+     function ksp_get_double_grgrid_index(address_double, D_diag, PS) bind(c)
+       import c_long
+       integer(c_long), intent(in) :: address_double(3)
+       integer(c_long), intent(in) :: D_diag(3)
+       integer(c_long), intent(in) :: PS(3)
+       integer(c_long) :: ksp_get_double_grgrid_index
+     end function ksp_get_double_grgrid_index
+
+
+     subroutine ksp_get_grgrid_address_from_index(address, grid_index, D_diag) &
+          bind(c)
+       import c_long
+       integer(c_long), intent(inout) :: address(3)
+       integer(c_long), intent(in), value :: grid_index
+       integer(c_long), intent(in) :: D_diag(3)
+     end subroutine ksp_get_grgrid_address_from_index
+
+
+     function ksp_rotate_grgrid_index(grid_index, rotation, D_diag, PS) bind(c)
+       import c_long
+       integer(c_long), intent(in), value :: grid_index
+       integer(c_long), intent(in) :: rotation(3, 3)
+       integer(c_long), intent(in) :: D_diag(3)
+       integer(c_long), intent(in) :: PS(3)
+       integer(c_long) :: ksp_rotate_grgrid_index
+     end function ksp_rotate_grgrid_index
+
   end interface
 
 
@@ -148,7 +184,9 @@ module kspclib_f08
        ksp_get_double_grid_address, ksp_get_double_grid_index, &
        ksp_get_thm_relative_grid_addresses, ksp_get_thm_integration_weight, &
        ksp_snf_transform_rotations, ksp_get_all_grgrid_addresses, &
-       ksp_get_double_grgrid_address
+       ksp_get_double_grgrid_address, ksp_get_grgrid_index, &
+       ksp_get_double_grgrid_index, ksp_get_grgrid_address_from_index, &
+       ksp_rotate_grgrid_index
 
 
 end module kspclib_f08

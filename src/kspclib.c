@@ -66,16 +66,16 @@ void ksp_get_double_grid_address(int address_double[3],
                                  const int mesh[3],
                                  const int is_shift[3])
 {
-  rgd_get_grid_address_double_mesh(address_double,
-                                   address,
-                                   mesh,
-                                   is_shift);
+  rgd_get_double_grid_address(address_double,
+                              address,
+                              mesh,
+                              is_shift);
 }
 
 long ksp_get_double_grid_index(const int address_double[3],
                                const int mesh[3])
 {
-  return rgd_get_grid_index_double_mesh(address_double, mesh);
+  return rgd_get_double_grid_index(address_double, mesh);
 }
 
 void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
@@ -130,11 +130,9 @@ void ksp_get_double_grgrid_address(long address_double[3],
                               PS);
 }
 
-long ksp_get_grgrid_index(const long address_double[3],
-                          const long D_diag[3])
+long ksp_get_grgrid_index(const long address[3], const long D_diag[3])
 {
-  return grg_get_grid_index(address_double,
-                            D_diag);
+  return grg_get_grid_index(address, D_diag);
 }
 
 long ksp_get_double_grgrid_index(const long address_double[3],
