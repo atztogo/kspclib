@@ -176,6 +176,17 @@ module kspclib_f08
        integer(c_long) :: ksp_rotate_grgrid_index
      end function ksp_rotate_grgrid_index
 
+
+     subroutine ksp_get_ir_grgrid_map(ir_grid_indices, rotations, num_rot, &
+          D_diag, PS) bind(c)
+       import c_long, c_int
+       integer(c_long), intent(inout) :: ir_grid_indices(*)
+       integer(c_long), intent(in) :: rotations(3, 3, *)
+       integer(c_int), intent(in), value :: num_rot
+       integer(c_long), intent(in) :: D_diag(3)
+       integer(c_long), intent(in) :: PS(3)
+     end subroutine ksp_get_ir_grgrid_map
+
   end interface
 
 
@@ -186,7 +197,7 @@ module kspclib_f08
        ksp_snf_transform_rotations, ksp_get_all_grgrid_addresses, &
        ksp_get_double_grgrid_address, ksp_get_grgrid_index, &
        ksp_get_double_grgrid_index, ksp_get_grgrid_address_from_index, &
-       ksp_rotate_grgrid_index
+       ksp_rotate_grgrid_index, ksp_get_ir_grgrid_map
 
 
 end module kspclib_f08

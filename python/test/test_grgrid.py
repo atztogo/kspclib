@@ -362,6 +362,7 @@ def test_get_ir_grgrid_map():
     for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
         PS = np.dot(P, shift)
         ir_map = get_ir_grgrid_map(rots, D_diag, PS=PS)
+        # print("".join(["%d, " % i for i in ir_map]))
         ir_gps = np.unique(ir_map)
         assert num_gps == np.sum([len(np.where(ir_map == ir_gp)[0])
                                   for ir_gp in ir_gps])

@@ -444,6 +444,73 @@ module kspclib_example
     print *, ""
   end subroutine rotate_grgrid_index
 
+
+  subroutine get_ir_grgrid_map
+    use kspclib_f08, only: ksp_get_ir_grgrid_map
+
+    integer(8), allocatable :: ir_grid_indices(:), ir_grid_indices_ref(:)
+    integer(8) :: rotations(3, 3, 16)
+    integer(4) :: num_rot
+    integer(8) :: D_diag(3), PS(3), shift(3)
+    integer(8) :: P(3, 3)
+    integer :: i
+
+    rotations(:, :, :) = reshape([ &
+         1, 0, 0, 0, 1, 0, 0, 0, 1, &
+         -4, 3, 2, 5, -4, -2, -20, 16, 9, &
+         -9, 8, 4, 0, -1, 0, -20, 20, 9, &
+         -4, 5, 2, -5, 4, 2, 0, 4, 1, &
+         -1, 0, 0, 0, 1, 0, 0, -4, -1, &
+         4, -5, -2, -5, 4, 2, 20, -20, -9, &
+         9, -8, -4, 0, -1, 0, 20, -16, -9, &
+         4, -3, -2, 5, -4, -2, 0, 0, -1, &
+         -1, 0, 0, 0, -1, 0, 0, 0, -1, &
+         4, -3, -2, -5, 4, 2, 20, -16, -9, &
+         9, -8, -4, 0, 1, 0, 20, -20, -9, &
+         4, -5, -2, 5, -4, -2, 0, -4, -1, &
+         1, 0, 0, 0, -1, 0, 0, 4, 1, &
+         -4, 5, 2, 5, -4, -2, -20, 20, 9, &
+         -9, 8, 4, 0, 1, 0, -20, 16, 9, &
+         -4, 3, 2, -5, 4, 2, 0, 0, 1], [3, 3, 16])
+    D_diag(:) = [1, 5, 20]
+    shift(:) = 1
+    P(:, :) = reshape([0, 1, -2, 1, 0, 0, -2, 2, -5], [3, 3])
+    PS(:) = matmul(transpose(P), shift)
+    num_rot = 16
+
+    allocate(ir_grid_indices(product(D_diag)))
+    call ksp_get_ir_grgrid_map(ir_grid_indices, rotations, num_rot, D_diag, PS)
+
+    print '("ksp_get_ir_grgrid_map")'
+    print '("(Note that the index starts with 0.)")'
+    print '("D_diag", 3i3)', D_diag
+    print '("P", 9i5)', P
+    print '("PS", 3i3)', PS
+
+    print '("Grid index mapping to ir-grid indices")'
+    do i = 1, 5
+       print '(20i4)', ir_grid_indices((i - 1) * 20 + 1 : i * 20)
+    end do
+
+    allocate(ir_grid_indices_ref(product(D_diag)))
+    ir_grid_indices_ref(:) = [ &
+         0, 1, 2, 1, 0, 5, 5, 7, 8, 7, 5, 11, 11, 5, 0, 0, 5, 11, 11, 5, &
+         7, 8, 7, 5, 5, 0, 1, 2, 1, 0, 30, 30, 7, 1, 7, 5, 11, 11, 5, 0, &
+         40, 30, 11, 11, 30, 7, 8, 7, 5, 5, 40, 8, 2, 8, 40, 30, 30, 7, 1, 7, &
+         30, 11, 11, 30, 40, 40, 30, 11, 11, 30, 7, 1, 7, 30, 30, 40, 8, 2, 8, 40, &
+         5, 5, 7, 8, 7, 30, 11, 11, 30, 40, 0, 5, 11, 11, 5, 7, 1, 7, 30, 30]
+
+    print '("Grid index mapping to ir-grid indices (ref)")'
+    do i = 1, 5
+       print '(20i4)', ir_grid_indices_ref((i - 1) * 20 + 1 : i * 20)
+    end do
+
+    print *, ""
+
+    deallocate(ir_grid_indices)
+    deallocate(ir_grid_indices_ref)
+  end subroutine get_ir_grgrid_map
+
 end module kspclib_example
 
 
@@ -454,7 +521,7 @@ program kspclib_example_f08
        get_thm_relative_grid_addresses, get_thm_integration_weight, &
        snf3x3, snf_transform_rotations, get_all_grgrid_addresses, &
        get_double_grgrid_address, get_grgrid_index, get_double_grgrid_index, &
-       get_grgrid_address_from_index, rotate_grgrid_index
+       get_grgrid_address_from_index, rotate_grgrid_index, get_ir_grgrid_map
 
   call kspclib_version()
   call get_all_grid_addresses()
@@ -470,5 +537,6 @@ program kspclib_example_f08
   call get_double_grgrid_index()
   call get_grgrid_address_from_index()
   call rotate_grgrid_index()
+  call get_ir_grgrid_map()
 
 end program kspclib_example_f08
