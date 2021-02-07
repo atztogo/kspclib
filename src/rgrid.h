@@ -35,8 +35,6 @@
 #ifndef __rgrid_H__
 #define __rgrid_H__
 
-#include <stddef.h>
-
 /* #define GRID_ORDER_XYZ */
 /* This changes behaviour of index order of address. */
 /* Without GRID_ORDER_XYZ, left most element of address runs first. */

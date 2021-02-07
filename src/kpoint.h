@@ -43,59 +43,59 @@ int kpt_get_irreducible_reciprocal_mesh(int grid_address[][3],
                                         const int mesh[3],
                                         const int is_shift[3],
                                         const MatINT *rot_reciprocal);
-size_t kpt_get_dense_irreducible_reciprocal_mesh(int grid_address[][3],
-                                                 size_t ir_mapping_table[],
-                                                 const int mesh[3],
-                                                 const int is_shift[3],
-                                                 const MatINT *rot_reciprocal);
+long kpt_get_dense_irreducible_reciprocal_mesh(int grid_address[][3],
+                                               long ir_mapping_table[],
+                                               const int mesh[3],
+                                               const int is_shift[3],
+                                               const MatINT *rot_reciprocal);
 int kpt_get_stabilized_reciprocal_mesh(int grid_address[][3],
                                        int ir_mapping_table[],
                                        const int mesh[3],
                                        const int is_shift[3],
                                        const int is_time_reversal,
                                        const MatINT * rotations,
-                                       const size_t num_q,
+                                       const long num_q,
                                        MATCONST double qpoints[][3]);
-size_t kpt_get_dense_stabilized_reciprocal_mesh(int grid_address[][3],
-                                                size_t ir_mapping_table[],
-                                                const int mesh[3],
-                                                const int is_shift[3],
-                                                const int is_time_reversal,
-                                                const MatINT * rotations,
-                                                const size_t num_q,
-                                                MATCONST double qpoints[][3]);
+long kpt_get_dense_stabilized_reciprocal_mesh(int grid_address[][3],
+                                              long ir_mapping_table[],
+                                              const int mesh[3],
+                                              const int is_shift[3],
+                                              const int is_time_reversal,
+                                              const MatINT * rotations,
+                                              const long num_q,
+                                              MATCONST double qpoints[][3]);
 void
-kpt_get_dense_grid_points_by_rotations(size_t rot_grid_points[],
+kpt_get_dense_grid_points_by_rotations(long rot_grid_points[],
                                        const int address_orig[3],
                                        MATCONST int (*rot_reciprocal)[3][3],
                                        const int num_rot,
                                        const int mesh[3],
                                        const int is_shift[3]);
 void
-kpt_get_dense_BZ_grid_points_by_rotations(size_t rot_grid_points[],
+kpt_get_dense_BZ_grid_points_by_rotations(long rot_grid_points[],
                                           const int address_orig[3],
                                           MATCONST int (*rot_reciprocal)[3][3],
                                           const int num_rot,
                                           const int mesh[3],
                                           const int is_shift[3],
-                                          const size_t bz_map[]);
+                                          const long bz_map[]);
 int kpt_relocate_BZ_grid_address(int bz_grid_address[][3],
                                  int bz_map[],
                                  MATCONST int grid_address[][3],
                                  const int mesh[3],
                                  MATCONST double rec_lattice[3][3],
                                  const int is_shift[3]);
-size_t kpt_relocate_dense_BZ_grid_address(int bz_grid_address[][3],
-                                          size_t bz_map[],
-                                          MATCONST int grid_address[][3],
-                                          const int mesh[3],
-                                          MATCONST double rec_lattice[3][3],
-                                          const int is_shift[3]);
+long kpt_relocate_dense_BZ_grid_address(int bz_grid_address[][3],
+                                        long bz_map[],
+                                        MATCONST int grid_address[][3],
+                                        const int mesh[3],
+                                        MATCONST double rec_lattice[3][3],
+                                        const int is_shift[3]);
 MatINT *kpt_get_point_group_reciprocal(const MatINT * rotations,
                                        const int is_time_reversal);
 MatINT *kpt_get_point_group_reciprocal_with_q(const MatINT * rot_reciprocal,
                                               const double symprec,
-                                              const size_t num_q,
-                                              MATCONST double qpoints[][3]);
+                                              const long num_q,
+                                              MATCONST double (*qpoints)[3]);
 
 #endif
