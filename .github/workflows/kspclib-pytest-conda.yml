@@ -22,6 +22,11 @@ jobs:
       run: |
         conda install --yes -c conda-forge python=3.8
         conda install --yes -c conda-forge gcc_linux-64 numpy pip pytest codecov pytest-cov pytest
+    - name: Setup kspclib
+      run: |
+        cd python
+        python setup.py build
+        pip install -e
     - name: Test with pytest
       run: |
         pytest --cov=./ --cov-report=xml
