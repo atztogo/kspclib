@@ -26,7 +26,7 @@ jobs:
       run: |
         cd python
         python setup.py build
-        pip install -e
+        pip install -e .
     - name: Test with pytest
       run: |
         pytest --cov=./ --cov-report=xml
