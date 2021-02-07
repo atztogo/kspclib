@@ -59,6 +59,7 @@ static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args);
 static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args);
 static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args);
 static PyObject * py_niggli_reduce(PyObject *self, PyObject *args);
+static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args);
 
 struct module_state {
   PyObject *error;
@@ -111,6 +112,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Find irreducible generalized-regular-grid points"},
   {"niggli_reduce", py_niggli_reduce, METH_VARARGS,
    "Perform Niggli reduction"},
+  {"reciprocal_point_group", py_reciprocal_point_group, METH_VARARGS,
+   "Return reciprocal point group"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -602,4 +605,31 @@ static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
   succeeded = ksp_niggli_reduce(red_lattice, lattice, eps);
 
   return PyBool_FromLong((long) succeeded);
+}
+
+static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args)
+{
+  PyArrayObject* py_rec_rotations;
+  PyArrayObject* py_rotations;
+  int is_time_reversal;
+
+  long (*rec_rotations)[3][3];
+  long (*rotations)[3][3];
+  int num_rot, num_rot_ret;
+
+  if (!PyArg_ParseTuple(args, "OOi",
+                        &py_rec_rotations,
+                        &py_rotations,
+                        &is_time_reversal)) {
+    return NULL;
+  }
+
+  rec_rotations = (long(*)[3][3])PyArray_DATA(py_rec_rotations);
+  rotations = (long(*)[3][3])PyArray_DATA(py_rotations);
+  num_rot = PyArray_DIMS(py_rotations)[0];
+  num_rot_ret = ksp_get_reciprocal_point_group(rec_rotations,
+                                               rotations,
+                                               num_rot,
+                                               is_time_reversal);
+  return PyLong_FromLong(num_rot_ret);
 }

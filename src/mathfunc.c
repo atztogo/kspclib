@@ -143,6 +143,25 @@ int mat_check_identity_matrix_i3(MATCONST int a[3][3],
   }
 }
 
+int mat_check_identity_matrix_l3(MATCONST long a[3][3],
+                                 MATCONST long b[3][3])
+{
+  if (a[0][0] - b[0][0] ||
+      a[0][1] - b[0][1] ||
+      a[0][2] - b[0][2] ||
+      a[1][0] - b[1][0] ||
+      a[1][1] - b[1][1] ||
+      a[1][2] - b[1][2] ||
+      a[2][0] - b[2][0] ||
+      a[2][1] - b[2][1] ||
+      a[2][2] - b[2][2]) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
 int mat_check_identity_matrix_d3(MATCONST double a[3][3],
                                  MATCONST double b[3][3],
                                  const double symprec)
@@ -534,6 +553,21 @@ void mat_transpose_matrix_i3(int a[3][3], MATCONST int b[3][3])
   c[2][1] = b[1][2];
   c[2][2] = b[2][2];
   mat_copy_matrix_i3(a, c);
+}
+
+void mat_transpose_matrix_l3(long a[3][3], MATCONST long b[3][3])
+{
+  long c[3][3];
+  c[0][0] = b[0][0];
+  c[0][1] = b[1][0];
+  c[0][2] = b[2][0];
+  c[1][0] = b[0][1];
+  c[1][1] = b[1][1];
+  c[1][2] = b[2][1];
+  c[2][0] = b[0][2];
+  c[2][1] = b[1][2];
+  c[2][2] = b[2][2];
+  mat_copy_matrix_l3(a, c);
 }
 
 void mat_get_metric(double metric[3][3],

@@ -539,3 +539,34 @@ def niggli_reduce(lattice, eps=1e-5):
     else:
         msg = "Niggli reduction failed."
         raise RuntimeError(msg)
+
+
+def get_reciprocal_point_group(rotations, is_time_reversal=True):
+    """Returns reciprocal point group
+
+    Parameters
+    ----------
+    rotations : array_like
+        Rotation matrices in direct space.
+        shape=(rotations, 3, 3), dtype='int_', order='C'
+    is_time_reversal : bool
+
+    Returns
+    -------
+    None is returned when this method failed. Otherwise,
+
+    rec_rotations : ndarray
+        Rotation matrices in reciprocal space.
+        shape=(rec_rotations, 3, 3), dtype='int_', order='C'
+
+    """
+
+    rec_rotations = np.zeros((48, 3, 3), dtype='int_', order='C')
+    num_rot_ret = ksp.reciprocal_point_group(
+        rec_rotations,
+        np.array(rotations, dtype='int_', order='C'),
+        is_time_reversal * 1)
+    if num_rot_ret == 0:
+        return None
+    else:
+        return np.array(rec_rotations[:num_rot_ret], dtype='int_', order='C')
