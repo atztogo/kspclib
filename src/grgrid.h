@@ -43,7 +43,7 @@ int grg_get_snf3x3(long D_diag[3],
                    long Q[3][3],
                    MATCONST long A[3][3]);
 int grg_transform_rotations(long (*transformed_rots)[3][3],
-                            MATCONST int (*rotations)[3][3],
+                            MATCONST long (*rotations)[3][3],
                             const int num_rot,
                             const long D_diag[3],
                             MATCONST long Q[3][3]);

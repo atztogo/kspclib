@@ -137,6 +137,10 @@ int mat_get_similar_matrix_id3(double m[3][3],
                                MATCONST int a[3][3],
                                MATCONST double b[3][3],
                                const double precision);
+int mat_get_similar_matrix_ld3(double m[3][3],
+                               MATCONST long a[3][3],
+                               MATCONST double b[3][3],
+                               const double precision);
 void mat_transpose_matrix_d3(double a[3][3], MATCONST double b[3][3]);
 void mat_transpose_matrix_i3(int a[3][3], MATCONST int b[3][3]);
 void mat_transpose_matrix_l3(long a[3][3], MATCONST long b[3][3]);

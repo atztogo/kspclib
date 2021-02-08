@@ -104,7 +104,7 @@ int ksp_get_snf3x3(long D_diag[3],
 }
 
 int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
-                                KSPCONST int (*rotations)[3][3],
+                                KSPCONST long (*rotations)[3][3],
                                 const int num_rot,
                                 const long D_diag[3],
                                 KSPCONST long Q[3][3])

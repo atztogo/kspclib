@@ -107,7 +107,7 @@ module kspclib_f08
           rotations, num_rot, D_diag, Q) bind(c)
        import c_long, c_int
        integer(c_long), intent(inout) :: transformed_rots(3, 3, *)
-       integer(c_int), intent(in) :: rotations(3, 3, *)
+       integer(c_long), intent(in) :: rotations(3, 3, *)
        integer(c_int), intent(in), value :: num_rot
        integer(c_long), intent(in) :: D_diag(3)
        integer(c_long), intent(in) :: Q(3, 3)
@@ -187,6 +187,16 @@ module kspclib_f08
        integer(c_long), intent(in) :: PS(3)
      end subroutine ksp_get_ir_grgrid_map
 
+
+     function ksp_get_reciprocal_point_group(rec_rotations, rotations, &
+          num_rot, is_time_reversal) bind(c)
+       import c_int, c_long
+       integer(c_long), intent(inout) :: rec_rotations(3, 3, 48)
+       integer(c_long), intent(in) :: rotations(3, 3, *)
+       integer(c_int), intent(in), value :: num_rot
+       integer(c_int), intent(in), value :: is_time_reversal
+       integer(c_int) :: ksp_get_reciprocal_point_group
+     end function ksp_get_reciprocal_point_group
   end interface
 
 
@@ -197,7 +207,8 @@ module kspclib_f08
        ksp_snf_transform_rotations, ksp_get_all_grgrid_addresses, &
        ksp_get_double_grgrid_address, ksp_get_grgrid_index, &
        ksp_get_double_grgrid_index, ksp_get_grgrid_address_from_index, &
-       ksp_rotate_grgrid_index, ksp_get_ir_grgrid_map
+       ksp_rotate_grgrid_index, ksp_get_ir_grgrid_map, &
+       ksp_get_reciprocal_point_group
 
 
 end module kspclib_f08

@@ -365,7 +365,7 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
   long (*transformed_rots)[3][3];
   long *D_diag;  /* [3] */
   long (*Q)[3];  /* [3][3] */
-  int (*rotations)[3][3];
+  long (*rotations)[3][3];
   int succeeded, num_rot;
 
   if (!PyArg_ParseTuple(args, "OOOO",
@@ -379,7 +379,7 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
   transformed_rots = (long(*)[3][3])PyArray_DATA(py_transformed_rots);
   D_diag = (long(*))PyArray_DATA(py_D_diag);
   Q = (long(*)[3])PyArray_DATA(py_Q);
-  rotations = (int(*)[3][3])PyArray_DATA(py_rotations);
+  rotations = (long(*)[3][3])PyArray_DATA(py_rotations);
   num_rot = PyArray_DIMS(py_rotations)[0];
 
   succeeded = ksp_snf_transform_rotations(transformed_rots,

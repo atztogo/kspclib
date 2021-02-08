@@ -236,7 +236,7 @@ def snf_transform_rotations(rotations,
         shape=(3, 3), dtype='int_', order='C'
     rotations : array_like
         Reciprocal rotation matrices of usual reciprocal basis vectors.
-        shape=(num_rot, 3, 3), dtype='intc', order='C'
+        shape=(num_rot, 3, 3), dtype='int_', order='C'
 
     returns
     -------
@@ -263,7 +263,7 @@ def snf_transform_rotations(rotations,
     transformed_rots = np.zeros(rotations.shape, dtype='int_', order='C')
     is_compatible = ksp.snf_transform_rotations(
         transformed_rots,
-        np.array(rotations, dtype='intc', order='C'),
+        np.array(rotations, dtype='int_', order='C'),
         np.array(_D_diag, dtype='int_', order='C'),
         np.array(_Q, dtype='int_', order='C'))
 

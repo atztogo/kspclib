@@ -525,6 +525,21 @@ int mat_get_similar_matrix_id3(double m[3][3],
   return 1;
 }
 
+int mat_get_similar_matrix_ld3(double m[3][3],
+                               MATCONST long a[3][3],
+                               MATCONST double b[3][3],
+                               const double precision)
+{
+  double c[3][3];
+  if (!mat_inverse_matrix_d3(c, b, precision)) {
+    warning_print("No similar matrix due to 0 determinant.\n");
+    return 0;
+  }
+  mat_multiply_matrix_ld3(m, a, b);
+  mat_multiply_matrix_d3(m, c, m);
+  return 1;
+}
+
 void mat_transpose_matrix_d3(double a[3][3], MATCONST double b[3][3])
 {
   double c[3][3];

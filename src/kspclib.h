@@ -68,7 +68,7 @@ extern "C" {
                      long Q[3][3],
                      KSPCONST long A[3][3]);
   int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
-                                  KSPCONST int (*rotations)[3][3],
+                                  KSPCONST long (*rotations)[3][3],
                                   const int num_rot,
                                   const long D_diag[3],
                                   KSPCONST long Q[3][3]);
@@ -97,6 +97,10 @@ extern "C" {
   int ksp_niggli_reduce(double red_lattice[3][3],
                         KSPCONST double lattice[3][3],
                         const double eps);
+  int ksp_get_reciprocal_point_group(long rec_rotations[48][3][3],
+                                     KSPCONST long (*rotations)[3][3],
+                                     const int num_rot,
+                                     const int is_time_reversal);
 
 #ifdef __cplusplus
 }

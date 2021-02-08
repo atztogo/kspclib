@@ -108,7 +108,7 @@ err:
 /*    vectors. */
 /* num_rot : Number of rotations */
 int grg_transform_rotations(long (*transformed_rots)[3][3],
-                            MATCONST int (*rotations)[3][3],
+                            MATCONST long (*rotations)[3][3],
                             const int num_rot,
                             const long D_diag[3],
                             MATCONST long Q[3][3])
@@ -124,7 +124,7 @@ int grg_transform_rotations(long (*transformed_rots)[3][3],
   /* 3. Compute D(Q^-1)RQ(D^-1) */
   mat_cast_matrix_3l_to_3d(Q_double, Q);
   for (i = 0; i < num_rot; i++) {
-    mat_get_similar_matrix_id3(r, rotations[i], Q_double, 0);
+    mat_get_similar_matrix_ld3(r, rotations[i], Q_double, 0);
     for (j = 0; j < 3; j++) {
       for (k = 0; k < 3; k++) {
         r[j][k] *= D_diag[j];

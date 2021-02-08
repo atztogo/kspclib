@@ -1,6 +1,14 @@
 module kspclib_example
+  use iso_c_binding, only: c_int, c_long, c_double
   implicit none
-
+  private
+  public kspclib_version, get_all_grid_addresses, get_double_grid_address, &
+       get_double_grid_index, get_thm_relative_grid_addresses, &
+       get_thm_integration_weight, snf3x3, snf_transform_rotations, &
+       get_all_grgrid_addresses, get_double_grgrid_address, &
+       get_grgrid_index, get_double_grgrid_index, &
+       get_grgrid_address_from_index, rotate_grgrid_index, &
+       get_ir_grgrid_map, get_reciprocal_point_group
   contains
 
   subroutine kspclib_version()
@@ -12,7 +20,7 @@ module kspclib_example
     major = ksp_get_major_version()
     minor = ksp_get_minor_version()
     micro = ksp_get_micro_version()
-    print '("ksp_get_*_version")'
+    print '("[ksp_get_*_version]")'
     print '("Kspclib version ", i0, ".", i0, ".", i0)', major, minor, micro
     print *
   end subroutine kspclib_version
@@ -20,9 +28,8 @@ module kspclib_example
 
   subroutine get_all_grid_addresses()
     use kspclib_f08, only: ksp_get_all_grid_addresses
-
-    integer(4) :: mesh(3)
-    integer(4), allocatable :: grid_address(:, :)
+    integer(c_int) :: mesh(3)
+    integer(c_int), allocatable :: grid_address(:, :)
     integer :: i
 
     mesh(:) = 4
@@ -30,7 +37,7 @@ module kspclib_example
     allocate(grid_address(3, product(mesh)))
     call ksp_get_all_grid_addresses(grid_address, mesh)
 
-    print '("ksp_get_all_grid_addresses")'
+    print '("[ksp_get_all_grid_addresses]")'
     print '("All grid addresses for sampling mesh ", i0, "x", i0, "x", i0)', mesh(:)
     do i = 1, product(mesh)
        print '(i0, 3i4)', i - 1, grid_address(:, i)
@@ -43,8 +50,8 @@ module kspclib_example
   subroutine get_double_grid_address()
     use kspclib_f08, only: ksp_get_double_grid_address
 
-    integer(4) :: address(3), mesh(3), is_shift(3)
-    integer(4) :: address_double(3)
+    integer(c_int) :: address(3), mesh(3), is_shift(3)
+    integer(c_int) :: address_double(3)
 
     mesh(:) = 4
     address(:) = 1
@@ -52,7 +59,7 @@ module kspclib_example
 
     call ksp_get_double_grid_address(address_double, address, mesh, is_shift)
 
-    print '("ksp_get_double_grid_address")'
+    print '("[ksp_get_double_grid_address]")'
     print '("Mesh", 3i3)', mesh(:)
     print '("Single-grid address", 3i3)', address(:)
     print '("Half-shift", 3i3)', is_shift(:)
@@ -64,14 +71,14 @@ module kspclib_example
   subroutine get_double_grid_index()
     use kspclib_f08, only: ksp_get_double_grid_index
 
-    integer(4) :: address_double(3), mesh(3)
-    integer(8) :: grid_index
+    integer(c_int) :: address_double(3), mesh(3)
+    integer(c_long) :: grid_index
 
     mesh(:) = 4
     address_double(:) = 3
     grid_index = ksp_get_double_grid_index(address_double, mesh)
 
-    print '("ksp_get_double_grid_index")'
+    print '("[ksp_get_double_grid_index]")'
     print '("(Note that the index starts with 0.)")'
     print '("Mesh", 3i3)', mesh(:)
     print '("Double-grid address", 3i3)', address_double(:)
@@ -83,8 +90,8 @@ module kspclib_example
   subroutine get_thm_relative_grid_addresses()
     use kspclib_f08, only: ksp_get_thm_relative_grid_addresses
 
-    real(8) :: rec_lattice(3, 3)
-    integer(4) :: relative_grid_addresses(3, 4, 24)
+    real(c_double) :: rec_lattice(3, 3)
+    integer(c_int) :: relative_grid_addresses(3, 4, 24)
     integer :: i, j
 
     rec_lattice(:, :) = 0
@@ -96,7 +103,7 @@ module kspclib_example
     call ksp_get_thm_relative_grid_addresses(relative_grid_addresses, &
          rec_lattice)
 
-    print '("ksp_get_thm_relative_grid_addresses")'
+    print '("[ksp_get_thm_relative_grid_addresses]")'
     print '("rec_lattice:")'
     print '("  a: ", 3f11.8)', rec_lattice(1, :)
     print '("  b: ", 3f11.8)', rec_lattice(2, :)
@@ -120,20 +127,20 @@ module kspclib_example
          ksp_get_thm_relative_grid_addresses, ksp_get_all_grid_addresses, &
          ksp_get_double_grid_address, ksp_get_double_grid_index
 
-    integer(8) :: i, j, k, gi, bi, fi, num_freq_points, num_bands
-    integer(4) :: ga_d(3), ga(3)
-    integer(8) :: gp
-    real(8) :: buf(6000)
-    real(8) :: rec_lattice(3, 3)
-    integer(4) :: relative_grid_addresses(3, 4, 24)
-    integer(4) :: mesh(3), shift(3)
-    integer(4), allocatable :: grid_address(:, :)
-    integer(4) :: tetrahedra_ga(3, 4, 24)
-    integer(8) :: tetrahedra_gps(4, 24)
-    real(8) :: tetrahedra_freqs(4, 24)
-    real(8), allocatable :: freq_points(:), dos(:), acc(:)
+    integer(c_long) :: i, j, k, gi, bi, fi, num_freq_points, num_bands
+    integer(c_int) :: ga_d(3), ga(3)
+    integer(c_long) :: gp
+    real(c_double) :: buf(6000)
+    real(c_double) :: rec_lattice(3, 3)
+    integer(c_int) :: relative_grid_addresses(3, 4, 24)
+    integer(c_int) :: mesh(3), shift(3)
+    integer(c_int), allocatable :: grid_address(:, :)
+    integer(c_int) :: tetrahedra_ga(3, 4, 24)
+    integer(c_long) :: tetrahedra_gps(4, 24)
+    real(c_double) :: tetrahedra_freqs(4, 24)
+    real(c_double), allocatable :: freq_points(:), dos(:), acc(:)
 
-    print '("ksp_get_thm_integration_weight")'
+    print '("[ksp_get_thm_integration_weight]")'
 
     mesh(:) = 10
     shift(:) = 0
@@ -201,9 +208,9 @@ module kspclib_example
   subroutine snf3x3()
     use kspclib_f08, only: ksp_get_snf3x3
 
-    integer(8) :: A(3, 3)
-    integer(4) :: succeeded
-    integer(8) :: D_diag(3), D_diag_ref(3), P_ref(3, 3), Q_ref(3, 3), P(3, 3), Q(3, 3)
+    integer(c_long) :: A(3, 3)
+    integer(c_int) :: succeeded
+    integer(c_long) :: D_diag(3), D_diag_ref(3), P_ref(3, 3), Q_ref(3, 3), P(3, 3), Q(3, 3)
 
     A(:, :) = reshape([0, 5, 5, 5, 0, 5, 2, 2, 0], [3, 3])
     D_diag_ref(:) = [1, 5, 20]
@@ -212,7 +219,7 @@ module kspclib_example
 
     succeeded = ksp_get_snf3x3(D_diag, P, Q, A)
 
-    print '("ksp_get_snf3x3")'
+    print '("[ksp_get_snf3x3]")'
     print '("D_diag ref", 3i5)', D_diag_ref
     print '("D_diag ret", 3i5)', D_diag
     print *, ""
@@ -231,11 +238,11 @@ module kspclib_example
     use kspclib_f08, only: ksp_snf_transform_rotations
 
     integer :: i, j, k
-    integer(8) :: transformed_rots(3, 3, 16), transformed_rots_ret(3, 3, 16)
-    integer(4) :: rotations(3, 3, 16)
-    integer(4) :: num_rot, succeeded
-    integer(8) :: D_diag(3)
-    integer(8) :: Q(3, 3)
+    integer(c_long) :: transformed_rots(3, 3, 16), transformed_rots_ret(3, 3, 16)
+    integer(c_long) :: rotations(3, 3, 16)
+    integer(c_int) :: num_rot, succeeded
+    integer(c_long) :: D_diag(3)
+    integer(c_long) :: Q(3, 3)
 
 
     num_rot = 16
@@ -281,7 +288,7 @@ module kspclib_example
     succeeded = ksp_snf_transform_rotations(transformed_rots_ret, rotations, &
          num_rot, D_diag, Q)
 
-    print '("ksp_snf_transform_rotations")'
+    print '("[ksp_snf_transform_rotations]")'
     do i = 1, 16
        print '("ref", 9i5)', transformed_rots(:, :, i)
        print '("ret", 9i5)', transformed_rots_ret(:, :, i)
@@ -295,8 +302,8 @@ module kspclib_example
   subroutine get_all_grgrid_addresses()
     use kspclib_f08, only: ksp_get_all_grgrid_addresses
 
-    integer(8) :: D_diag(3)
-    integer(8), allocatable :: grid_address(:, :)
+    integer(c_long) :: D_diag(3)
+    integer(c_long), allocatable :: grid_address(:, :)
     integer :: i
 
     D_diag(:) = 4
@@ -304,7 +311,7 @@ module kspclib_example
     allocate(grid_address(3, product(D_diag)))
     call ksp_get_all_grgrid_addresses(grid_address, D_diag)
 
-    print '("ksp_get_all_grgrid_addresses")'
+    print '("[ksp_get_all_grgrid_addresses]")'
     print '("All generalized grid addresses for D_diag ", i0, "x", i0, "x", i0)', &
          D_diag(:)
     do i = 1, product(D_diag)
@@ -318,8 +325,8 @@ module kspclib_example
   subroutine get_double_grgrid_address()
     use kspclib_f08, only: ksp_get_double_grgrid_address
 
-    integer(8) :: address(3), D_diag(3), PS(3)
-    integer(8) :: address_double(3)
+    integer(c_long) :: address(3), D_diag(3), PS(3)
+    integer(c_long) :: address_double(3)
 
     D_diag(:) = 4
     address(:) = 1
@@ -327,7 +334,7 @@ module kspclib_example
 
     call ksp_get_double_grgrid_address(address_double, address, D_diag, PS)
 
-    print '("ksp_get_double_grid_address")'
+    print '("[ksp_get_double_grid_address]")'
     print '("D_diag", 3i3)', D_diag(:)
     print '("Single-grid address", 3i3)', address(:)
     print '("Half-shift", 3i3)', PS(:)
@@ -339,14 +346,14 @@ module kspclib_example
   subroutine get_grgrid_index()
     use kspclib_f08, only: ksp_get_grgrid_index
 
-    integer(8) :: address(3), D_diag(3)
-    integer(8) :: grid_index
+    integer(c_long) :: address(3), D_diag(3)
+    integer(c_long) :: grid_index
 
     D_diag(:) = 4
     address(:) = 3
     grid_index = ksp_get_grgrid_index(address, D_diag)
 
-    print '("ksp_get_grgrid_index")'
+    print '("[ksp_get_grgrid_index]")'
     print '("(Note that the index starts with 0.)")'
     print '("D_diag", 3i3)', D_diag(:)
     print '("Single-grid address", 3i3)', address(:)
@@ -359,8 +366,8 @@ module kspclib_example
     use kspclib_f08, only: ksp_get_double_grgrid_index, &
          ksp_get_double_grgrid_address
 
-    integer(8) :: address(3), address_double(3), D_diag(3), PS(3)
-    integer(8) :: grid_index
+    integer(c_long) :: address(3), address_double(3), D_diag(3), PS(3)
+    integer(c_long) :: grid_index
 
     D_diag(:) = 4
     address(:) = 1
@@ -369,7 +376,7 @@ module kspclib_example
     call ksp_get_double_grgrid_address(address_double, address, D_diag, PS)
     grid_index = ksp_get_double_grgrid_index(address_double, D_diag, PS)
 
-    print '("ksp_get_double_grgrid_index")'
+    print '("[ksp_get_double_grgrid_index]")'
     print '("(Note that the index starts with 0.)")'
     print '("D_diag", 3i3)', D_diag(:)
     print '("Single-grid address", 3i3)', address(:)
@@ -383,14 +390,14 @@ module kspclib_example
   subroutine get_grgrid_address_from_index
     use kspclib_f08, only: ksp_get_grgrid_address_from_index
 
-    integer(8) :: address(3), D_diag(3)
-    integer(8) :: grid_index
+    integer(c_long) :: address(3), D_diag(3)
+    integer(c_long) :: grid_index
 
     grid_index = 21
     D_diag(:) = 4
     call ksp_get_grgrid_address_from_index(address, grid_index, D_diag)
 
-    print '("ksp_get_grgrid_address_from_index")'
+    print '("[ksp_get_grgrid_address_from_index]")'
     print '("(Note that the index starts with 0.)")'
     print '("D_diag", 3i3)', D_diag(:)
     print '("Grid index ", i0)', grid_index
@@ -403,13 +410,13 @@ module kspclib_example
     use kspclib_f08, only: ksp_rotate_grgrid_index, &
          ksp_get_grgrid_address_from_index, ksp_get_double_grgrid_address
 
-    integer(8) :: D_diag(3), PS(3)
-    integer(8) :: rotation(3, 3)
-    integer(8) :: grid_index, gp_rot
-    integer(8) :: P(3, 3)
-    integer(8) :: shift(3)
-    integer(8) :: address(3), address_rot(3)
-    integer(8) :: address_double(3), address_double_rot(3), address_double_matmul(3)
+    integer(c_long) :: D_diag(3), PS(3)
+    integer(c_long) :: rotation(3, 3)
+    integer(c_long) :: grid_index, gp_rot
+    integer(c_long) :: P(3, 3)
+    integer(c_long) :: shift(3)
+    integer(c_long) :: address(3), address_rot(3)
+    integer(c_long) :: address_double(3), address_double_rot(3), address_double_matmul(3)
     integer :: i
 
     shift(:) = 1
@@ -426,7 +433,7 @@ module kspclib_example
     call ksp_get_double_grgrid_address(address_double_rot, address_rot, &
          D_diag, PS)
 
-    print '("ksp_rotate_grgrid_index")'
+    print '("[ksp_rotate_grgrid_index]")'
     print '("(Note that the index starts with 0.)")'
     print '("D_diag", 3i3)', D_diag
     print '("P", 9i5)', P
@@ -448,11 +455,11 @@ module kspclib_example
   subroutine get_ir_grgrid_map
     use kspclib_f08, only: ksp_get_ir_grgrid_map
 
-    integer(8), allocatable :: ir_grid_indices(:), ir_grid_indices_ref(:)
-    integer(8) :: rotations(3, 3, 16)
-    integer(4) :: num_rot
-    integer(8) :: D_diag(3), PS(3), shift(3)
-    integer(8) :: P(3, 3)
+    integer(c_long), allocatable :: ir_grid_indices(:), ir_grid_indices_ref(:)
+    integer(c_long) :: rotations(3, 3, 16)
+    integer(c_int) :: num_rot
+    integer(c_long) :: D_diag(3), PS(3), shift(3)
+    integer(c_long) :: P(3, 3)
     integer :: i
 
     rotations(:, :, :) = reshape([ &
@@ -481,7 +488,7 @@ module kspclib_example
     allocate(ir_grid_indices(product(D_diag)))
     call ksp_get_ir_grgrid_map(ir_grid_indices, rotations, num_rot, D_diag, PS)
 
-    print '("ksp_get_ir_grgrid_map")'
+    print '("[ksp_get_ir_grgrid_map]")'
     print '("(Note that the index starts with 0.)")'
     print '("D_diag", 3i3)', D_diag
     print '("P", 9i5)', P
@@ -511,6 +518,66 @@ module kspclib_example
     deallocate(ir_grid_indices_ref)
   end subroutine get_ir_grgrid_map
 
+
+  subroutine get_reciprocal_point_group()
+    use kspclib_f08, only: ksp_get_reciprocal_point_group
+
+    integer(c_long) :: rotations_tipn3(3, 3, 4)
+    integer(c_long) :: rotations_tio2(3, 3, 16)
+    integer(c_long) :: rec_rotations(3, 3, 48)
+    integer :: num_rot_ret, i
+
+    rotations_tipn3(:, :, :) = reshape( &
+         [1, 0, 0, 0, 1, 0, 0, 0, 1, &
+         -1, 0, 0, 0, 0, 1, 0, 1, 0, &
+         -1, 0, 0, 0, 1, 0, 0, 0, 1, &
+         1, 0, 0, 0, 0, 1, 0, 1, 0], [3, 3, 4])
+    num_rot_ret = ksp_get_reciprocal_point_group(rec_rotations, &
+         rotations_tipn3, 4, 1)
+
+    print '("[ksp_get_reciprocal_point_group]")'
+    print *, ""
+    print '("TiPN3 rotations in direct space")'
+    do i = 1, 4
+       print '(9i3)', rotations_tipn3(:, :, i)
+    end do
+    print '("TiPN3 rotations in reciprocal space (is_time_reversal=1)")'
+    do i = 1, num_rot_ret
+       print '(9i3)', rec_rotations(:, :, i)
+    end do
+    print *, ""
+
+    rotations_tio2(:, :, :) = reshape( &
+         [1, 0, 0, 0, 1, 0, 0, 0, 1, &
+         0, 1, 0, 0, 1, -1, -1, 1, 0, &
+         0, 1, -1, 1, 0, -1, 0, 0, -1, &
+         1, 0, -1, 1, 0, 0, 1, -1, 0, &
+         -1, 0, 0, -1, 0, 1, -1, 1, 0, &
+         0, -1, 0, -1, 0, 0, 0, 0, -1, &
+         0, -1, 1, 0, -1, 0, 1, -1, 0, &
+         -1, 0, 1, 0, -1, 1, 0, 0, 1, &
+         -1, 0, 0, 0, -1, 0, 0, 0, -1, &
+         0, -1, 0, 0, -1, 1, 1, -1, 0, &
+         0, -1, 1, -1, 0, 1, 0, 0, 1, &
+         -1, 0, 1, -1, 0, 0, -1, 1, 0, &
+         1, 0, 0, 1, 0, -1, 1, -1, 0, &
+         0, 1, 0, 1, 0, 0, 0, 0, 1, &
+         0, 1, -1, 0, 1, 0, -1, 1, 0, &
+         1, 0, -1, 0, 1, -1, 0, 0, -1], [3, 3, 16])
+    num_rot_ret = ksp_get_reciprocal_point_group(rec_rotations, &
+         rotations_tio2, 16, 1)
+
+    print '("TiO2 (anatase) rotations in direct space")'
+    do i = 1, 16
+       print '(9i3)', rotations_tio2(:, :, i)
+    end do
+    print '("TiO2 (anatase) rotations in reciprocal space (is_time_reversal=1)")'
+    do i = 1, num_rot_ret
+       print '(9i3)', rec_rotations(:, :, i)
+    end do
+    print *, ""
+  end subroutine get_reciprocal_point_group
+
 end module kspclib_example
 
 
@@ -521,7 +588,8 @@ program kspclib_example_f08
        get_thm_relative_grid_addresses, get_thm_integration_weight, &
        snf3x3, snf_transform_rotations, get_all_grgrid_addresses, &
        get_double_grgrid_address, get_grgrid_index, get_double_grgrid_index, &
-       get_grgrid_address_from_index, rotate_grgrid_index, get_ir_grgrid_map
+       get_grgrid_address_from_index, rotate_grgrid_index, get_ir_grgrid_map, &
+       get_reciprocal_point_group
 
   call kspclib_version()
   call get_all_grid_addresses()
@@ -538,5 +606,6 @@ program kspclib_example_f08
   call get_grgrid_address_from_index()
   call rotate_grgrid_index()
   call get_ir_grgrid_map()
+  call get_reciprocal_point_group()
 
 end program kspclib_example_f08
