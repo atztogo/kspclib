@@ -47,7 +47,6 @@ from .kspclib import (get_version,
                       get_grgrid_address_from_index,
                       rotate_grgrid_index,
                       get_ir_grgrid_map,
-                      niggli_reduce,
                       get_reciprocal_point_group)
 
 

@@ -58,7 +58,7 @@ static PyObject * py_double_grgrid_index(PyObject *self, PyObject *args);
 static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args);
 static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args);
 static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args);
-static PyObject * py_niggli_reduce(PyObject *self, PyObject *args);
+/* static PyObject * py_niggli_reduce(PyObject *self, PyObject *args); */
 static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args);
 
 struct module_state {
@@ -110,8 +110,8 @@ static PyMethodDef _kspclib_methods[] = {
    "Rotate a generalized-regular-grid point by index"},
   {"ir_grgrid_map", py_ir_grgrid_map, METH_VARARGS,
    "Find irreducible generalized-regular-grid points"},
-  {"niggli_reduce", py_niggli_reduce, METH_VARARGS,
-   "Perform Niggli reduction"},
+  /* {"niggli_reduce", py_niggli_reduce, METH_VARARGS,
+   *  "Perform Niggli reduction"}, */
   {"reciprocal_point_group", py_reciprocal_point_group, METH_VARARGS,
    "Return reciprocal point group"},
   {NULL, NULL, 0, NULL}
@@ -583,29 +583,29 @@ static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
-static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
-{
-  PyArrayObject* py_red_lattice;
-  PyArrayObject* py_lattice;
-  double eps;
-
-  double (*red_lattice)[3];  /* [3][3] column vectors */
-  double (*lattice)[3];  /* [3][3] column vectors */
-  int succeeded;
-
-  if (!PyArg_ParseTuple(args, "OOd",
-                        &py_red_lattice,
-                        &py_lattice,
-                        &eps)) {
-    return NULL;
-  }
-
-  red_lattice = (double(*)[3])PyArray_DATA(py_red_lattice);
-  lattice = (double(*)[3])PyArray_DATA(py_lattice);
-  succeeded = ksp_niggli_reduce(red_lattice, lattice, eps);
-
-  return PyBool_FromLong((long) succeeded);
-}
+/* static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
+ * {
+ *   PyArrayObject* py_red_lattice;
+ *   PyArrayObject* py_lattice;
+ *   double eps;
+ *
+ *   double (*red_lattice)[3];  /\* [3][3] column vectors *\/
+ *   double (*lattice)[3];  /\* [3][3] column vectors *\/
+ *   int succeeded;
+ *
+ *   if (!PyArg_ParseTuple(args, "OOd",
+ *                         &py_red_lattice,
+ *                         &py_lattice,
+ *                         &eps)) {
+ *     return NULL;
+ *   }
+ *
+ *   red_lattice = (double(*)[3])PyArray_DATA(py_red_lattice);
+ *   lattice = (double(*)[3])PyArray_DATA(py_lattice);
+ *   succeeded = ksp_niggli_reduce(red_lattice, lattice, eps);
+ *
+ *   return PyBool_FromLong((long) succeeded);
+ * } */
 
 static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args)
 {

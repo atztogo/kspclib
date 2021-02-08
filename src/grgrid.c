@@ -36,7 +36,6 @@
 #include <stddef.h>
 #include <assert.h>
 #include "grgrid.h"
-#include "mathfunc.h"
 #include "snf3x3.h"
 
 #define IDENTITY_TOL 1e-5
@@ -69,6 +68,42 @@ static void get_ir_grid_map(long ir_grid_indices[],
                             const int num_rot,
                             const long D_diag[3],
                             const long PS[3]);
+static long mat_get_determinant_l3(MATCONST long a[3][3]);
+static double mat_get_determinant_d3(MATCONST double a[3][3]);
+static void mat_cast_matrix_3l_to_3d(double m[3][3], MATCONST long a[3][3]);
+static void mat_cast_matrix_3d_to_3l(long m[3][3], MATCONST double a[3][3]);
+static int mat_get_similar_matrix_ld3(double m[3][3],
+                                      MATCONST long a[3][3],
+                                      MATCONST double b[3][3],
+                                      const double precision);
+static int mat_check_identity_matrix_l3(MATCONST long a[3][3],
+                                        MATCONST long b[3][3]);
+static int mat_check_identity_matrix_ld3(MATCONST long a[3][3],
+                                         MATCONST double b[3][3],
+                                         const double symprec);
+static int mat_inverse_matrix_d3(double m[3][3],
+                                 MATCONST double a[3][3],
+                                 const double precision);
+static void mat_transpose_matrix_l3(long a[3][3], MATCONST long b[3][3]);
+static void mat_multiply_matrix_vector_l3(long v[3],
+                                          MATCONST long a[3][3],
+                                          const long b[3]);
+static void mat_multiply_matrix_l3(long m[3][3],
+                                   MATCONST long a[3][3],
+                                   MATCONST long b[3][3]);
+static void mat_multiply_matrix_ld3(double m[3][3],
+                                    MATCONST long a[3][3],
+                                    MATCONST double b[3][3]);
+static void mat_multiply_matrix_d3(double m[3][3],
+                                   MATCONST double a[3][3],
+                                   MATCONST double b[3][3]);
+static void mat_copy_matrix_l3(long a[3][3], MATCONST long b[3][3]);
+static void mat_copy_matrix_d3(double a[3][3], MATCONST double b[3][3]);
+static void mat_copy_vector_l3(long a[3], const long b[3]);
+static long mat_modulo_l(const long a, const long b);
+static long mat_Nint(const double a);
+static double mat_Dabs(const double a);
+
 
 int grg_get_snf3x3(long D_diag[3],
                    long P[3][3],
@@ -249,6 +284,69 @@ void grg_get_ir_grid_map(long ir_grid_indices[],
                   PS);
 }
 
+/* Extract unique rotation matrices and transpose them. */
+/* When is_time_reversal == 1, inverse of the extracted matrices are */
+/* included. */
+/* Return 0 if failed */
+int grg_get_reciprocal_point_group(long rec_rotations[48][3][3],
+                                   MATCONST long (*rotations)[3][3],
+                                   const int num_rot,
+                                   const int is_time_reversal)
+{
+  int i, j, num_rot_ret, inv_exist;
+  MATCONST long inversion[3][3] = {
+    {-1, 0, 0 },
+    { 0,-1, 0 },
+    { 0, 0,-1 }
+  };
+
+  num_rot_ret = 0;
+  for (i = 0; i < num_rot; i++) {
+    for (j = 0; j < num_rot_ret; j++) {
+      if (mat_check_identity_matrix_l3(rotations[i], rec_rotations[j])) {
+        goto escape;
+      }
+    }
+    if (num_rot_ret == 48) {
+      goto err;
+    }
+    mat_copy_matrix_l3(rec_rotations[num_rot_ret], rotations[i]);
+    num_rot_ret++;
+  escape:
+    ;
+  }
+
+  inv_exist = 0;
+  if (is_time_reversal) {
+    for (i = 0; i < num_rot_ret; i++) {
+      if (mat_check_identity_matrix_l3(inversion, rec_rotations[i])) {
+        inv_exist = 1;
+        break;
+      }
+    }
+
+    if (!inv_exist) {
+      if (num_rot_ret > 24) {
+        goto err;
+      }
+
+      for (i = 0; i < num_rot_ret; i++) {
+        mat_multiply_matrix_l3(rec_rotations[num_rot_ret + i],
+                               inversion, rec_rotations[i]);
+      }
+      num_rot_ret *= 2;
+    }
+  }
+
+  for (i = 0; i < num_rot_ret; i++) {
+    mat_transpose_matrix_l3(rec_rotations[i], rec_rotations[i]);
+  }
+
+  return num_rot_ret;
+err:
+  return 0;
+}
+
 
 static void reduce_grid_address(long address[3], const long D_diag[3])
 {
@@ -406,4 +504,256 @@ static void get_ir_grid_map(long ir_grid_indices[],
     }
   }
 
+}
+
+static long mat_get_determinant_l3(MATCONST long a[3][3])
+{
+  return a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+    + a[0][1] * (a[1][2] * a[2][0] - a[1][0] * a[2][2])
+    + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
+}
+
+static double mat_get_determinant_d3(MATCONST double a[3][3])
+{
+  return a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+    + a[0][1] * (a[1][2] * a[2][0] - a[1][0] * a[2][2])
+    + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
+}
+
+static void mat_cast_matrix_3l_to_3d(double m[3][3], MATCONST long a[3][3])
+{
+  m[0][0] = a[0][0];
+  m[0][1] = a[0][1];
+  m[0][2] = a[0][2];
+  m[1][0] = a[1][0];
+  m[1][1] = a[1][1];
+  m[1][2] = a[1][2];
+  m[2][0] = a[2][0];
+  m[2][1] = a[2][1];
+  m[2][2] = a[2][2];
+}
+
+static void mat_cast_matrix_3d_to_3l(long m[3][3], MATCONST double a[3][3])
+{
+  m[0][0] = mat_Nint(a[0][0]);
+  m[0][1] = mat_Nint(a[0][1]);
+  m[0][2] = mat_Nint(a[0][2]);
+  m[1][0] = mat_Nint(a[1][0]);
+  m[1][1] = mat_Nint(a[1][1]);
+  m[1][2] = mat_Nint(a[1][2]);
+  m[2][0] = mat_Nint(a[2][0]);
+  m[2][1] = mat_Nint(a[2][1]);
+  m[2][2] = mat_Nint(a[2][2]);
+}
+
+static int mat_get_similar_matrix_ld3(double m[3][3],
+                                      MATCONST long a[3][3],
+                                      MATCONST double b[3][3],
+                                      const double precision)
+{
+  double c[3][3];
+  if (!mat_inverse_matrix_d3(c, b, precision)) {
+    warning_print("No similar matrix due to 0 determinant.\n");
+    return 0;
+  }
+  mat_multiply_matrix_ld3(m, a, b);
+  mat_multiply_matrix_d3(m, c, m);
+  return 1;
+}
+
+static int mat_check_identity_matrix_l3(MATCONST long a[3][3],
+                                        MATCONST long b[3][3])
+{
+  if (a[0][0] - b[0][0] ||
+      a[0][1] - b[0][1] ||
+      a[0][2] - b[0][2] ||
+      a[1][0] - b[1][0] ||
+      a[1][1] - b[1][1] ||
+      a[1][2] - b[1][2] ||
+      a[2][0] - b[2][0] ||
+      a[2][1] - b[2][1] ||
+      a[2][2] - b[2][2]) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
+static int mat_check_identity_matrix_ld3(MATCONST long a[3][3],
+                                         MATCONST double b[3][3],
+                                         const double symprec)
+{
+  if (mat_Dabs(a[0][0] - b[0][0]) > symprec ||
+       mat_Dabs(a[0][1] - b[0][1]) > symprec ||
+       mat_Dabs(a[0][2] - b[0][2]) > symprec ||
+       mat_Dabs(a[1][0] - b[1][0]) > symprec ||
+       mat_Dabs(a[1][1] - b[1][1]) > symprec ||
+       mat_Dabs(a[1][2] - b[1][2]) > symprec ||
+       mat_Dabs(a[2][0] - b[2][0]) > symprec ||
+       mat_Dabs(a[2][1] - b[2][1]) > symprec ||
+       mat_Dabs(a[2][2] - b[2][2]) > symprec) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
+static int mat_inverse_matrix_d3(double m[3][3],
+                                 MATCONST double a[3][3],
+                                 const double precision)
+{
+  double det;
+  double c[3][3];
+  det = mat_get_determinant_d3(a);
+  if (mat_Dabs(det) < precision) {
+    warning_print("No inverse matrix (det=%f)\n", det);
+    return 0;
+  }
+
+  c[0][0] = (a[1][1] * a[2][2] - a[1][2] * a[2][1]) / det;
+  c[1][0] = (a[1][2] * a[2][0] - a[1][0] * a[2][2]) / det;
+  c[2][0] = (a[1][0] * a[2][1] - a[1][1] * a[2][0]) / det;
+  c[0][1] = (a[2][1] * a[0][2] - a[2][2] * a[0][1]) / det;
+  c[1][1] = (a[2][2] * a[0][0] - a[2][0] * a[0][2]) / det;
+  c[2][1] = (a[2][0] * a[0][1] - a[2][1] * a[0][0]) / det;
+  c[0][2] = (a[0][1] * a[1][2] - a[0][2] * a[1][1]) / det;
+  c[1][2] = (a[0][2] * a[1][0] - a[0][0] * a[1][2]) / det;
+  c[2][2] = (a[0][0] * a[1][1] - a[0][1] * a[1][0]) / det;
+  mat_copy_matrix_d3(m, c);
+  return 1;
+}
+
+static void mat_transpose_matrix_l3(long a[3][3], MATCONST long b[3][3])
+{
+  long c[3][3];
+  c[0][0] = b[0][0];
+  c[0][1] = b[1][0];
+  c[0][2] = b[2][0];
+  c[1][0] = b[0][1];
+  c[1][1] = b[1][1];
+  c[1][2] = b[2][1];
+  c[2][0] = b[0][2];
+  c[2][1] = b[1][2];
+  c[2][2] = b[2][2];
+  mat_copy_matrix_l3(a, c);
+}
+
+static void mat_multiply_matrix_vector_l3(long v[3],
+                                          MATCONST long a[3][3],
+                                          const long b[3])
+{
+  long i;
+  long c[3];
+  for (i = 0; i < 3; i++) {
+    c[i] = a[i][0] * b[0] + a[i][1] * b[1] + a[i][2] * b[2];
+  }
+  for (i = 0; i < 3; i++) {
+    v[i] = c[i];
+  }
+}
+
+static void mat_multiply_matrix_l3(long m[3][3],
+                                   MATCONST long a[3][3],
+                                   MATCONST long b[3][3])
+{
+  int i, j;                   /* a_ij */
+  long c[3][3];
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      c[i][j] =
+        a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
+    }
+  }
+  mat_copy_matrix_l3(m, c);
+}
+
+static void mat_multiply_matrix_ld3(double m[3][3],
+                                    MATCONST long a[3][3],
+                                    MATCONST double b[3][3])
+{
+  int i, j;                   /* a_ij */
+  double c[3][3];
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      c[i][j] =
+        a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
+    }
+  }
+  mat_copy_matrix_d3(m, c);
+}
+
+static void mat_multiply_matrix_d3(double m[3][3],
+                                   MATCONST double a[3][3],
+                                   MATCONST double b[3][3])
+{
+  int i, j;                   /* a_ij */
+  double c[3][3];
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      c[i][j] =
+        a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
+    }
+  }
+  mat_copy_matrix_d3(m, c);
+}
+
+static void mat_copy_matrix_l3(long a[3][3], MATCONST long b[3][3])
+{
+  a[0][0] = b[0][0];
+  a[0][1] = b[0][1];
+  a[0][2] = b[0][2];
+  a[1][0] = b[1][0];
+  a[1][1] = b[1][1];
+  a[1][2] = b[1][2];
+  a[2][0] = b[2][0];
+  a[2][1] = b[2][1];
+  a[2][2] = b[2][2];
+}
+
+static void mat_copy_matrix_d3(double a[3][3], MATCONST double b[3][3])
+{
+  a[0][0] = b[0][0];
+  a[0][1] = b[0][1];
+  a[0][2] = b[0][2];
+  a[1][0] = b[1][0];
+  a[1][1] = b[1][1];
+  a[1][2] = b[1][2];
+  a[2][0] = b[2][0];
+  a[2][1] = b[2][1];
+  a[2][2] = b[2][2];
+}
+
+static void mat_copy_vector_l3(long a[3], const long b[3])
+{
+  a[0] = b[0];
+  a[1] = b[1];
+  a[2] = b[2];
+}
+
+static long mat_modulo_l(const long a, const long b)
+{
+  int c;
+  c = a % b;
+  if (c < 0) {
+    c += b;
+  }
+  return c;
+}
+
+static long mat_Nint(const double a)
+{
+  if (a < 0.0)
+    return (long) (a - 0.5);
+  else
+    return (long) (a + 0.5);
+}
+
+static double mat_Dabs(const double a)
+{
+  if (a < 0.0)
+    return -a;
+  else
+    return a;
 }

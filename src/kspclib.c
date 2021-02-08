@@ -35,16 +35,10 @@
 #include "kspclib.h"
 #include "grgrid.h"
 #include "mathfunc.h"
-#include "niggli.h"
 #include "rgrid.h"
 #include "snf3x3.h"
 #include "tetrahedron_method.h"
 #include "version.h"
-
-static int get_reciprocal_point_group(long rec_rotations[48][3][3],
-                                      KSPCONST long (*rotations)[3][3],
-                                      const int num_rot,
-                                      const int is_time_reversal);
 
 int ksp_get_major_version(void)
 {
@@ -177,105 +171,42 @@ void ksp_get_ir_grgrid_map(long ir_grid_indices[],
                       PS);
 }
 
-/* red_lattice, lattice : column vectors */
-int ksp_niggli_reduce(double red_lattice[3][3],
-                      KSPCONST double lattice[3][3],
-                      const double eps)
-{
-  int i, j, succeeded;
-  double lat[9];
-
-  succeeded = 0;
-
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      lat[i * 3 + j] = lattice[i][j];
-    }
-  }
-
-  succeeded = niggli_reduce(lat, eps);
-
-  if (succeeded) {
-    for (i = 0; i < 3; i++) {
-      for (j = 0; j < 3; j++) {
-        red_lattice[i][j] = lat[i * 3 + j];
-      }
-    }
-  }
-
-  return succeeded;
-}
+/* /\* red_lattice, lattice : column vectors *\/
+ * int ksp_niggli_reduce(double red_lattice[3][3],
+ *                       KSPCONST double lattice[3][3],
+ *                       const double eps)
+ * {
+ *   int i, j, succeeded;
+ *   double lat[9];
+ *
+ *   succeeded = 0;
+ *
+ *   for (i = 0; i < 3; i++) {
+ *     for (j = 0; j < 3; j++) {
+ *       lat[i * 3 + j] = lattice[i][j];
+ *     }
+ *   }
+ *
+ *   succeeded = niggli_reduce(lat, eps);
+ *
+ *   if (succeeded) {
+ *     for (i = 0; i < 3; i++) {
+ *       for (j = 0; j < 3; j++) {
+ *         red_lattice[i][j] = lat[i * 3 + j];
+ *       }
+ *     }
+ *   }
+ *
+ *   return succeeded;
+ * } */
 
 int ksp_get_reciprocal_point_group(long rec_rotations[48][3][3],
                                    KSPCONST long (*rotations)[3][3],
                                    const int num_rot,
                                    const int is_time_reversal)
 {
-  return get_reciprocal_point_group(rec_rotations,
-                                    rotations,
-                                    num_rot,
-                                    is_time_reversal);
-}
-
-/* Extract unique rotation matrices and transpose them. */
-/* When is_time_reversal == 1, inverse of the extracted matrices are */
-/* included. */
-/* Return 0 if failed */
-static int get_reciprocal_point_group(long rec_rotations[48][3][3],
-                                      KSPCONST long (*rotations)[3][3],
-                                      const int num_rot,
-                                      const int is_time_reversal)
-{
-  int i, j, num_rot_ret, inv_exist;
-  KSPCONST long inversion[3][3] = {
-    {-1, 0, 0 },
-    { 0,-1, 0 },
-    { 0, 0,-1 }
-  };
-
-  num_rot_ret = 0;
-  for (i = 0; i < num_rot; i++) {
-    for (j = 0; j < num_rot_ret; j++) {
-      if (mat_check_identity_matrix_l3(rotations[i], rec_rotations[j])) {
-        goto escape;
-      }
-    }
-    if (num_rot_ret == 48) {
-      goto err;
-    }
-    mat_copy_matrix_l3(rec_rotations[num_rot_ret], rotations[i]);
-    num_rot_ret++;
-  escape:
-    ;
-  }
-
-  inv_exist = 0;
-  if (is_time_reversal) {
-    for (i = 0; i < num_rot_ret; i++) {
-      if (mat_check_identity_matrix_l3(inversion, rec_rotations[i])) {
-        inv_exist = 1;
-        break;
-      }
-    }
-
-    if (!inv_exist) {
-      if (num_rot_ret > 24) {
-        goto err;
-      }
-
-      for (i = 0; i < num_rot_ret; i++) {
-        mat_multiply_matrix_l3(rec_rotations[num_rot_ret + i],
-                               inversion, rec_rotations[i]);
-      }
-      num_rot_ret *= 2;
-    }
-  }
-
-  for (i = 0; i < num_rot_ret; i++) {
-    mat_transpose_matrix_l3(rec_rotations[i], rec_rotations[i]);
-  }
-
-  return num_rot_ret;
-err:
-  return 0;
+  return grg_get_reciprocal_point_group(rec_rotations,
+                                        rotations,
+                                        num_rot,
+                                        is_time_reversal);
 }

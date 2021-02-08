@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 
-/* SPGCONST is used instead of 'const' so to avoid gcc warning. */
+/* KSPCONST is used instead of 'const' so to avoid gcc warning. */
 /* However there should be better way than this way.... */
 #ifndef KSPCONST
 #define KSPCONST

@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <assert.h>
-#include "mathfunc.h"
 #include "rgrid.h"
 
 static void get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
@@ -45,6 +44,8 @@ static long get_grid_index_single_mesh(const int address[3],
                                        const int mesh[3]);
 static void reduce_grid_address(int address[3], const int mesh[3]);
 static void reduce_double_grid_address(int address[3], const int mesh[3]);
+static int mat_modulo_i(const int a, const int b);
+
 
 void rgd_get_all_grid_addresses(int grid_address[][3], const int mesh[3])
 {
@@ -149,4 +150,14 @@ static void reduce_double_grid_address(int address[3], const int mesh[3])
     address[i] -= 2 * mesh[i] * (address[i] > mesh[i] - 1);
 #endif
   }
+}
+
+static int mat_modulo_i(const int a, const int b)
+{
+  int c;
+  c = a % b;
+  if (c < 0) {
+    c += b;
+  }
+  return c;
 }

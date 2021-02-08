@@ -36,7 +36,16 @@
 #define __grgrid_H__
 
 #include <stddef.h>
-#include "mathfunc.h"
+
+#ifndef MATCONST
+#define MATCONST
+#endif
+
+#ifdef MATWARNING
+#define warning_print(...) fprintf(stderr,__VA_ARGS__)
+#else
+#define warning_print(...)
+#endif
 
 int grg_get_snf3x3(long D_diag[3],
                    long P[3][3],
@@ -73,5 +82,9 @@ void grg_get_ir_grid_map(long ir_grid_indices[],
                          const int num_rot,
                          const long D_diag[3],
                          const long PS[3]);
+int grg_get_reciprocal_point_group(long rec_rotations[48][3][3],
+                                   MATCONST long (*rotations)[3][3],
+                                   const int num_rot,
+                                   const int is_time_reversal);
 
 #endif

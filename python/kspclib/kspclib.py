@@ -517,28 +517,28 @@ def get_ir_grgrid_map(rotations, D_diag, PS=None):
     return ir_grid_mapping_table
 
 
-def niggli_reduce(lattice, eps=1e-5):
-    """Perform Niggli reduction
+# def niggli_reduce(lattice, eps=1e-5):
+#     """Perform Niggli reduction
 
-    Parameters
-    ----------
-    lattice : array_like
-        Basis vectors in column vectors.
-        shape=(3,3), dtype='double', order='C'
-    eps : float, optional
-        Tolerance parameter. Default is 1e-5.
+#     Parameters
+#     ----------
+#     lattice : array_like
+#         Basis vectors in column vectors.
+#         shape=(3,3), dtype='double', order='C'
+#     eps : float, optional
+#         Tolerance parameter. Default is 1e-5.
 
-    """
+#     """
 
-    red_lattice = np.zeros((3, 3), dtype='double', order='C')
-    succeeded = ksp.niggli_reduce(red_lattice,
-                                  np.array(lattice, dtype='double', order='C'),
-                                  float(eps))
-    if succeeded:
-        return red_lattice
-    else:
-        msg = "Niggli reduction failed."
-        raise RuntimeError(msg)
+#     red_lattice = np.zeros((3, 3), dtype='double', order='C')
+#     succeeded = ksp.niggli_reduce(red_lattice,
+#                                   np.array(lattice, dtype='double', order='C'),
+#                                   float(eps))
+#     if succeeded:
+#         return red_lattice
+#     else:
+#         msg = "Niggli reduction failed."
+#         raise RuntimeError(msg)
 
 
 def get_reciprocal_point_group(rotations, is_time_reversal=True):
