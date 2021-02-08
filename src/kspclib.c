@@ -34,6 +34,7 @@
 
 #include "kspclib.h"
 #include "grgrid.h"
+#include "mathfunc.h"
 #include "niggli.h"
 #include "rgrid.h"
 #include "snf3x3.h"
