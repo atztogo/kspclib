@@ -309,6 +309,152 @@ nacl_transformed_rots = [
     [-2, 1, 0],
     [-2, 3, -1]]
 
+nacl_rots = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [0, 0, -1],
+    [1, 0, -1],
+    [1, 0, 0],
+    [1, -1, 0],
+    [-1, 0, 1],
+    [-1, 0, 0],
+    [-1, 1, 0],
+    [0, 1, -1],
+    [1, 0, -1],
+    [0, 0, -1],
+    [0, -1, 1],
+    [-1, 0, 1],
+    [0, 0, 1],
+    [0, 1, 0],
+    [0, 1, -1],
+    [-1, 1, 0],
+    [0, -1, 0],
+    [0, -1, 1],
+    [1, -1, 0],
+    [-1, 0, 0],
+    [-1, 0, 1],
+    [-1, 1, 0],
+    [1, 0, 0],
+    [1, 0, -1],
+    [1, -1, 0],
+    [0, -1, 0],
+    [-1, 0, 0],
+    [0, 0, -1],
+    [0, 1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    [0, -1, 1],
+    [0, -1, 0],
+    [1, -1, 0],
+    [0, 1, -1],
+    [0, 1, 0],
+    [-1, 1, 0],
+    [-1, 0, 1],
+    [0, -1, 1],
+    [0, 0, 1],
+    [1, 0, -1],
+    [0, 1, -1],
+    [0, 0, -1],
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 0, 0],
+    [0, -1, 0],
+    [0, 0, -1],
+    [-1, 0, 0],
+    [-1, 1, 0],
+    [0, 1, 0],
+    [0, 1, -1],
+    [1, -1, 0],
+    [0, -1, 0],
+    [0, -1, 1],
+    [-1, 0, 1],
+    [-1, 1, 0],
+    [-1, 0, 0],
+    [1, 0, -1],
+    [1, -1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    [-1, 0, 1],
+    [0, -1, 1],
+    [0, 0, -1],
+    [1, 0, -1],
+    [0, 1, -1],
+    [0, -1, 0],
+    [1, -1, 0],
+    [0, -1, 1],
+    [0, 1, 0],
+    [-1, 1, 0],
+    [0, 1, -1],
+    [0, 0, -1],
+    [0, -1, 0],
+    [-1, 0, 0],
+    [0, 0, 1],
+    [0, 1, 0],
+    [1, 0, 0],
+    [1, 0, -1],
+    [0, 0, -1],
+    [0, 1, -1],
+    [-1, 0, 1],
+    [0, 0, 1],
+    [0, -1, 1],
+    [1, -1, 0],
+    [1, 0, -1],
+    [1, 0, 0],
+    [-1, 1, 0],
+    [-1, 0, 1],
+    [-1, 0, 0],
+    [0, 0, 1],
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, -1],
+    [-1, 0, 0],
+    [0, -1, 0],
+    [0, -1, 1],
+    [0, 0, 1],
+    [-1, 0, 1],
+    [0, 1, -1],
+    [0, 0, -1],
+    [1, 0, -1],
+    [1, -1, 0],
+    [0, -1, 1],
+    [0, -1, 0],
+    [-1, 1, 0],
+    [0, 1, -1],
+    [0, 1, 0],
+    [1, 0, 0],
+    [1, -1, 0],
+    [1, 0, -1],
+    [-1, 0, 0],
+    [-1, 1, 0],
+    [-1, 0, 1],
+    [0, 0, -1],
+    [0, 1, -1],
+    [1, 0, -1],
+    [0, 0, 1],
+    [0, -1, 1],
+    [-1, 0, 1],
+    [-1, 0, 0],
+    [0, 0, -1],
+    [0, -1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    [0, 1, 0],
+    [-1, 1, 0],
+    [-1, 0, 0],
+    [-1, 0, 1],
+    [1, -1, 0],
+    [1, 0, 0],
+    [1, 0, -1],
+    [0, 1, -1],
+    [-1, 1, 0],
+    [0, 1, 0],
+    [0, -1, 1],
+    [1, -1, 0],
+    [0, -1, 0]]
+
 
 def test_get_snf3x3():
     A = tio2_grid_mat
@@ -464,7 +610,25 @@ def test_get_grgrid_address_from_index():
         np.testing.assert_array_equal(adrs, address)
 
 
-def test_rotate_grgrid_index(tio2_lattice):
+def test_rotate_grgrid_index_tio2(tio2_lattice):
+    _test_rotate_grgrid_index(
+        tio2_lattice,
+        tio2_snf,
+        np.reshape(tio2_transformed_rots, (16, 3, 3)),
+        np.reshape(tio2_rots, (16, 3, 3)),
+        ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)))
+
+
+def test_rotate_grgrid_index_nacl(nacl_lattice):
+    _test_rotate_grgrid_index(
+        nacl_lattice,
+        nacl_snf,
+        np.reshape(nacl_transformed_rots, (-1, 3, 3)),
+        np.reshape(nacl_rots, (-1, 3, 3)),
+        ((0, 0, 0), (1, 1, 1)))
+
+
+def _test_rotate_grgrid_index(lattice, snf, trans_rots, rots, shifts):
     """
 
     rotate_grgrid_index returns grid point index by
@@ -480,19 +644,17 @@ def test_rotate_grgrid_index(tio2_lattice):
 
     """
 
-    reclat = np.linalg.inv(tio2_lattice)
-    D_diag = tio2_snf['D_diag']
-    P = tio2_snf['P']
-    Q = tio2_snf['Q']
+    reclat = np.linalg.inv(lattice)
+    D_diag = snf['D_diag']
+    P = snf['P']
+    Q = snf['Q']
     QD_inv = Q / np.array(D_diag, dtype=float)
-    rots = np.reshape(tio2_transformed_rots, (16, 3, 3))
-    orig_rots = np.reshape(tio2_rots, (16, 3, 3))
 
-    for shift in ((0, 0, 0), (1, 1, 0), (0, 0, 1), (1, 1, 1)):
+    for shift in shifts:
         PS = np.dot(P, shift)
         grgrid_addresses = get_all_grgrid_addresses(D_diag)
         for gp_index, adrs in enumerate(grgrid_addresses):
-            for r, orig_r in zip(rots, orig_rots):
+            for r, orig_r in zip(trans_rots, rots):
                 dadrs = get_double_grgrid_address(adrs, D_diag, PS=PS)
                 q = np.dot(QD_inv, dadrs) / 2
                 q -= np.rint(q)
