@@ -36,8 +36,8 @@ def test_get_thm_relative_grid_addresses_tio2(tio2_lattice):
     np.testing.assert_array_equal(relative_addresses[23], t24)
 
 
-def test_get_thm_integration_weight(nacl_lattice,
-                                    nacl_phonon_frequences_101010):
+def test_get_thm_integration_weight_nacl(nacl_lattice,
+                                         nacl_phonon_frequences_101010):
     dos_str_df_1 = """0 6.695122056070627165e-05 8.259314625201316929e-07
 1 8.911857347254222017e-02 2.553382929530613465e-02
 2 4.685384246034071665e-01 2.649562989742248464e-01
@@ -73,6 +73,29 @@ def test_get_thm_integration_weight(nacl_lattice,
     dos_dat = np.array([fpoints, dos / num_gps, acc / num_gps]).T
     np.testing.assert_allclose(dos_dat, dos_ref, atol=1e-5)
     # np.savetxt('dos.dat', dos_dat)
+
+
+def test_get_thm_relative_grgrid_addresses_nacl():
+    P = [[0, 0, 1],
+         [0, -1, -1],
+         [1, 1, 0]]
+    grid_matrix = [[2, -2, 2],
+                   [2, 2, -2],
+                   [-2, 2, 2]]
+    # Non-spglib-conventional choice of primitive basis vectors
+    # in row vectors.
+    nacl_lattice = np.array([[0.5, 0.5, 0],
+                             [0, 0.5, 0.5],
+                             [0.5, 0, 0.5]]) * 4.0729350500
+    rec_lat = np.linalg.inv(nacl_lattice)
+    microzone = np.dot(rec_lat, np.linalg.inv(grid_matrix))
+    relative_addresses = get_thm_relative_grid_addresses(microzone)
+    gr_relative_addresses = np.dot(relative_addresses, np.transpose(P))
+
+    t1 = [[0, 0, 0], [0, 0, 1], [0, -1, 2], [1, -2, 2]]
+    t24 = [[0, 0, 0], [-1, 2, -2], [0, 1, -2], [0, 0, -1]]
+    np.testing.assert_array_equal(gr_relative_addresses[0], t1)
+    np.testing.assert_array_equal(gr_relative_addresses[23], t24)
 
 
 def test_get_thm_integration_weight_tio2(tio2_lattice,
