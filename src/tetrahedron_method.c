@@ -64,12 +64,12 @@
 /*  7: c + a + b  3, 5, 6     */
 
 
-static int main_diagonals[4][3] = {{ 1, 1, 1},  /* 0-7 */
-                                   {-1, 1, 1},  /* 1-6 */
-                                   { 1,-1, 1},  /* 2-5 */
-                                   { 1, 1,-1}}; /* 3-4 */
+static long main_diagonals[4][3] = {{ 1, 1, 1},  /* 0-7 */
+                                    {-1, 1, 1},  /* 1-6 */
+                                    { 1,-1, 1},  /* 2-5 */
+                                    { 1, 1,-1}}; /* 3-4 */
 
-static int db_relative_grid_address[4][24][4][3] = {
+static long db_relative_grid_address[4][24][4][3] = {
   {
     { { 0,  0,  0}, { 1,  0,  0}, { 1,  1,  0}, { 1,  1,  1}, },
     { { 0,  0,  0}, { 1,  0,  0}, { 1,  0,  1}, { 1,  1,  1}, },
@@ -179,35 +179,35 @@ static int db_relative_grid_address[4][24][4][3] = {
 static double
 get_integration_weight(const double omega,
                        THMCONST double tetrahedra_omegas[24][4],
-                       double (*gn)(const int,
+                       double (*gn)(const long,
                                     const double,
                                     const double[4]),
-                       double (*IJ)(const int,
-                                    const int,
+                       double (*IJ)(const long,
+                                    const long,
                                     const double,
                                     const double[4]));
-static int get_main_diagonal(THMCONST double rec_lattice[3][3]);
-static int sort_omegas(double v[4]);
+static long get_main_diagonal(THMCONST double rec_lattice[3][3]);
+static long sort_omegas(double v[4]);
 static double norm_squared_d3(const double a[3]);
 static void multiply_matrix_vector_di3(double v[3],
                                        THMCONST double a[3][3],
-                                       const int b[3]);
-static double _f(const int n,
-                 const int m,
+                                       const long b[3]);
+static double _f(const long n,
+                 const long m,
                  const double omega,
                  const double vertices_omegas[4]);
-static double _J(const int i,
-                 const int ci,
+static double _J(const long i,
+                 const long ci,
                  const double omega,
                  const double vertices_omegas[4]);
-static double _I(const int i,
-                 const int ci,
+static double _I(const long i,
+                 const long ci,
                  const double omega,
                  const double vertices_omegas[4]);
-static double _n(const int i,
+static double _n(const long i,
                  const double omega,
                  const double vertices_omegas[4]);
-static double _g(const int i,
+static double _g(const long i,
                  const double omega,
                  const double vertices_omegas[4]);
 static double _n_0(void);
@@ -280,10 +280,10 @@ static double _I_33(const double omega,
 static double _I_4(void);
 
 
-void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
+void thm_get_relative_grid_address(long relative_grid_address[24][4][3],
                                    THMCONST double rec_lattice[3][3])
 {
-  int i, j, k, main_diag_index;
+  long i, j, k, main_diag_index;
 
   main_diag_index = get_main_diagonal(rec_lattice);
 
@@ -297,9 +297,9 @@ void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
   }
 }
 
-void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3])
+void thm_get_all_relative_grid_address(long relative_grid_address[4][24][4][3])
 {
-  int i, j, k, main_diag_index;
+  long i, j, k, main_diag_index;
 
   for (main_diag_index = 0; main_diag_index < 4; main_diag_index++) {
     for (i = 0; i < 24; i++) {
@@ -331,15 +331,15 @@ double thm_get_integration_weight(const double omega,
 static double
 get_integration_weight(const double omega,
                        THMCONST double tetrahedra_omegas[24][4],
-                       double (*gn)(const int,
+                       double (*gn)(const long,
                                     const double,
                                     const double[4]),
-                       double (*IJ)(const int,
-                                    const int,
+                       double (*IJ)(const long,
+                                    const long,
                                     const double,
                                     const double[4]))
 {
-  int i, j, ci;
+  long i, j, ci;
   double sum;
   double v[4];
 
@@ -372,9 +372,9 @@ get_integration_weight(const double omega,
   return sum / 6;
 }
 
-static int sort_omegas(double v[4])
+static long sort_omegas(double v[4])
 {
-  int i;
+  long i;
   double w[4];
 
   i = 0;
@@ -442,9 +442,9 @@ static int sort_omegas(double v[4])
   return i;
 }
 
-static int get_main_diagonal(THMCONST double rec_lattice[3][3])
+static long get_main_diagonal(THMCONST double rec_lattice[3][3])
 {
-  int i, shortest;
+  long i, shortest;
   double length, min_length;
   double main_diag[3];
 
@@ -469,9 +469,9 @@ static double norm_squared_d3(const double a[3])
 
 static void multiply_matrix_vector_di3(double v[3],
                                        THMCONST double a[3][3],
-                                       const int b[3])
+                                       const long b[3])
 {
-  int i;
+  long i;
   double c[3];
 
   for (i = 0; i < 3; i++) {
@@ -483,8 +483,8 @@ static void multiply_matrix_vector_di3(double v[3],
   }
 }
 
-static double _f(const int n,
-                 const int m,
+static double _f(const long n,
+                 const long m,
                  const double omega,
                  const double vertices_omegas[4])
 {
@@ -492,8 +492,8 @@ static double _f(const int n,
           (vertices_omegas[n] - vertices_omegas[m]));
 }
 
-static double _J(const int i,
-                 const int ci,
+static double _J(const long i,
+                 const long ci,
                  const double omega,
                  const double vertices_omegas[4])
 {
@@ -546,8 +546,8 @@ static double _J(const int i,
 }
 
 
-static double _I(const int i,
-                 const int ci,
+static double _I(const long i,
+                 const long ci,
                  const double omega,
                  const double vertices_omegas[4])
 {
@@ -599,7 +599,7 @@ static double _I(const int i,
   return 0;
 }
 
-static double _n(const int i,
+static double _n(const long i,
                  const double omega,
                  const double vertices_omegas[4])
 {
@@ -624,7 +624,7 @@ static double _n(const int i,
   return 0;
 }
 
-static double _g(const int i,
+static double _g(const long i,
                  const double omega,
                  const double vertices_omegas[4])
 {
@@ -726,10 +726,10 @@ static double _g_2(const double omega,
 static double _g_3(const double omega,
                    const double vertices_omegas[4])
 {
-    return (3 *
-            _f(1, 3, omega, vertices_omegas) *
-            _f(2, 3, omega, vertices_omegas) /
-            (vertices_omegas[3] - vertices_omegas[0]));
+  return (3 *
+          _f(1, 3, omega, vertices_omegas) *
+          _f(2, 3, omega, vertices_omegas) /
+          (vertices_omegas[3] - vertices_omegas[0]));
 }
 
 /* omega4 < omega */

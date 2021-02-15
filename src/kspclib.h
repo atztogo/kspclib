@@ -47,31 +47,31 @@ extern "C" {
 
 #include <stddef.h>
 
-  int ksp_get_major_version(void);
-  int ksp_get_minor_version(void);
-  int ksp_get_micro_version(void);
-  void ksp_get_all_grid_addresses(int grid_address[][3], const int mesh[3]);
-  void ksp_get_double_grid_address(int address_double[3],
-                                   const int address[3],
-                                   const int mesh[3],
-                                   const int is_shift[3]);
-  long ksp_get_double_grid_index(const int address_double[3],
-                                 const int mesh[3]);
+  long ksp_get_major_version(void);
+  long ksp_get_minor_version(void);
+  long ksp_get_micro_version(void);
+  void ksp_get_all_grid_addresses(long grid_address[][3], const long mesh[3]);
+  void ksp_get_double_grid_address(long address_double[3],
+                                   const long address[3],
+                                   const long mesh[3],
+                                   const long is_shift[3]);
+  long ksp_get_double_grid_index(const long address_double[3],
+                                 const long mesh[3]);
 /* rec_lattice : column vectors */
-  void ksp_get_thm_relative_grid_addresses(int relative_grid_addresses[24][4][3],
+  void ksp_get_thm_relative_grid_addresses(long relative_grid_addresses[24][4][3],
                                            KSPCONST double rec_lattice[3][3]);
   double ksp_get_thm_integration_weight(const double omega,
                                         KSPCONST double tetrahedra_omegas[24][4],
                                         const char function);
-  int ksp_get_snf3x3(long D_diag[3],
-                     long P[3][3],
-                     long Q[3][3],
-                     KSPCONST long A[3][3]);
-  int ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
-                                  KSPCONST long (*rotations)[3][3],
-                                  const int num_rot,
-                                  const long D_diag[3],
-                                  KSPCONST long Q[3][3]);
+  long ksp_get_snf3x3(long D_diag[3],
+                      long P[3][3],
+                      long Q[3][3],
+                      KSPCONST long A[3][3]);
+  long ksp_snf_transform_rotations(long (*transformed_rots)[3][3],
+                                   KSPCONST long (*rotations)[3][3],
+                                   const long num_rot,
+                                   const long D_diag[3],
+                                   KSPCONST long Q[3][3]);
   void ksp_get_all_grgrid_addresses(long grid_address[][3],
                                     const long D_diag[3]);
   void ksp_get_double_grgrid_address(long address_double[3],
@@ -91,16 +91,13 @@ extern "C" {
                                const long PS[3]);
   void ksp_get_ir_grgrid_map(long ir_grid_indices[],
                              KSPCONST long (*rotations)[3][3],
-                             const int num_rot,
+                             const long num_rot,
                              const long D_diag[3],
                              const long PS[3]);
-  int ksp_niggli_reduce(double red_lattice[3][3],
-                        KSPCONST double lattice[3][3],
-                        const double eps);
-  int ksp_get_reciprocal_point_group(long rec_rotations[48][3][3],
-                                     KSPCONST long (*rotations)[3][3],
-                                     const int num_rot,
-                                     const int is_time_reversal);
+  long ksp_get_reciprocal_point_group(long rec_rotations[48][3][3],
+                                      KSPCONST long (*rotations)[3][3],
+                                      const long num_rot,
+                                      const long is_time_reversal);
 
 #ifdef __cplusplus
 }

@@ -174,11 +174,12 @@ PyInit__kspclib(void)
 #endif
 }
 
+
 static PyObject * py_version(PyObject *self, PyObject *args)
 {
   PyObject *array;
-  int i;
-  int version[3];
+  long i;
+  long version[3];
 
   if (!PyArg_ParseTuple(args, "")) {
     return NULL;
@@ -196,13 +197,14 @@ static PyObject * py_version(PyObject *self, PyObject *args)
   return array;
 }
 
+
 static PyObject * py_all_grid_addresses(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_grid_address;
   PyArrayObject* py_mesh;
 
-  int (*grid_address)[3];
-  int* mesh;
+  long (*grid_address)[3];
+  long* mesh;
 
   if (!PyArg_ParseTuple(args, "OO",
                         &py_grid_address,
@@ -210,13 +212,14 @@ static PyObject * py_all_grid_addresses(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  grid_address = (int(*)[3])PyArray_DATA(py_grid_address);
-  mesh = (int*)PyArray_DATA(py_mesh);
+  grid_address = (long(*)[3])PyArray_DATA(py_grid_address);
+  mesh = (long*)PyArray_DATA(py_mesh);
 
   ksp_get_all_grid_addresses(grid_address, mesh);
 
   Py_RETURN_NONE;
 }
+
 
 static PyObject * py_double_grid_address(PyObject *self, PyObject *args)
 {
@@ -225,10 +228,10 @@ static PyObject * py_double_grid_address(PyObject *self, PyObject *args)
   PyArrayObject* py_is_shift;
   PyArrayObject* py_mesh;
 
-  int* address_double;
-  int* address;
-  int* is_shift;
-  int* mesh;
+  long* address_double;
+  long* address;
+  long* is_shift;
+  long* mesh;
 
   if (!PyArg_ParseTuple(args, "OOOO",
                         &py_address_double,
@@ -238,10 +241,10 @@ static PyObject * py_double_grid_address(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  address_double = (int*)PyArray_DATA(py_address_double);
-  address = (int*)PyArray_DATA(py_address);
-  is_shift = (int*)PyArray_DATA(py_is_shift);
-  mesh = (int*)PyArray_DATA(py_mesh);
+  address_double = (long*)PyArray_DATA(py_address_double);
+  address = (long*)PyArray_DATA(py_address);
+  is_shift = (long*)PyArray_DATA(py_is_shift);
+  mesh = (long*)PyArray_DATA(py_mesh);
 
   ksp_get_double_grid_address(address_double,
                               address,
@@ -251,13 +254,14 @@ static PyObject * py_double_grid_address(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+
 static PyObject * py_double_grid_index(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address_double;
   PyArrayObject* py_mesh;
 
-  int* address_double;
-  int* mesh;
+  long* address_double;
+  long* mesh;
   long grid_index;
 
 
@@ -267,8 +271,8 @@ static PyObject * py_double_grid_index(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  address_double = (int*)PyArray_DATA(py_address_double);
-  mesh = (int*)PyArray_DATA(py_mesh);
+  address_double = (long*)PyArray_DATA(py_address_double);
+  mesh = (long*)PyArray_DATA(py_mesh);
 
   grid_index = ksp_get_double_grid_index(address_double, mesh);
 
@@ -276,12 +280,13 @@ static PyObject * py_double_grid_index(PyObject *self, PyObject *args)
 
 }
 
+
 static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_relative_grid_addresses;
   PyArrayObject* py_rec_lattice; /* column vectors */
 
-  int (*relative_grid_addresses)[4][3];
+  long (*relative_grid_addresses)[4][3];
   double (*rec_lattice)[3];
 
   if (!PyArg_ParseTuple(args, "OO",
@@ -290,7 +295,7 @@ static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  relative_grid_addresses = (int(*)[4][3])PyArray_DATA(py_relative_grid_addresses);
+  relative_grid_addresses = (long(*)[4][3])PyArray_DATA(py_relative_grid_addresses);
   rec_lattice = (double(*)[3])PyArray_DATA(py_rec_lattice);
 
   ksp_get_thm_relative_grid_addresses(relative_grid_addresses,
@@ -298,6 +303,7 @@ static PyObject * py_thm_relative_grid_addresses(PyObject *self, PyObject *args)
 
   Py_RETURN_NONE;
 }
+
 
 static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
 {
@@ -324,6 +330,7 @@ static PyObject * py_thm_integration_weight(PyObject *self, PyObject *args)
   return PyFloat_FromDouble(iw);
 }
 
+
 static PyObject * py_snf3x3(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_D_diag;
@@ -335,7 +342,7 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
   long (*P)[3];  /* [3][3] */
   long (*Q)[3];  /* [3][3] */
   long (*A)[3];  /* [3][3] */
-  int succeeded;
+  long succeeded;
 
   if (!PyArg_ParseTuple(args, "OOOO",
                         &py_D_diag,
@@ -352,8 +359,9 @@ static PyObject * py_snf3x3(PyObject *self, PyObject *args)
 
   succeeded = ksp_get_snf3x3(D_diag, P, Q, A);
 
-  return PyBool_FromLong((long) succeeded);
+  return PyBool_FromLong(succeeded);
 }
+
 
 static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
 {
@@ -366,7 +374,7 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
   long *D_diag;  /* [3] */
   long (*Q)[3];  /* [3][3] */
   long (*rotations)[3][3];
-  int succeeded, num_rot;
+  long succeeded, num_rot;
 
   if (!PyArg_ParseTuple(args, "OOOO",
                         &py_transformed_rots,
@@ -385,8 +393,9 @@ static PyObject * py_snf_transform_rotations(PyObject *self, PyObject *args)
   succeeded = ksp_snf_transform_rotations(transformed_rots,
                                           rotations, num_rot, D_diag, Q);
 
-  return PyBool_FromLong((long) succeeded);
+  return PyBool_FromLong(succeeded);
 }
+
 
 static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args)
 {
@@ -409,6 +418,7 @@ static PyObject * py_all_grgrid_addresses(PyObject *self, PyObject *args)
 
   Py_RETURN_NONE;
 }
+
 
 static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args)
 {
@@ -443,6 +453,7 @@ static PyObject * py_double_grgrid_address(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+
 static PyObject * py_grgrid_index(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address;
@@ -465,8 +476,8 @@ static PyObject * py_grgrid_index(PyObject *self, PyObject *args)
   grid_index = ksp_get_grgrid_index(address, D_diag);
 
   return PyLong_FromLong(grid_index);
-
 }
+
 
 static PyObject * py_double_grgrid_index(PyObject *self, PyObject *args)
 {
@@ -497,6 +508,7 @@ static PyObject * py_double_grgrid_index(PyObject *self, PyObject *args)
 
 }
 
+
 static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_address;
@@ -519,6 +531,7 @@ static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args)
 
   Py_RETURN_NONE;
 }
+
 
 static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args)
 {
@@ -551,6 +564,7 @@ static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args)
 
 }
 
+
 static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_ir_grid_indices;
@@ -562,7 +576,7 @@ static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args)
   long *D_diag;
   long (*rotations)[3][3];
   long *PS;
-  int num_rot;
+  long num_rot;
 
   if (!PyArg_ParseTuple(args, "OOOO",
                         &py_ir_grid_indices,
@@ -583,39 +597,16 @@ static PyObject * py_ir_grgrid_map(PyObject *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
-/* static PyObject * py_niggli_reduce(PyObject *self, PyObject *args)
- * {
- *   PyArrayObject* py_red_lattice;
- *   PyArrayObject* py_lattice;
- *   double eps;
- *
- *   double (*red_lattice)[3];  /\* [3][3] column vectors *\/
- *   double (*lattice)[3];  /\* [3][3] column vectors *\/
- *   int succeeded;
- *
- *   if (!PyArg_ParseTuple(args, "OOd",
- *                         &py_red_lattice,
- *                         &py_lattice,
- *                         &eps)) {
- *     return NULL;
- *   }
- *
- *   red_lattice = (double(*)[3])PyArray_DATA(py_red_lattice);
- *   lattice = (double(*)[3])PyArray_DATA(py_lattice);
- *   succeeded = ksp_niggli_reduce(red_lattice, lattice, eps);
- *
- *   return PyBool_FromLong((long) succeeded);
- * } */
 
 static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args)
 {
   PyArrayObject* py_rec_rotations;
   PyArrayObject* py_rotations;
-  int is_time_reversal;
+  long is_time_reversal;
 
   long (*rec_rotations)[3][3];
   long (*rotations)[3][3];
-  int num_rot, num_rot_ret;
+  long num_rot, num_rot_ret;
 
   if (!PyArg_ParseTuple(args, "OOi",
                         &py_rec_rotations,
