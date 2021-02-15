@@ -36,7 +36,7 @@
 #define __version_H__
 
 #define KSPCLIB_MAJOR_VERSION 0
-#define KSPCLIB_MINOR_VERSION 1
+#define KSPCLIB_MINOR_VERSION 2
 #define KSPCLIB_MICRO_VERSION 0
 
 #endif

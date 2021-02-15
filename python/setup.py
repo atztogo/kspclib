@@ -11,8 +11,6 @@ include_dirs = [source_dir, numpy.get_include()]
 sources = [os.path.join(source_dir, filename) for filename
            in ('grgrid.c',
                'kspclib.c',
-               'mathfunc.c',
-               'niggli.c',
                'rgrid.c',
                'snf3x3.c',
                'tetrahedron_method.c')]

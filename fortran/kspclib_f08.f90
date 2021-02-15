@@ -34,7 +34,7 @@
 
 module kspclib_f08
 
-  use iso_c_binding, only: c_char, c_int, c_long, c_double
+  use iso_c_binding, only: c_char, c_long, c_double
 
   implicit none
 
@@ -43,52 +43,52 @@ module kspclib_f08
   interface
 
      function ksp_get_major_version() bind(c)
-       import c_int
-       integer(c_int) :: ksp_get_major_version
+       import c_long
+       integer(c_long) :: ksp_get_major_version
      end function ksp_get_major_version
 
 
      function ksp_get_minor_version() bind(c)
-       import c_int
-       integer(c_int) :: ksp_get_minor_version
+       import c_long
+       integer(c_long) :: ksp_get_minor_version
      end function ksp_get_minor_version
 
 
      function ksp_get_micro_version() bind(c)
-       import c_int
-       integer(c_int) :: ksp_get_micro_version
+       import c_long
+       integer(c_long) :: ksp_get_micro_version
      end function ksp_get_micro_version
 
 
      subroutine ksp_get_all_grid_addresses(grid_address, mesh) bind(c)
-       import c_int
-       integer(c_int), intent(in) :: mesh(3)
-       integer(c_int), intent(inout) :: grid_address(3, *)
+       import c_long
+       integer(c_long), intent(in) :: mesh(3)
+       integer(c_long), intent(inout) :: grid_address(3, *)
      end subroutine ksp_get_all_grid_addresses
 
 
      subroutine ksp_get_double_grid_address(address_double, address, mesh, &
           is_shift) bind(c)
-       import c_int
-       integer(c_int), intent(inout) :: address_double(3)
-       integer(c_int), intent(in) :: address(3)
-       integer(c_int), intent(in) :: mesh(3)
-       integer(c_int), intent(in) :: is_shift(3)
+       import c_long
+       integer(c_long), intent(inout) :: address_double(3)
+       integer(c_long), intent(in) :: address(3)
+       integer(c_long), intent(in) :: mesh(3)
+       integer(c_long), intent(in) :: is_shift(3)
      end subroutine ksp_get_double_grid_address
 
 
      function ksp_get_double_grid_index(address_double, mesh) bind(c)
-       import c_int, c_long
-       integer(c_int), intent(in) :: mesh(3)
-       integer(c_int), intent(in) :: address_double(3)
+       import c_long
+       integer(c_long), intent(in) :: mesh(3)
+       integer(c_long), intent(in) :: address_double(3)
        integer(c_long) :: ksp_get_double_grid_index
      end function ksp_get_double_grid_index
 
 
      subroutine ksp_get_thm_relative_grid_addresses(relative_grid_addresses, &
           rec_lattice) bind(c)
-       import c_int, c_double
-       integer(c_int), intent(inout) :: relative_grid_addresses(3, 4, 24)
+       import c_long, c_double
+       integer(c_long), intent(inout) :: relative_grid_addresses(3, 4, 24)
        real(c_double), intent(in) :: rec_lattice(3, 3)
      end subroutine ksp_get_thm_relative_grid_addresses
 
@@ -105,22 +105,22 @@ module kspclib_f08
 
      function ksp_snf_transform_rotations(transformed_rots, &
           rotations, num_rot, D_diag, Q) bind(c)
-       import c_long, c_int
+       import c_long
        integer(c_long), intent(inout) :: transformed_rots(3, 3, *)
        integer(c_long), intent(in) :: rotations(3, 3, *)
-       integer(c_int), intent(in), value :: num_rot
+       integer(c_long), intent(in), value :: num_rot
        integer(c_long), intent(in) :: D_diag(3)
        integer(c_long), intent(in) :: Q(3, 3)
      end function ksp_snf_transform_rotations
 
 
      function ksp_get_snf3x3(D_diag, P, Q, A) bind(c)
-       import c_long, c_int
+       import c_long
        integer(c_long), intent(inout) :: D_diag(3)
        integer(c_long), intent(inout) :: P(3, 3)
        integer(c_long), intent(inout) :: Q(3, 3)
        integer(c_long), intent(in) :: A(3, 3)
-       integer(c_int) :: ksp_get_snf3x3
+       integer(c_long) :: ksp_get_snf3x3
      end function ksp_get_snf3x3
 
 
@@ -179,10 +179,10 @@ module kspclib_f08
 
      subroutine ksp_get_ir_grgrid_map(ir_grid_indices, rotations, num_rot, &
           D_diag, PS) bind(c)
-       import c_long, c_int
+       import c_long
        integer(c_long), intent(inout) :: ir_grid_indices(*)
        integer(c_long), intent(in) :: rotations(3, 3, *)
-       integer(c_int), intent(in), value :: num_rot
+       integer(c_long), intent(in), value :: num_rot
        integer(c_long), intent(in) :: D_diag(3)
        integer(c_long), intent(in) :: PS(3)
      end subroutine ksp_get_ir_grgrid_map
@@ -190,12 +190,12 @@ module kspclib_f08
 
      function ksp_get_reciprocal_point_group(rec_rotations, rotations, &
           num_rot, is_time_reversal) bind(c)
-       import c_int, c_long
+       import c_long
        integer(c_long), intent(inout) :: rec_rotations(3, 3, 48)
        integer(c_long), intent(in) :: rotations(3, 3, *)
-       integer(c_int), intent(in), value :: num_rot
-       integer(c_int), intent(in), value :: is_time_reversal
-       integer(c_int) :: ksp_get_reciprocal_point_group
+       integer(c_long), intent(in), value :: num_rot
+       integer(c_long), intent(in), value :: is_time_reversal
+       integer(c_long) :: ksp_get_reciprocal_point_group
      end function ksp_get_reciprocal_point_group
   end interface
 

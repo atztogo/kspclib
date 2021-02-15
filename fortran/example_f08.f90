@@ -1,5 +1,5 @@
 module kspclib_example
-  use iso_c_binding, only: c_int, c_long, c_double
+  use iso_c_binding, only: c_long, c_double
   implicit none
   private
   public kspclib_version, get_all_grid_addresses, get_double_grid_address, &
@@ -15,7 +15,7 @@ module kspclib_example
     use kspclib_f08, only: ksp_get_major_version, ksp_get_minor_version, &
          ksp_get_micro_version
 
-    integer :: major, minor, micro
+    integer(c_long) :: major, minor, micro
 
     major = ksp_get_major_version()
     minor = ksp_get_minor_version()
@@ -28,8 +28,8 @@ module kspclib_example
 
   subroutine get_all_grid_addresses()
     use kspclib_f08, only: ksp_get_all_grid_addresses
-    integer(c_int) :: mesh(3)
-    integer(c_int), allocatable :: grid_address(:, :)
+    integer(c_long) :: mesh(3)
+    integer(c_long), allocatable :: grid_address(:, :)
     integer :: i
 
     mesh(:) = 4
@@ -50,8 +50,8 @@ module kspclib_example
   subroutine get_double_grid_address()
     use kspclib_f08, only: ksp_get_double_grid_address
 
-    integer(c_int) :: address(3), mesh(3), is_shift(3)
-    integer(c_int) :: address_double(3)
+    integer(c_long) :: address(3), mesh(3), is_shift(3)
+    integer(c_long) :: address_double(3)
 
     mesh(:) = 4
     address(:) = 1
@@ -71,7 +71,7 @@ module kspclib_example
   subroutine get_double_grid_index()
     use kspclib_f08, only: ksp_get_double_grid_index
 
-    integer(c_int) :: address_double(3), mesh(3)
+    integer(c_long) :: address_double(3), mesh(3)
     integer(c_long) :: grid_index
 
     mesh(:) = 4
@@ -91,7 +91,7 @@ module kspclib_example
     use kspclib_f08, only: ksp_get_thm_relative_grid_addresses
 
     real(c_double) :: rec_lattice(3, 3)
-    integer(c_int) :: relative_grid_addresses(3, 4, 24)
+    integer(c_long) :: relative_grid_addresses(3, 4, 24)
     integer :: i, j
 
     rec_lattice(:, :) = 0
@@ -128,14 +128,14 @@ module kspclib_example
          ksp_get_double_grid_address, ksp_get_double_grid_index
 
     integer(c_long) :: i, j, k, gi, bi, fi, num_freq_points, num_bands
-    integer(c_int) :: ga_d(3), ga(3)
+    integer(c_long) :: ga_d(3), ga(3)
     integer(c_long) :: gp
     real(c_double) :: buf(6000)
     real(c_double) :: rec_lattice(3, 3)
-    integer(c_int) :: relative_grid_addresses(3, 4, 24)
-    integer(c_int) :: mesh(3), shift(3)
-    integer(c_int), allocatable :: grid_address(:, :)
-    integer(c_int) :: tetrahedra_ga(3, 4, 24)
+    integer(c_long) :: relative_grid_addresses(3, 4, 24)
+    integer(c_long) :: mesh(3), shift(3)
+    integer(c_long), allocatable :: grid_address(:, :)
+    integer(c_long) :: tetrahedra_ga(3, 4, 24)
     integer(c_long) :: tetrahedra_gps(4, 24)
     real(c_double) :: tetrahedra_freqs(4, 24)
     real(c_double), allocatable :: freq_points(:), dos(:), acc(:)
@@ -209,7 +209,7 @@ module kspclib_example
     use kspclib_f08, only: ksp_get_snf3x3
 
     integer(c_long) :: A(3, 3)
-    integer(c_int) :: succeeded
+    integer(c_long) :: succeeded
     integer(c_long) :: D_diag(3), D_diag_ref(3), P_ref(3, 3), Q_ref(3, 3), P(3, 3), Q(3, 3)
 
     A(:, :) = reshape([0, 5, 5, 5, 0, 5, 2, 2, 0], [3, 3])
@@ -240,7 +240,7 @@ module kspclib_example
     integer :: i, j, k
     integer(c_long) :: transformed_rots(3, 3, 16), transformed_rots_ret(3, 3, 16)
     integer(c_long) :: rotations(3, 3, 16)
-    integer(c_int) :: num_rot, succeeded
+    integer(c_long) :: num_rot, succeeded
     integer(c_long) :: D_diag(3)
     integer(c_long) :: Q(3, 3)
 
@@ -457,7 +457,7 @@ module kspclib_example
 
     integer(c_long), allocatable :: ir_grid_indices(:), ir_grid_indices_ref(:)
     integer(c_long) :: rotations(3, 3, 16)
-    integer(c_int) :: num_rot
+    integer(c_long) :: num_rot
     integer(c_long) :: D_diag(3), PS(3), shift(3)
     integer(c_long) :: P(3, 3)
     integer :: i
@@ -525,6 +525,8 @@ module kspclib_example
     integer(c_long) :: rotations_tipn3(3, 3, 4)
     integer(c_long) :: rotations_tio2(3, 3, 16)
     integer(c_long) :: rec_rotations(3, 3, 48)
+    integer(c_long) :: num_rot
+    integer(c_long) :: is_time_reversal = 1
     integer :: num_rot_ret, i
 
     rotations_tipn3(:, :, :) = reshape( &
@@ -532,13 +534,14 @@ module kspclib_example
          -1, 0, 0, 0, 0, 1, 0, 1, 0, &
          -1, 0, 0, 0, 1, 0, 0, 0, 1, &
          1, 0, 0, 0, 0, 1, 0, 1, 0], [3, 3, 4])
+    num_rot = 4
     num_rot_ret = ksp_get_reciprocal_point_group(rec_rotations, &
-         rotations_tipn3, 4, 1)
+         rotations_tipn3, num_rot, is_time_reversal)
 
     print '("[ksp_get_reciprocal_point_group]")'
     print *, ""
     print '("TiPN3 rotations in direct space")'
-    do i = 1, 4
+    do i = 1, num_rot
        print '(9i3)', rotations_tipn3(:, :, i)
     end do
     print '("TiPN3 rotations in reciprocal space (is_time_reversal=1)")'
@@ -564,11 +567,12 @@ module kspclib_example
          0, 1, 0, 1, 0, 0, 0, 0, 1, &
          0, 1, -1, 0, 1, 0, -1, 1, 0, &
          1, 0, -1, 0, 1, -1, 0, 0, -1], [3, 3, 16])
+    num_rot = 16
     num_rot_ret = ksp_get_reciprocal_point_group(rec_rotations, &
-         rotations_tio2, 16, 1)
+         rotations_tio2, num_rot, is_time_reversal)
 
     print '("TiO2 (anatase) rotations in direct space")'
-    do i = 1, 16
+    do i = 1, num_rot
        print '(9i3)', rotations_tio2(:, :, i)
     end do
     print '("TiO2 (anatase) rotations in reciprocal space (is_time_reversal=1)")'

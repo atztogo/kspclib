@@ -47,18 +47,18 @@ def get_all_grid_addresses(mesh):
     ----------
     mesh : array_like
         Conventional regular mesh for grid sampling.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
 
     Returns
     -------
     grid_address : ndarray
         Grid addresses of all grid points corresponding to input mesh.
-        shape=(all_grid_points, 3), dtype='intc'
+        shape=(all_grid_points, 3), dtype='int_'
 
     """
 
-    grid_address = np.zeros((np.prod(mesh), 3), dtype='intc', order='C')
-    ksp.all_grid_addresses(grid_address, np.array(mesh, dtype='intc'))
+    grid_address = np.zeros((np.prod(mesh), 3), dtype='int_', order='C')
+    ksp.all_grid_addresses(grid_address, np.array(mesh, dtype='int_'))
     return grid_address
 
 
@@ -72,31 +72,31 @@ def get_double_grid_address(address, mesh, shift=None):
     ----------
     address : array_like
         Grid address.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
     mesh : array_like
         Conventional regular mesh for grid sampling.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
     shift : array_like, optional
         Half grid shift for conventional regular mesh along reciprocal basis
         vector directions. 0 and 1 mean no shift and half shift, recpectively.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
 
     Returns
     -------
     address_double : ndarray
         Double-grid address.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
 
     """
 
-    address_double = np.zeros(3, dtype='intc', order='C')
+    address_double = np.zeros(3, dtype='int_', order='C')
     if shift is None:
-        _shift = np.zeros(3, dtype='intc', order='C')
+        _shift = np.zeros(3, dtype='int_', order='C')
     else:
-        _shift = np.array(shift, dtype='intc')
+        _shift = np.array(shift, dtype='int_')
     ksp.double_grid_address(address_double,
-                            np.array(address, dtype='intc'),
-                            np.array(mesh, dtype='intc'),
+                            np.array(address, dtype='int_'),
+                            np.array(mesh, dtype='int_'),
                             _shift)
     return address_double
 
@@ -108,10 +108,10 @@ def get_double_grid_index(address_double, mesh):
     ----------
     address_double : array_like
         Double-grid address.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
     mesh : array_like
         Conventional regular mesh for grid sampling.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
 
     Returns
     -------
@@ -119,8 +119,8 @@ def get_double_grid_index(address_double, mesh):
         Grid point index.
 
     """
-    return ksp.double_grid_index(np.array(address_double, dtype='intc'),
-                                 np.array(mesh, dtype='intc'))
+    return ksp.double_grid_index(np.array(address_double, dtype='int_'),
+                                 np.array(mesh, dtype='int_'))
 
 
 def get_thm_relative_grid_addresses(rec_lattice):
@@ -137,11 +137,11 @@ def get_thm_relative_grid_addresses(rec_lattice):
     relative_addresses : ndarray
        Grid address shifts corresponding to 24 tetrahedra surrounding
        a grid point for conventional regular grid.
-       shape=(24, 4, 3), dtype='intc', order='C'
+       shape=(24, 4, 3), dtype='int_', order='C'
 
     """
 
-    relative_addresses = np.zeros((24, 4, 3), dtype='intc', order='C')
+    relative_addresses = np.zeros((24, 4, 3), dtype='int_', order='C')
     ksp.thm_relative_grid_addresses(
         relative_addresses,
         np.array(rec_lattice, dtype='double', order='C'))
@@ -325,7 +325,7 @@ def get_double_grgrid_address(address, D_diag, PS=None):
     -------
     address_double : ndarray
         Double-grid address.
-        shape=(3,), dtype='intc'
+        shape=(3,), dtype='int_'
 
     """
 
@@ -515,30 +515,6 @@ def get_ir_grgrid_map(rotations, D_diag, PS=None):
                       _PS)
 
     return ir_grid_mapping_table
-
-
-# def niggli_reduce(lattice, eps=1e-5):
-#     """Perform Niggli reduction
-
-#     Parameters
-#     ----------
-#     lattice : array_like
-#         Basis vectors in column vectors.
-#         shape=(3,3), dtype='double', order='C'
-#     eps : float, optional
-#         Tolerance parameter. Default is 1e-5.
-
-#     """
-
-#     red_lattice = np.zeros((3, 3), dtype='double', order='C')
-#     succeeded = ksp.niggli_reduce(red_lattice,
-#                                   np.array(lattice, dtype='double', order='C'),
-#                                   float(eps))
-#     if succeeded:
-#         return red_lattice
-#     else:
-#         msg = "Niggli reduction failed."
-#         raise RuntimeError(msg)
 
 
 def get_reciprocal_point_group(rotations, is_time_reversal=True):

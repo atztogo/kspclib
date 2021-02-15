@@ -41,9 +41,9 @@
 
 #include <stddef.h>
 
-void thm_get_relative_grid_address(int relative_grid_address[24][4][3],
+void thm_get_relative_grid_address(long relative_grid_address[24][4][3],
                                    THMCONST double rec_lattice[3][3]);
-void thm_get_all_relative_grid_address(int relative_grid_address[4][24][4][3]);
+void thm_get_all_relative_grid_address(long relative_grid_address[4][24][4][3]);
 double thm_get_integration_weight(const double omega,
                                   THMCONST double tetrahedra_omegas[24][4],
                                   const char function);
