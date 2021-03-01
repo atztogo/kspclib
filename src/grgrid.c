@@ -65,25 +65,25 @@ static long rotate_grid_index(const long grid_index,
                               const long PS[3]);
 static void get_ir_grid_map(long ir_grid_indices[],
                             MATCONST long (*rotations)[3][3],
-                            const int num_rot,
+                            const long num_rot,
                             const long D_diag[3],
                             const long PS[3]);
 static long mat_get_determinant_l3(MATCONST long a[3][3]);
 static double mat_get_determinant_d3(MATCONST double a[3][3]);
 static void mat_cast_matrix_3l_to_3d(double m[3][3], MATCONST long a[3][3]);
 static void mat_cast_matrix_3d_to_3l(long m[3][3], MATCONST double a[3][3]);
-static int mat_get_similar_matrix_ld3(double m[3][3],
-                                      MATCONST long a[3][3],
-                                      MATCONST double b[3][3],
-                                      const double precision);
-static int mat_check_identity_matrix_l3(MATCONST long a[3][3],
-                                        MATCONST long b[3][3]);
-static int mat_check_identity_matrix_ld3(MATCONST long a[3][3],
-                                         MATCONST double b[3][3],
-                                         const double symprec);
-static int mat_inverse_matrix_d3(double m[3][3],
-                                 MATCONST double a[3][3],
-                                 const double precision);
+static long mat_get_similar_matrix_ld3(double m[3][3],
+                                       MATCONST long a[3][3],
+                                       MATCONST double b[3][3],
+                                       const double precision);
+static long mat_check_identity_matrix_l3(MATCONST long a[3][3],
+                                         MATCONST long b[3][3]);
+static long mat_check_identity_matrix_ld3(MATCONST long a[3][3],
+                                          MATCONST double b[3][3],
+                                          const double symprec);
+static long mat_inverse_matrix_d3(double m[3][3],
+                                  MATCONST double a[3][3],
+                                  const double precision);
 static void mat_transpose_matrix_l3(long a[3][3], MATCONST long b[3][3]);
 static void mat_multiply_matrix_vector_l3(long v[3],
                                           MATCONST long a[3][3],
@@ -105,12 +105,12 @@ static long mat_Nint(const double a);
 static double mat_Dabs(const double a);
 
 
-int grg_get_snf3x3(long D_diag[3],
-                   long P[3][3],
-                   long Q[3][3],
-                   MATCONST long A[3][3])
+long grg_get_snf3x3(long D_diag[3],
+                    long P[3][3],
+                    long Q[3][3],
+                    MATCONST long A[3][3])
 {
-  int i, j, succeeded;
+  long i, j, succeeded;
   long D[3][3];
 
   succeeded = 0;
@@ -142,13 +142,13 @@ err:
 /*    Defined as q' = Rq where q is in the reciprocal primitive basis */
 /*    vectors. */
 /* num_rot : Number of rotations */
-int grg_transform_rotations(long (*transformed_rots)[3][3],
-                            MATCONST long (*rotations)[3][3],
-                            const int num_rot,
-                            const long D_diag[3],
-                            MATCONST long Q[3][3])
+long grg_transform_rotations(long (*transformed_rots)[3][3],
+                             MATCONST long (*rotations)[3][3],
+                             const long num_rot,
+                             const long D_diag[3],
+                             MATCONST long Q[3][3])
 {
-  int i, j, k;
+  long i, j, k;
   double r[3][3], Q_double[3][3];
 
   /* Compute D(Q^-1)RQ(D^-1) by three steps */
@@ -273,7 +273,7 @@ long grg_rotate_grid_index(const long grid_index,
 /* -----------------------------*/
 void grg_get_ir_grid_map(long ir_grid_indices[],
                          MATCONST long (*rotations)[3][3],
-                         const int num_rot,
+                         const long num_rot,
                          const long D_diag[3],
                          const long PS[3])
 {
@@ -288,12 +288,12 @@ void grg_get_ir_grid_map(long ir_grid_indices[],
 /* When is_time_reversal == 1, inverse of the extracted matrices are */
 /* included. */
 /* Return 0 if failed */
-int grg_get_reciprocal_point_group(long rec_rotations[48][3][3],
-                                   MATCONST long (*rotations)[3][3],
-                                   const int num_rot,
-                                   const int is_time_reversal)
+long grg_get_reciprocal_point_group(long rec_rotations[48][3][3],
+                                    MATCONST long (*rotations)[3][3],
+                                    const long num_rot,
+                                    const long is_time_reversal)
 {
-  int i, j, num_rot_ret, inv_exist;
+  long i, j, num_rot_ret, inv_exist;
   MATCONST long inversion[3][3] = {
     {-1, 0, 0 },
     { 0,-1, 0 },
@@ -350,7 +350,7 @@ err:
 
 static void reduce_grid_address(long address[3], const long D_diag[3])
 {
-  int i;
+  long i;
 
   for (i = 0; i < 3; i++) {
     address[i] = mat_modulo_l(address[i], D_diag[i]);
@@ -360,7 +360,7 @@ static void reduce_grid_address(long address[3], const long D_diag[3])
 static void reduce_double_grid_address(long address_double[3],
                                        const long D_diag[3])
 {
-  int i;
+  long i;
 
   for (i = 0; i < 3; i++) {
     address_double[i] = mat_modulo_l(address_double[i], 2 * D_diag[i]);
@@ -441,7 +441,7 @@ static void get_grid_address(long address[3],
                              const long address_double[3],
                              const long PS[3])
 {
-  int i;
+  long i;
 
   for (i = 0; i < 3; i++) {
     address[i] = (address_double[i] - PS[i]) / 2;
@@ -454,7 +454,7 @@ static void get_double_grid_address(long address_double[3],
                                     const long address[3],
                                     const long PS[3])
 {
-  int i;
+  long i;
 
   for (i = 0; i < 3; i++) {
     address_double[i] = address[i] * 2 + PS[i];
@@ -476,12 +476,12 @@ static long rotate_grid_index(const long grid_index,
 
 static void get_ir_grid_map(long ir_grid_indices[],
                             MATCONST long (*rotations)[3][3],
-                            const int num_rot,
+                            const long num_rot,
                             const long D_diag[3],
                             const long PS[3])
 {
   long gp, num_gp, r_gp;
-  int i;
+  long i;
 
   num_gp = D_diag[0] * D_diag[1] * D_diag[2];
 
@@ -546,10 +546,10 @@ static void mat_cast_matrix_3d_to_3l(long m[3][3], MATCONST double a[3][3])
   m[2][2] = mat_Nint(a[2][2]);
 }
 
-static int mat_get_similar_matrix_ld3(double m[3][3],
-                                      MATCONST long a[3][3],
-                                      MATCONST double b[3][3],
-                                      const double precision)
+static long mat_get_similar_matrix_ld3(double m[3][3],
+                                       MATCONST long a[3][3],
+                                       MATCONST double b[3][3],
+                                       const double precision)
 {
   double c[3][3];
   if (!mat_inverse_matrix_d3(c, b, precision)) {
@@ -561,8 +561,8 @@ static int mat_get_similar_matrix_ld3(double m[3][3],
   return 1;
 }
 
-static int mat_check_identity_matrix_l3(MATCONST long a[3][3],
-                                        MATCONST long b[3][3])
+static long mat_check_identity_matrix_l3(MATCONST long a[3][3],
+                                         MATCONST long b[3][3])
 {
   if (a[0][0] - b[0][0] ||
       a[0][1] - b[0][1] ||
@@ -580,19 +580,19 @@ static int mat_check_identity_matrix_l3(MATCONST long a[3][3],
   }
 }
 
-static int mat_check_identity_matrix_ld3(MATCONST long a[3][3],
-                                         MATCONST double b[3][3],
-                                         const double symprec)
+static long mat_check_identity_matrix_ld3(MATCONST long a[3][3],
+                                          MATCONST double b[3][3],
+                                          const double symprec)
 {
   if (mat_Dabs(a[0][0] - b[0][0]) > symprec ||
-       mat_Dabs(a[0][1] - b[0][1]) > symprec ||
-       mat_Dabs(a[0][2] - b[0][2]) > symprec ||
-       mat_Dabs(a[1][0] - b[1][0]) > symprec ||
-       mat_Dabs(a[1][1] - b[1][1]) > symprec ||
-       mat_Dabs(a[1][2] - b[1][2]) > symprec ||
-       mat_Dabs(a[2][0] - b[2][0]) > symprec ||
-       mat_Dabs(a[2][1] - b[2][1]) > symprec ||
-       mat_Dabs(a[2][2] - b[2][2]) > symprec) {
+      mat_Dabs(a[0][1] - b[0][1]) > symprec ||
+      mat_Dabs(a[0][2] - b[0][2]) > symprec ||
+      mat_Dabs(a[1][0] - b[1][0]) > symprec ||
+      mat_Dabs(a[1][1] - b[1][1]) > symprec ||
+      mat_Dabs(a[1][2] - b[1][2]) > symprec ||
+      mat_Dabs(a[2][0] - b[2][0]) > symprec ||
+      mat_Dabs(a[2][1] - b[2][1]) > symprec ||
+      mat_Dabs(a[2][2] - b[2][2]) > symprec) {
     return 0;
   }
   else {
@@ -600,9 +600,9 @@ static int mat_check_identity_matrix_ld3(MATCONST long a[3][3],
   }
 }
 
-static int mat_inverse_matrix_d3(double m[3][3],
-                                 MATCONST double a[3][3],
-                                 const double precision)
+static long mat_inverse_matrix_d3(double m[3][3],
+                                  MATCONST double a[3][3],
+                                  const double precision)
 {
   double det;
   double c[3][3];
@@ -658,7 +658,7 @@ static void mat_multiply_matrix_l3(long m[3][3],
                                    MATCONST long a[3][3],
                                    MATCONST long b[3][3])
 {
-  int i, j;                   /* a_ij */
+  long i, j;                   /* a_ij */
   long c[3][3];
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -673,7 +673,7 @@ static void mat_multiply_matrix_ld3(double m[3][3],
                                     MATCONST long a[3][3],
                                     MATCONST double b[3][3])
 {
-  int i, j;                   /* a_ij */
+  long i, j;                   /* a_ij */
   double c[3][3];
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -688,7 +688,7 @@ static void mat_multiply_matrix_d3(double m[3][3],
                                    MATCONST double a[3][3],
                                    MATCONST double b[3][3])
 {
-  int i, j;                   /* a_ij */
+  long i, j;                   /* a_ij */
   double c[3][3];
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -734,7 +734,7 @@ static void mat_copy_vector_l3(long a[3], const long b[3])
 
 static long mat_modulo_l(const long a, const long b)
 {
-  int c;
+  long c;
   c = a % b;
   if (c < 0) {
     c += b;
