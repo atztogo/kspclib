@@ -516,9 +516,9 @@ static PyObject * py_grgrid_address_from_index(PyObject *self, PyObject *args)
 
   long* address;
   long* D_diag;
-  Py_ssize_t grid_index;
+  long grid_index;
 
-  if (!PyArg_ParseTuple(args, "OnO",
+  if (!PyArg_ParseTuple(args, "OlO",
                         &py_address,
                         &grid_index,
                         &py_D_diag)) {
@@ -542,11 +542,11 @@ static PyObject * py_rotate_grgrid_index(PyObject *self, PyObject *args)
   long *D_diag;
   long (*rotation)[3];
   long *PS;
-  Py_ssize_t grid_index;
+  long grid_index;
   long rot_grid_index;
 
 
-  if (!PyArg_ParseTuple(args, "nOOO",
+  if (!PyArg_ParseTuple(args, "lOOO",
                         &grid_index,
                         &py_rotation,
                         &py_D_diag,
@@ -608,7 +608,7 @@ static PyObject * py_reciprocal_point_group(PyObject *self, PyObject *args)
   long (*rotations)[3][3];
   long num_rot, num_rot_ret;
 
-  if (!PyArg_ParseTuple(args, "OOi",
+  if (!PyArg_ParseTuple(args, "OOl",
                         &py_rec_rotations,
                         &py_rotations,
                         &is_time_reversal)) {
