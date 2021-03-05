@@ -31,6 +31,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 set(SOURCES
   ${PROJECT_SOURCE_DIR}/src/kspclib.c
   ${PROJECT_SOURCE_DIR}/src/grgrid.c
+  ${PROJECT_SOURCE_DIR}/src/lagrid.c
   ${PROJECT_SOURCE_DIR}/src/rgrid.c
   ${PROJECT_SOURCE_DIR}/src/snf3x3.c
   ${PROJECT_SOURCE_DIR}/src/tetrahedron_method.c)
