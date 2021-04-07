@@ -39,14 +39,13 @@ def test_get_thm_relative_grid_addresses_tio2(tio2_lattice):
 def test_get_thm_integration_weight_nacl(nacl_lattice,
                                          nacl_phonon_frequences_101010):
     dos_str_df_1 = """0 6.695122056070627165e-05 8.259314625201316929e-07
-1 8.911857347254222017e-02 2.553382929530613465e-02
-2 4.685384246034071665e-01 2.649562989742248464e-01
-3 1.697958549809626128e+00 1.362664683321239689e+00
-4 2.388574749472669012e+00 2.596688544653257491e+00
-5 3.892363708541792366e+00 4.946293094871299090e+00
-6 5.985385823393145621e-01 5.703047775018656118e+00
-7 6.634899679165588704e-02 5.991502313827999693e+00"""
-
+1 8.911857347254222017e-02 2.522323511872215027e-02
+2 4.685384246034071665e-01 2.630086572378442233e-01
+3 1.697958549809626128e+00 1.353336182540944232e+00
+4 2.388574749472669012e+00 2.587628545445126438e+00
+5 3.892363708541792366e+00 4.944242466208688569e+00
+6 5.985385823393145621e-01 5.700405664774345738e+00
+7 6.634899679165588704e-02 5.991230128112197129e+00"""
     dos_ref = np.fromstring(dos_str_df_1, sep=' ').reshape(-1, 3)
     freqs = nacl_phonon_frequences_101010
     mesh = [10, 10, 10]
@@ -71,8 +70,8 @@ def test_get_thm_integration_weight_nacl(nacl_lattice,
                     fpt, tetrahedra_freqs[:, :, j], function='J')
 
     dos_dat = np.array([fpoints, dos / num_gps, acc / num_gps]).T
-    np.testing.assert_allclose(dos_dat, dos_ref, atol=1e-5)
     # np.savetxt('dos.dat', dos_dat)
+    np.testing.assert_allclose(dos_dat, dos_ref, atol=1e-5)
 
 
 def test_get_thm_relative_grgrid_addresses_nacl():
@@ -101,18 +100,16 @@ def test_get_thm_relative_grgrid_addresses_nacl():
 def test_get_thm_integration_weight_tio2(tio2_lattice,
                                          tio2_phonon_frequences_grg):
 
-    dos_str_df_1 = """0.0 0.00000000 0.00000000
-2.5 0.33432705 0.22888315
-5.0 2.51042492 2.94515722
-7.5 0.85214354 5.32809578
-10.0 1.22209820 8.51697799
-12.5 1.36331347 10.72763736
-15.0 1.84840716 13.72854085
-17.5 0.25849856 14.98248161
-20.0 0.05704757 16.04840272
-22.5 0.40515558 16.44481785
-25.0 0.00814283 17.99947146"""
-
+    dos_str_df_1 = """2.5 0.33432705 0.22741990
+5.0 2.51042492 2.93972973
+7.5 0.85214354 5.31944265
+10.0 1.22209820 8.51003829
+12.5 1.36331347 10.72008644
+15.0 1.84840716 13.72386364
+17.5 0.25849856 14.97997129
+20.0 0.05704757 16.04711651
+22.5 0.40515558 16.44268108
+25.0 0.00814283 17.99943050"""
     dos_ref = np.fromstring(dos_str_df_1, sep=' ').reshape(-1, 3)
     freqs = tio2_phonon_frequences_grg
     grid_matrix = [[0, 11, 11],
@@ -146,9 +143,9 @@ def test_get_thm_integration_weight_tio2(tio2_lattice,
                     fpt, tetrahedra_freqs[:, :, j], function='J')
 
     dos_dat = np.array([fpoints, dos / num_gps, acc / num_gps]).T
-    np.testing.assert_allclose(dos_dat, dos_ref, atol=1e-5)
     # for line in dos_dat:
     #     print("%.1f %.8f %.8f" % tuple(line))
+    np.testing.assert_allclose(dos_dat, dos_ref, atol=1e-5)
 
 
 def _get_frequency_points(freqs, df=0.1):
